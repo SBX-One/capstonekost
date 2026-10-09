@@ -6,6 +6,15 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+// Seeder Imports
+use Database\Seeders\RoomSeeder;
+use Database\Seeders\RoomImagePathSeeder;
+use Database\Seeders\RoomTypeSeeder;
+use Database\Seeders\RoomFacilitySeeder;
+use Database\Seeders\FacilitySeeder;
+use Database\Seeders\RoomUtilitySeeder;
+use Database\Seeders\UtilitySeeder;
+
 class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
@@ -24,5 +33,15 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         User::factory()->count(5)->create();
+        
+        $this->call([
+            UtilitySeeder::class,
+            FacilitySeeder::class,
+            RoomTypeSeeder::class,
+            RoomSeeder::class,
+            RoomImagePathSeeder::class,
+            RoomFacilitySeeder::class,
+            RoomUtilitySeeder::class,
+        ]);
     }
 }
