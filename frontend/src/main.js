@@ -10,3 +10,9 @@ app.use(createPinia())
 app.use(router)
 
 app.mount('#app')
+
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted && !localStorage.getItem('auth_token')) {
+        window.location.replace('/login');
+    }
+});
