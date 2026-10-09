@@ -1,1 +1,140 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
+@import 'tailwindcss';
+
+body {
+    font-family: var(--font-sans);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-default);
+}
+
+@theme {
+    /* --- FONT FAMILY --- */
+    --font-sans: 'Manrope', sans-serif;
+
+    /* --- BASE NEUTRAL PALETTE --- */
+    --color-neutral-50: #ffffff;
+    --color-neutral-100: #f6f6f8;
+    --color-neutral-200: #f1f1f4;
+    --color-neutral-300: #dcdce2;
+    --color-neutral-400: #c5c5ce;
+    --color-neutral-500: #9b9ba6;
+    --color-neutral-600: #6b6b75;
+    --color-neutral-700: #5b5b67;
+    --color-neutral-800: #43434c;
+    --color-neutral-900: #101010;
+
+    /* --- ACTION COLORS --- */
+    --color-action-primary: var(--color-neutral-900);
+    --color-action-primary-hover: var(--color-neutral-800);
+    --color-action-primary-pressed: var(--color-neutral-700);
+
+    --color-action-secondary: var(--color-neutral-100);
+    --color-action-secondary-hover: var(--color-neutral-200);
+    --color-action-secondary-pressed: var(--color-neutral-300);
+
+    --color-action-destructive: #dc2626;
+    --color-action-destructive-hover: #b91c1c;
+    --color-action-destructive-pressed: #991b1b;
+
+    --color-action-disabled: var(--color-neutral-300);
+
+    /* --- TEXT COLORS --- */
+    --color-text-primary: var(--color-neutral-900);
+    --color-text-secondary: var(--color-neutral-600);
+    --color-text-disabled: var(--color-neutral-500);
+    --color-text-inverse: var(--color-neutral-50);
+
+    /* --- BACKGROUND & SURFACE --- */
+    --color-bg-default: var(--color-neutral-50);
+    --color-surface-default: var(--color-neutral-100);
+
+    /* --- BORDER COLORS --- */
+    --color-border-default: var(--color-neutral-300);
+    --color-border-focus: var(--color-neutral-900);
+
+    /* --- STATUS COLORS --- */
+    --color-status-success: #16a34a;
+    --color-status-success-bg: #dcfce7;
+
+    --color-status-pending: #f59e0b;
+    --color-status-pending-bg: #fef3c7;
+
+    --color-status-error: #dc2626;
+    --color-status-error-bg: #fee2e2;
+
+    --color-status-destructive: #dc2626;
+
+    /* --- RADIUS & SHADOW --- */
+    --radius-default: 8px;
+    --shadow-default: 0px 4px 16px 0px rgba(0, 0, 0, 0.08);
+
+    /* --- SPACING TOKENS --- */
+    --spacing-50: 4px;
+    --spacing-100: 8px;
+    --spacing-200: 12px;
+    --spacing-300: 16px;
+    --spacing-400: 24px;
+    --spacing-500: 32px;
+    --spacing-600: 40px;
+    --spacing-700: 48px;
+    --spacing-800: 56px;
+    --spacing-900: 64px;
+    --spacing-950: 72px;
+    --spacing-1000: 80px;
+    --spacing-1100: 96px;
+    --spacing-1200: 104px;
+}
+
+/* --- TYPOGRAPHY UTILITIES --- */
+@utility text-h1 {
+    font-size: 48px;
+    font-weight: 700;
+}
+@utility text-h2 {
+    font-size: 32px;
+    font-weight: 600;
+}
+@utility text-h3 {
+    font-size: 24px;
+    font-weight: 600;
+}
+@utility text-h4 {
+    font-size: 20px;
+    font-weight: 600;
+}
+@utility text-h5 {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+@utility text-body-lg {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 500;
+}
+@utility text-body-md {
+    font-size: 14px;
+    line-height: 24px;
+    font-weight: 500;
+}
+@utility text-body-sm {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+}
+
+@utility text-label-btn-lg {
+    font-size: 16px;
+    line-height: 20px;
+    font-weight: 600;
+}
+@utility text-label-btn-md {
+    font-size: 14px;
+    line-height: 24px;
+    font-weight: 600;
+}
+@utility text-label-badge {
+    font-size: 12px;
+    line-height: 24px;
+    font-weight: 600;
+}
