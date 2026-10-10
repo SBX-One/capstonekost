@@ -15,6 +15,9 @@ use App\Models\User;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
 
+// Resource Imports
+use App\Http\Resources\Api\V1\Auth\AuthRegisterResource;
+
 class AuthController extends Controller
 {
     public function register(RegisterRequest $request)
@@ -44,6 +47,8 @@ class AuthController extends Controller
 
         $token = Auth::tokenById($user->id);
 
-        
+        return (new AuthRegisterResource($token))
+               ->response()
+               ->setStatusCode(201);
     }
 }
