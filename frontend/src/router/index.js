@@ -10,7 +10,7 @@ const routes = [
     {
         path: '/register',
         name: 'register',
-        component: () => import('@/views/Register.vue')
+        component: () => import('@/views/auth/RegisterView.vue')
     },
     {
         path: '/admin/dashboard',
