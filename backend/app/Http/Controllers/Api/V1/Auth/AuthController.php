@@ -18,16 +18,14 @@ use libphonenumber\PhoneNumberUtil;
 // Resource Imports
 use App\Http\Resources\Api\V1\Auth\AuthRegisterResource;
 
+// Request Validation Imports
+use App\Http\Requests\Api\V1\Auth\AuthRegisterRequest;
+
 class AuthController extends Controller
 {
-    public function register(RegisterRequest $request)
+    public function register(AuthRegisterRequest $request)
     {
         $user = $request->validated();
-
-        $credentials = [
-            'email' => $user['email'],
-            'password' => $user['password']
-        ];
 
         $phoneNumberUtil = PhoneNumberUtil::getInstance();        
 
