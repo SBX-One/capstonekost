@@ -12,7 +12,8 @@ Route::post('/refresh', [AuthController::class, 'refresh'])->name('refresh');
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
-    Route::middleware('role:admin')->group(function () {
-
+    Route::prefix('/admin')
+         ->middleware('role:admin')->group(function () {
+    
     });
 });
