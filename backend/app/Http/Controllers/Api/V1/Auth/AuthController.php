@@ -93,4 +93,13 @@ class AuthController extends Controller
             ->response()
             ->setStatusCode(200);
     }
+
+    public function logout()
+    {
+        Auth::logout();
+
+        return response()->json([
+            'message' => 'Successfully logged out'
+        ]);
+    }
 }
