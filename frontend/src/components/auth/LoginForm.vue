@@ -2,6 +2,8 @@
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
+import { useLoginValidation } from '@/composables/useLoginValidation';
+import { sanitizeAuthPayload } from '@/utils/sanitizers';
 import BaseInput from '@/components/common/BaseInput.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
 
@@ -13,19 +15,26 @@ const form = reactive({
     password: '',
 });
 
+const { errors, validateField, validateAll, setErrors, clearErrors } = useLoginValidation();
+
 const showPassword = ref(false);
 const isLoading = ref(false);
 const errorMessage = ref('');
 
 const handleLogin = async () => {
     errorMessage.value = '';
-    isLoading.value = true;
+    clearErrors();
 
+    if (!validateAll(form)) return;
+
+    const payload = sanitizeAuthPayload({
+        email: form.email,
+        password: form.password,
+    });
+
+    isLoading.value = true;
     try {
-        await authStore.login({
-            email: form.email,
-            password: form.password,
-        });
+        await authStore.login(payload);
 
         if (authStore.userRole === 'admin') {
             router.push('/admin/dashboard');
@@ -33,7 +42,17 @@ const handleLogin = async () => {
             router.push('/tenant/dashboard');
         }
     } catch (err) {
-        errorMessage.value = err.response?.data?.message || 'Gagal masuk. Periksa kembali email dan password Anda.';
+        if (err.response?.status === 401) {
+            errorMessage.value = err.response?.data?.message || 'Invalid credentials.';
+        } else if (err.response?.status === 422 && err.response?.data?.errors) {
+            const apiErrors = err.response.data.errors;
+            setErrors({
+                email: apiErrors.email,
+                password: apiErrors.password,
+            });
+        } else {
+            errorMessage.value = err.response?.data?.message || 'An unexpected error occurred. Please try again.';
+        }
     } finally {
         isLoading.value = false;
     }
@@ -51,7 +70,18 @@ const handleLogin = async () => {
                 <span>{{ errorMessage }}</span>
             </div>
 
-            <BaseInput id="login-email" v-model="form.email" type="email" label="Email" placeholder="e.g. stipen@email.com" :disabled="isLoading" required />
+            <BaseInput
+                id="login-email"
+                v-model="form.email"
+                type="email"
+                label="Email"
+                placeholder="e.g. stipen@email.com"
+                :error="errors.email"
+                :disabled="isLoading"
+                @blur="validateField('email', form.email)"
+                @input="errors.email = ''"
+                required
+            />
 
             <BaseInput
                 id="login-password"
@@ -60,13 +90,12 @@ const handleLogin = async () => {
                 label="Password"
                 placeholder="Enter your password"
                 show-icon-right
+                :error="errors.password"
                 :disabled="isLoading"
+                @blur="validateField('password', form.password)"
+                @input="errors.password = ''"
                 required
             >
-                <template #label-action>
-                    <router-link to="/forgot-password" class="text-body-sm text-text-secondary hover:underline hover:text-text-primary focus:outline-none"> Forgot Password? </router-link>
-                </template>
-
                 <template #icon-right>
                     <button
                         type="button"

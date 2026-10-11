@@ -2,6 +2,8 @@
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
+import { useRegisterValidation } from '@/composables/useRegisterValidation';
+import { sanitizeAuthPayload } from '@/utils/sanitizers';
 import BaseInput from '@/components/common/BaseInput.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
 
@@ -15,25 +17,41 @@ const form = reactive({
     password: '',
 });
 
+const { errors, validateField, validateAll, setErrors, clearErrors } = useRegisterValidation();
+
 const showPassword = ref(false);
 const isLoading = ref(false);
 const errorMessage = ref('');
 
 const handleRegister = async () => {
     errorMessage.value = '';
+    clearErrors();
+
+    if (!validateAll(form)) return;
+
+    const payload = sanitizeAuthPayload({
+        name: form.fullName,
+        email: form.email,
+        phone: form.phoneNumber,
+        password: form.password,
+    });
+
     isLoading.value = true;
-
     try {
-        await authStore.register({
-            name: form.fullName,
-            email: form.email,
-            phone: form.phoneNumber,
-            password: form.password,
-        });
-
+        await authStore.register(payload);
         router.push('/tenant/dashboard');
     } catch (err) {
-        errorMessage.value = err.response?.data?.message || 'Gagal mendaftarkan akun. Silakan coba beberapa saat lagi.';
+        if (err.response?.status === 422 && err.response?.data?.errors) {
+            const apiErrors = err.response.data.errors;
+            setErrors({
+                fullName: apiErrors.name,
+                email: apiErrors.email,
+                phoneNumber: apiErrors.phone || apiErrors.phone_number,
+                password: apiErrors.password,
+            });
+        } else {
+            errorMessage.value = err.response?.data?.message || 'An unexpected error occurred. Please try again.';
+        }
     } finally {
         isLoading.value = false;
     }
@@ -51,11 +69,44 @@ const handleRegister = async () => {
                 <span>{{ errorMessage }}</span>
             </div>
 
-            <BaseInput id="register-fullname" v-model="form.fullName" type="text" label="Full Name" placeholder="e.g. Stipen Bieber" :disabled="isLoading" required />
+            <BaseInput
+                id="register-fullname"
+                v-model="form.fullName"
+                type="text"
+                label="Full Name"
+                placeholder="e.g. Stipen Bieber"
+                :error="errors.fullName"
+                :disabled="isLoading"
+                @blur="validateField('fullName', form.fullName)"
+                @input="errors.fullName = ''"
+                required
+            />
 
-            <BaseInput id="register-email" v-model="form.email" type="email" label="Email" placeholder="e.g. stipen@email.com" :disabled="isLoading" required />
+            <BaseInput
+                id="register-email"
+                v-model="form.email"
+                type="email"
+                label="Email"
+                placeholder="e.g. stipen@email.com"
+                :error="errors.email"
+                :disabled="isLoading"
+                @blur="validateField('email', form.email)"
+                @input="errors.email = ''"
+                required
+            />
 
-            <BaseInput id="register-phone" v-model="form.phoneNumber" type="tel" label="Phone Number" placeholder="e.g. 0812 3456 7890" :disabled="isLoading" required />
+            <BaseInput
+                id="register-phone"
+                v-model="form.phoneNumber"
+                type="tel"
+                label="Phone Number"
+                placeholder="e.g. 0812 3456 7890"
+                :error="errors.phoneNumber"
+                :disabled="isLoading"
+                @blur="validateField('phoneNumber', form.phoneNumber)"
+                @input="errors.phoneNumber = ''"
+                required
+            />
 
             <BaseInput
                 id="register-password"
@@ -64,7 +115,10 @@ const handleRegister = async () => {
                 label="Password"
                 placeholder="Enter your password"
                 show-icon-right
+                :error="errors.password"
                 :disabled="isLoading"
+                @blur="validateField('password', form.password)"
+                @input="errors.password = ''"
                 required
             >
                 <template #icon-right>
