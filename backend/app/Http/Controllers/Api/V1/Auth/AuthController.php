@@ -18,6 +18,7 @@ use libphonenumber\PhoneNumberUtil;
 // Resource Imports
 use App\Http\Resources\Api\V1\Auth\AuthRegisterResource;
 use App\Http\Resources\Api\V1\Auth\AuthLoginResource;
+use App\Http\Resources\Api\V1\Auth\AuthRefreshResource;
 
 // Request Validation Imports
 use App\Http\Requests\Api\V1\Auth\AuthRegisterRequest;
@@ -80,6 +81,16 @@ class AuthController extends Controller
             ]))
             ->response()
             ->setStatusCode(200);
-        
+    }
+
+    public function refresh()
+    {
+        $token = Auth::refresh();
+
+        return (new AuthRefreshResource([
+                'token' => $token,
+            ]))
+            ->response()
+            ->setStatusCode(200);
     }
 }
