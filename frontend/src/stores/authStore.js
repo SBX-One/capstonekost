@@ -21,15 +21,14 @@ export const useAuthStore = defineStore('auth', () => {
 
     async function register(payload) {
         const response = await apiClient.post('/register', payload)
-        if (response.data.token) {
-            setToken(response.data.token)
-        }
+        if (response.data.accessToken) setToken(response.data.accessToken)
+        if (response.data.user) setUser(response.data.user)
         return response.data
     }
 
     async function login(credentials) {
         const response = await apiClient.post('/login', credentials)
-        if (response.data.token) setToken(response.data.token)
+        if (response.data.accessToken) setToken(response.data.accessToken)
         if (response.data.user) setUser(response.data.user)
         return response.data
     }
