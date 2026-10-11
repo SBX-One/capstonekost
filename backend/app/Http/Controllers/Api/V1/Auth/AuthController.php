@@ -80,5 +80,6 @@ class AuthController extends Controller
             ]))
             ->response()
             ->setStatusCode(200);
+        
     }
 }
