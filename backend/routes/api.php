@@ -13,7 +13,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
     Route::prefix('/admin')
-         ->middleware('role:admin')->group(function () {
-    
+        ->middleware('role:admin')->group(function () {
+            Route::post('/create', [RoomController::class, 'create'])->name('create');
     });
 });
