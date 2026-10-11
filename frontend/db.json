@@ -1,0 +1,12 @@
+{
+    "users": [
+        {
+            "id": 1,
+            "name": "Admin Kosanmu",
+            "email": "admin@kosanmu.com",
+            "phone": "081234567890",
+            "password": "password123",
+            "role": "admin"
+        }
+    ]
+}
