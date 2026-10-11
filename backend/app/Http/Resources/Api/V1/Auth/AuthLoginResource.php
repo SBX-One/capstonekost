@@ -16,7 +16,7 @@ class AuthLoginResource extends JsonResource
     {
         return [
             'message' => "Logged in successfully.",
-            'token' => $this->resource['token']
+            'token' => 'bearer' . ' ' . $this->resource['token']
         ];
     }
 }

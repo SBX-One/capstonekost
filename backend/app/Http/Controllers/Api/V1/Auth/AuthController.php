@@ -17,9 +17,11 @@ use libphonenumber\PhoneNumberUtil;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Auth\AuthRegisterResource;
+use App\Http\Resources\Api\V1\Auth\AuthLoginResource;
 
 // Request Validation Imports
 use App\Http\Requests\Api\V1\Auth\AuthRegisterRequest;
+use App\Http\Requests\Api\V1\Auth\AuthLoginRequest;
 
 class AuthController extends Controller
 {
@@ -61,5 +63,22 @@ class AuthController extends Controller
             ]))
             ->response()
             ->setStatusCode(201);
+    }
+
+    public function login(AuthLoginRequest $request)
+    {
+        $credentials = $request->validated();
+
+        if (!$token = Auth::attempt($credentials)) {
+            return response()->json([
+                'message' => 'Invalid credentials.'
+            ], 401);
+        }
+
+        return (new AuthLoginResource([
+                'token' => $token,
+            ]))
+            ->response()
+            ->setStatusCode(200);
     }
 }
