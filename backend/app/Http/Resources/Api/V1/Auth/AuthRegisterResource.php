@@ -16,7 +16,7 @@ class AuthRegisterResource extends JsonResource
     {
         return [
             'message' => 'Account succesfully created',
-            'token' => $this->resource
+            'token' => $this->resource['token'],
         ];
     }
 }
