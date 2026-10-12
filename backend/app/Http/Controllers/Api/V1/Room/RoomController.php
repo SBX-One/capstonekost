@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 // Resource Imports
-use App\Http\Resources\Api\V1\Room\RoomCreateResource;
+use App\Http\Resources\Api\V1\Admin\Room\RoomCreateResource;
 use App\Http\Resources\Api\V1\Admin\Room\RoomIndexResource;
 
 // Request Imports
