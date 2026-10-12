@@ -32,6 +32,14 @@ class RoomController extends Controller
         $room->facilities()->attach($roomData['facilities']);
         $room->utilities()->attach([1, 2]);
 
+        foreach ($request->file('images') as $image) {
+            $path = $image->store('images', 'public');
+
+            $room->imagePaths()->create([
+                    'image_path' =>  $path
+                ]);
+        }
+
         return (new RoomCreateResource([
                 'room' => $room
             ]))
