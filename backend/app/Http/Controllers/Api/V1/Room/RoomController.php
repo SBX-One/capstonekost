@@ -7,9 +7,11 @@ use Illuminate\Http\Request;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Room\RoomCreateResource;
+use App\Http\Resources\Api\V1\Admin\Room\RoomIndexResource;
 
 // Request Imports
 use App\Http\Requests\Api\V1\Admin\Room\RoomCreateRequest;
+use App\Http\Requests\Api\V1\Admin\Room\RoomIndexRequest;
 
 // Model Imports
 use App\Models\Room;
@@ -47,5 +49,48 @@ class RoomController extends Controller
             ->setStatusCode(201);
     }
 
-    
+    public function index(RoomIndexRequest $request) 
+    {
+        $requestQuery = $request->validated();
+
+        $rooms = Room::query()
+            ->when(
+                isset($requestQuery['min_price'], $requestQuery['max_price']),
+                function ($query) use ($requestQuery) {
+                    $query->whereBetween('price', [
+                        $requestQuery['min_price'],
+                        $requestQuery['max_price'],
+                    ]);
+                }
+            )
+            ->when(
+                isset($requestQuery['room_type']),
+                function ($query) use ($requestQuery) {
+                    $query->where('room_type', $requestQuery['room_type']);
+                }
+            )
+            ->when(
+                isset($requestQuery['floor']),
+                function ($query) use ($requestQuery) {
+                    $query->where('floor', $requestQuery['floor']);
+                }
+            )
+            ->when(
+                isset($requestQuery['status']),
+                function ($query) use ($requestQuery) {
+                    $query->where('status', $requestQuery['status']);
+                }
+            )
+            ->paginate(9);
+
+        $rooms->load('roomType');
+        $rooms->load('facilities');
+        $rooms->load('utilities');
+        $rooms->load('imagePaths');
+
+        return RoomIndexResource::collection($rooms)
+               ->additional([
+                   'message' => 'Successfully fetched data.',
+               ]);
+    }
 }

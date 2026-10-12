@@ -16,5 +16,6 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('/admin')
         ->middleware('role:admin')->group(function () {
             Route::post('/create', [RoomController::class, 'create'])->name('create');
+            Route::get('/rooms', [RoomController::class, 'index'])->name('index');
     });
 });

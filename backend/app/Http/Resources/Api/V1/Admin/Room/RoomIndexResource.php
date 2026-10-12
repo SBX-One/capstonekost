@@ -15,16 +15,31 @@ class RoomIndexResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'message' => 'Successfully fetched data.',
-            'data' => [
-                $this->resource['rooms']
+            'id' => $this->resource['id'],
+            'name' => $this->resource['name'],
+            'room_type' => [
+                'id' => $this->resource['room_type_id'],
+                'name' => $this->resource->roomType['name']
             ],
-            'meta' => [
-                'current_page' => $this->resource['current_page'],
-                'per_page' => $this->resource['per_page'],
-                'total' => $this->resource['total'],
-                'last_page' => $this->resource['last_page']
-            ]
+            'price' => $this->resource['price'],
+            'floor' => $this->resource['floor'],
+            'status' => $this->resource['status'],
+            'description' => $this->resource['description'],
+            'rules' => $this->resource['rules'],
+            'facilities' => $this->resource->facilities->map(fn ($facility) => [
+                'id' => $facility->id,
+                'name' => $facility->name,
+                'information' => $facility->information,
+            ]),
+            'utilities' => $this->resource->utilities->map(fn ($utility) => [
+                'id' => $utility->id,
+                'name' => $utility->name,
+                'information' => $utility->information,
+            ]),
+            'image_paths' => $this->resource->imagePaths->map(fn ($image) => [
+                'id' => $image->id,
+                'path' => $image->image_path
+            ])
         ];
     }
 }
