@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('price')->nullable(false);
             $table->smallInteger('floor')->nullable(false);
             $table->enum('status', ['available', 'occupied'])->default('available');
+            $table->text('overview')->nullable(false);
             $table->text('description')->nullable(false);
             $table->text('rules')->nullable(false);
             $table->timestamps();
