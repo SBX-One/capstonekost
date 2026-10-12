@@ -14,8 +14,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
     Route::prefix('/admin')
-        ->middleware('role:admin')->group(function () {
+        ->middleware('role:admin')
+        ->name('admin.')->group(function () {
             Route::post('/create', [RoomController::class, 'create'])->name('create');
             Route::get('/rooms', [RoomController::class, 'index'])->name('index');
+            Route::get('/rooms/{id}', [RoomController::class, 'show'])->name('show');
     });
 });
