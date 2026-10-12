@@ -14,7 +14,7 @@ class AuthMiddleware
      *
      * @param  Closure(Request): (Response)  $next
      */
-    public function handle(Request $request, Closure $next, ...$role): Response
+    public function handle(Request $request, Closure $next, string $role): Response
     {
         $user = Auth::user();
 
