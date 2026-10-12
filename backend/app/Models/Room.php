@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 
-#[Fillable(['name', 'room_type_id', 'price', 'floor', 'status', 'description', 'rules'])]
+#[Fillable(['name', 'room_type_id', 'price', 'floor', 'status', 'overview', 'description', 'rules'])]
 class Room extends Model
 {
     /** @use HasFactory<\Database\Factories\RoomFactory> */
