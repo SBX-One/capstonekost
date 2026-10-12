@@ -66,9 +66,12 @@ class RoomCreateRequest extends FormRequest
             'price.integer' => 'Price must be an integer',
             'price.min' => 'Price cannot be negative',
 
-            'fasilitas.array' => 'Facilities must be an array',
-            'fasilitas.*.integer' => 'Each facility ID must be an integer',
-            'fasilitas.*.exists' => 'One or more selected facilities are invalid',
+            'facilities.array' => 'Facilities must be an array',
+            'facilities.*.integer' => 'Each facility ID must be an integer',
+            'facilities.*.exists' => 'One or more selected facilities are invalid',
+
+            'overview.required' => 'Overview is required',
+            'overview.string' => 'Overview must be a string',
 
             'description.required' => 'Description is required',
             'description.string' => 'Description must be a string',
