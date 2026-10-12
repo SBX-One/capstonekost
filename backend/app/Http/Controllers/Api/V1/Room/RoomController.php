@@ -41,7 +41,7 @@ class RoomController extends Controller
 
             $room->imagePaths()->create([
                     'image_path' =>  $path,
-                    'sort_by' => $sortOrder
+                    'sort_order' => $sortOrder
                 ]);
 
             $sortOrder++;
