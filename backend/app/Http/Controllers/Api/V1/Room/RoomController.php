@@ -28,6 +28,7 @@ class RoomController extends Controller
                         'room_type_id' => $roomData['room_type'],
                         'price' => $roomData['price'],
                         'floor' => $roomData['floor'],
+                        'overview' => $roomData['overview'],
                         'description' => $roomData['description'],
                         'rules' => $roomData['rules']
                     ]);

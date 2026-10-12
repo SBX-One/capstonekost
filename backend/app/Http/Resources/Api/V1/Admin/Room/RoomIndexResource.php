@@ -24,6 +24,7 @@ class RoomIndexResource extends JsonResource
             'price' => $this->resource['price'],
             'floor' => $this->resource['floor'],
             'status' => $this->resource['status'],
+            'overview' => $this->resource['overview'],
             'description' => $this->resource['description'],
             'rules' => $this->resource['rules'],
             'facilities' => $this->resource->facilities->map(fn ($facility) => [

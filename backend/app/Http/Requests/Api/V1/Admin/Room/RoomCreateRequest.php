@@ -29,6 +29,7 @@ class RoomCreateRequest extends FormRequest
             'price' => ['required', 'integer', 'min:0'],
             'facilities' => ['nullable', 'array'],
             'facilities.*' => ['integer', 'exists:facilities,id'],
+            'overview' => ['required', 'string'],
             'description' => ['required', 'string'],
             'rules' => ['required', 'string'],
             'images' => ['required', 'array', 'min:1', 'max:2048'],
