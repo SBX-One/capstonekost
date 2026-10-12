@@ -18,8 +18,24 @@ class RoomController extends Controller
 {
     public function create(RoomCreateRequest $request) 
     {
-        $room = $request->validated
+        $roomData = $request->validated;
 
-        
+        $room = Room::query()
+                    ->create([
+                        'name' => $roomData['name'],
+                        'room_type_id' => $roomData['room_type'],
+                        'price' => $roomData['price'],
+                        'floor' => $roomData['floor'],
+                        'description' => $roomData['description'],
+                        'rules' => $roomData['rules']
+                    ]);
+        $room->facilities()->attach($roomData['facilities']);
+        $room->utilities()->attach([1, 2]);
+
+        return (new RoomCreateResource([
+                'room' => $room
+            ]))
+            ->response()
+            ->setStatusCode(201);
     }
 }
