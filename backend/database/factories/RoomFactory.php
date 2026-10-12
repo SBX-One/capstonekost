@@ -23,6 +23,7 @@ class RoomFactory extends Factory
             'price' => rand(1000000, 3000000),
             'floor' => rand(1, 3),
             'status' => $this->faker->randomElement(['available', 'occupied']),
+            'overview' => $this->faker->sentence(),
             'description' => $this->faker->sentence(),
             'rules' => $this->faker->paragraph(),
         ];
