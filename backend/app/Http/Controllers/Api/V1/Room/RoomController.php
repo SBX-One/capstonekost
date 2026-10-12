@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Resources\Api\V1\Room\RoomCreateResource;
 
 // Request Imports
-use App\Http\Requests\Api\V1\Room\RoomCreateRequest;
+use App\Http\Requests\Api\V1\Admin\Room\RoomCreateRequest;
 
 // Model Imports
 use App\Models\Room;
