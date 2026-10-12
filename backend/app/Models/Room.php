@@ -35,7 +35,8 @@ class Room extends Model
      */
     public function facilities(): BelongsToMany
     {
-        return $this->belongsToMany(Facility::class, 'room_facilities', 'room_id', 'facility_id');
+        return $this->belongsToMany(Facility::class, 'room_facilities', 'room_id', 'facility_id')
+                    ->withTimestamps();
     }
 
     /**
@@ -43,6 +44,7 @@ class Room extends Model
      */
     public function utilities(): BelongsToMany
     {
-        return $this->belongsToMany(Utility::class, 'room_utilities', 'room_id', 'utility_id');
+        return $this->belongsToMany(Utility::class, 'room_utilities', 'room_id', 'utility_id')
+                    ->withTimestamps();;
     }
 }
