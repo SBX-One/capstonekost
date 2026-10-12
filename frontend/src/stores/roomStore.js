@@ -1,0 +1,243 @@
+import { defineStore } from "pinia";
+import { ref, computed, toRaw } from "vue";
+import apiClient from "@/services/api";
+import { immutableDelete, immutableSet } from "@/utils/mapUtils";
+
+export const useRoomStore = defineStore('room', () => {
+    let controller = null
+
+    const roomMap = ref(new Map())
+
+    const isFetching = ref(false)
+    const isMutating = ref(false)
+    const error = ref(null)
+    const validationErrors = ref({})
+    const totalCount = ref(0)
+    const cache = new Map()
+
+    const rooms = computed(() => Array.from(roomMap.value.values()))
+    const totalRooms = computed(() => roomMap.value.size)
+
+    function clearCache() {
+        cache.clear()
+    }
+
+    function getRoomById(id) {
+        return roomMap.value.get(id)
+    }
+
+    async function fetchRooms(page, params = {}) {
+        const effectivePage = parseInt(page || params.page, 10) || 1
+        const limit = parseInt(params.limit, 10) || 10
+        const cacheKey = `page-${effectivePage}-limit-${limit}-search-${params.search || ''}-status-${params.status || ''}`
+
+        if (cache.has(cacheKey)) {
+            const cached = cache.get(cacheKey)
+            const newMap = new Map()
+
+            cached.list.forEach((room) => {
+                if (room && room.id) {
+                    newMap.set(room.id, room)
+                }
+            })
+
+            roomMap.value = newMap
+            totalCount.value = cached.total
+            isFetching.value = false
+            return
+        }
+
+        controller?.abort()
+        controller = new AbortController()
+        isFetching.value = true
+        error.value = null
+
+        try {
+            const rawParams = {
+                page: effectivePage,
+                per_page: limit,
+                search: params.search || undefined,
+                status: params.status || undefined,
+            }
+
+            const cleanParams = Object.fromEntries(
+                Object.entries(rawParams).filter(([_, value]) => value !== '' && value !== undefined && value !== null)
+            )
+
+            const response = await apiClient.get('/admin/rooms', {
+                params: cleanParams,
+                signal: controller.signal,
+            })
+
+            const responseData = response.data
+            const rawList = Array.isArray(responseData.data) ? responseData.data : []
+
+            const newMap = new Map()
+            rawList.forEach((room) => {
+                if (room && room.id) {
+                    newMap.set(room.id, room)
+                }
+            })
+
+            roomMap.value = newMap
+
+            const metaTotal = responseData.meta?.total || response.headers['x-total-count']
+            totalCount.value = metaTotal ? parseInt(metaTotal, 10) : rawList.length
+
+            if (cache.size >= 50) {
+                const firstKey = cache.keys().next().value
+                cache.delete(firstKey)
+            }
+
+            if (rawList.length > 0) {
+                cache.set(cacheKey, {
+                    list: rawList,
+                    total: totalCount.value,
+                })
+            }
+        } catch (err) {
+            if (apiClient.isCancel?.(err) || err.name === 'CanceledError') {
+                return
+            }
+
+            error.value = err.response?.data?.message || 'Failed to fetch rooms'
+        } finally {
+            isFetching.value = false
+        }
+    }
+
+    async function fetchRoomById(id) {
+        if (roomMap.value.has(id)) {
+            return roomMap.value.get(id)
+        }
+
+        isFetching.value = true
+        error.value = null
+
+        try {
+            const response = await apiClient.get(`/admin/rooms/${id}`)
+            const responseData = response.data
+            const roomData = responseData.data || responseData
+
+            if (roomData && roomData.id) {
+                roomMap.value = immutableSet(roomMap.value, roomData.id, roomData)
+            }
+            return roomData
+        } catch (err) {
+            error.value = err.response?.data?.message || 'Failed to fetch room details'
+            return null
+        } finally {
+            isFetching.value = false
+        }
+    }
+
+    function extractValidationErrors(err) {
+        const data = err.response?.data
+        if (!data) return {}
+        if (data.errors && typeof data.errors === 'object') return data.errors
+        if (data.fields && typeof data.fields === 'object') return data.fields
+        return {}
+    }
+
+    async function createRoom(roomData) {
+        if (isMutating.value) return false
+        isMutating.value = true
+        error.value = null
+        validationErrors.value = {}
+
+        try {
+            const response = await apiClient.post('/admin/create', roomData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+
+            clearCache()
+            return true
+        } catch (err) {
+            error.value = err.response?.data?.message || 'Failed to add room'
+            validationErrors.value = extractValidationErrors(err)
+            return false
+        } finally {
+            isMutating.value = false
+        }
+    }
+
+    async function updateRoom(id, updatedData) {
+        if (isMutating.value) return false
+        isMutating.value = true
+        error.value = null
+        validationErrors.value = {}
+
+        try {
+            await apiClient.patch(`/admin/update/${id}`, updatedData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+
+            clearCache()
+            return true
+        } catch (err) {
+            error.value = err.response?.data?.message || 'Failed to update room'
+            validationErrors.value = extractValidationErrors(err)
+            return false
+        } finally {
+            isMutating.value = false
+        }
+    }
+
+    async function deleteRoom(id) {
+        if (isMutating.value) return false
+        isMutating.value = true
+        error.value = null
+
+        const deletedRoom = roomMap.value.has(id)
+            ? structuredClone(toRaw(roomMap.value.get(id)))
+            : null
+        roomMap.value = immutableDelete(roomMap.value, id)
+
+        try {
+            await apiClient.delete(`/admin/delete/${id}`)
+            clearCache()
+            return true
+        } catch (err) {
+            if (deletedRoom) {
+                roomMap.value = immutableSet(roomMap.value, id, deletedRoom)
+            }
+
+            error.value = err.response?.data?.message || 'Failed to delete room'
+            return false
+        } finally {
+            isMutating.value = false
+        }
+    }
+
+    function clearError() {
+        error.value = null
+    }
+
+    function clearValidationErrors() {
+        validationErrors.value = {}
+    }
+
+    return {
+        roomMap,
+        rooms,
+        isFetching,
+        isMutating,
+        error,
+        validationErrors,
+        totalCount,
+        totalRooms,
+        getRoomById,
+        fetchRooms,
+        fetchRoomById,
+        createRoom,
+        updateRoom,
+        deleteRoom,
+        clearError,
+        clearValidationErrors,
+        clearCache,
+    }
+})
