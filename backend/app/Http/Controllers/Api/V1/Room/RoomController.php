@@ -46,4 +46,6 @@ class RoomController extends Controller
             ->response()
             ->setStatusCode(201);
     }
+
+    
 }
