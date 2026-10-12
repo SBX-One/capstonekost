@@ -31,7 +31,6 @@ export function isValidEmail(email) {
     return { valid: true, message: '' }
 }
 
-
 export function minLength(value, min, fieldName = 'This field') {
     if (value === null || value === undefined) {
         return { valid: false, message: `${fieldName} is required.` }
@@ -68,6 +67,24 @@ export function isValidPhone(phone) {
             valid: false,
             message: 'Please enter a valid phone number (min. 9 digits).'
         }
+    }
+    return { valid: true, message: '' }
+}
+
+export function isNumeric(value, fieldName = 'This field') {
+    if (value === null || value === undefined || value === '') {
+        return { valid: false, message: `${fieldName} is required.` }
+    }
+    if (isNaN(Number(value))) {
+        return { valid: false, message: `${fieldName} must be a valid number.` }
+    }
+    return { valid: true, message: '' }
+}
+
+export function minValue(value, min, fieldName = 'This field') {
+    const num = Number(value)
+    if (isNaN(num) || num < min) {
+        return { valid: false, message: `${fieldName} must be at least ${min}.` }
     }
     return { valid: true, message: '' }
 }
