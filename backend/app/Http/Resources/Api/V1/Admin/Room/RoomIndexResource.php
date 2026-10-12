@@ -38,7 +38,8 @@ class RoomIndexResource extends JsonResource
             ]),
             'image_paths' => $this->resource->imagePaths->map(fn ($image) => [
                 'id' => $image->id,
-                'path' => $image->image_path
+                'path' => $image->image_path,
+                'sort_order' => $image->sort_order
             ])
         ];
     }
