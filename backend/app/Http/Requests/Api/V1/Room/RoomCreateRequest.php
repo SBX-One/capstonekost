@@ -27,7 +27,6 @@ class RoomCreateRequest extends FormRequest
             'room_type' => ['required', 'integer', 'exists:room_types,id'],
             'floor' => ['required', 'integer'],
             'price' => ['required', 'integer', 'min:0'],
-            'status' => ['required', 'string', 'in:available,occupied'],
             'facility' => ['nullable', 'array'],
             'facility.*' => ['integer', 'exists:facilities,id'],
             'description' => ['required', 'string'],
@@ -64,10 +63,6 @@ class RoomCreateRequest extends FormRequest
             'price.required' => 'Price is required',
             'price.integer' => 'Price must be an integer',
             'price.min' => 'Price cannot be negative',
-
-            'status.required' => 'Status is required',
-            'status.string' => 'Status must be a string',
-            'status.in' => 'Status must be either "available" or "occupied"',
 
             'fasilitas.array' => 'Facilities must be an array',
             'fasilitas.*.integer' => 'Each facility ID must be an integer',

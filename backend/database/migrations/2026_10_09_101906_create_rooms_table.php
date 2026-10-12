@@ -17,9 +17,9 @@ return new class extends Migration
             $table->foreignId('room_type_id')->constrained('room_types');
             $table->integer('price')->nullable(false);
             $table->smallInteger('floor')->nullable(false);
-            $table->enum('status', ['available', 'occupied'])->nullable(false);
-            $table->text('description')->nullable();
-            $table->text('rules')->nullable();
+            $table->enum('status', ['available', 'occupied'])->default('available');
+            $table->text('description')->nullable(false);
+            $table->text('rules')->nullable(false);
             $table->timestamps();
         });
     }
