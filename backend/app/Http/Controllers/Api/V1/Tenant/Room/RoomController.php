@@ -10,6 +10,7 @@ use App\Http\Requests\Api\V1\Tenant\Room\RoomIndexRequest;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Admin\Room\RoomIndexResource;
+use App\Http\Resources\Api\V1\Tenant\Room\RoomShowResource;
 
 // Model Imports
 use App\Models\Room;
@@ -63,5 +64,18 @@ class RoomController extends Controller
                ->additional([
                    'message' => 'Successfully fetched data.',
                ]);
+    }
+
+    public function show (Request $request, string $id)
+    {
+        $room = Room::findOrFail($id);
+        $room->load('roomType');
+        $room->load('facilities');
+        $room->load('utilities');
+        $room->load('imagePaths');
+
+        return (new RoomShowResource($room))
+                ->response()
+                ->setStatusCode(200);
     }
 }
