@@ -14,6 +14,7 @@ Route::post('/refresh', [AuthController::class, 'refresh'])->name('refresh');
 Route::prefix('/tenant')
     ->name('tenant.')->group(function () {
     Route::get('/rooms', [TenantRoomController::class, 'index'])->name('index');
+    Route::get('/rooms/{id}', [TenantRoomController::class, 'show'])->name('show');
 });
 
 Route::middleware('auth:api')->group(function () {
