@@ -42,6 +42,16 @@ class RoomController extends Controller
                     $query->where('floor', $requestQuery['floor']);
                 }
             )
+            ->when(
+                isset($requestQuery['facilities']),
+                function ($query) use ($requestQuery) {
+                    $query->whereHas(
+                        'facilities', function ($query) use ($requestQuery) {
+                            $query->where('facilities.id', $requestQuery['facilities']);
+                        }
+                    );
+                }
+            )
             ->paginate(9);
 
         $rooms->load('roomType');

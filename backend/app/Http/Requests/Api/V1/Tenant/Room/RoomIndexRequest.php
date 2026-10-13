@@ -32,6 +32,14 @@ class RoomIndexRequest extends FormRequest
                 'integer',
                 'nullable',
                 'exists:rooms,floor',
+            ],
+            'facilities' => [
+                'array',
+                'nullable',
+            ],
+            'facilities.*' => [
+                'integer',
+                'exists:facilities,id'
             ]
         ];
     }
@@ -50,6 +58,9 @@ class RoomIndexRequest extends FormRequest
             'max_price.required_with' => 'The max price field is required when min price is present.',
             'room_type.exists' => 'The selected room type is invalid.',
             'floor.exists' => 'The selected floor is invalid.',
+            'facilities.array' => 'The facilities sent must be an array.',
+            'facilities.*.exists' => 'The selected facility must be in the facilities list.',
+            'facilities.*.integer' => 'The selected facility must be an integer.',
         ];
     }
 }
