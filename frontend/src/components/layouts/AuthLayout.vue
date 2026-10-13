@@ -28,7 +28,7 @@
 
         <div class="flex items-center justify-center p-600 lg:px-1000 overflow-y-auto">
             <div class="w-full max-w-135 flex flex-col gap-600">
-                <slot />
+                <router-view />
             </div>
         </div>
     </main>
