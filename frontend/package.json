@@ -20,6 +20,7 @@
     "devDependencies": {
         "@tailwindcss/vite": "^4.1.7",
         "@vitejs/plugin-vue": "^5.2.4",
+        "daisyui": "^5.7.48",
         "eslint": "^10.12.0",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-vue": "^10.11.1",
