@@ -29,7 +29,8 @@ export const useRoomStore = defineStore('room', () => {
     async function fetchRooms(page, params = {}) {
         const effectivePage = parseInt(page || params.page, 10) || 1
         const limit = parseInt(params.limit, 10) || 10
-        const cacheKey = `page-${effectivePage}-limit-${limit}-search-${params.search || ''}-status-${params.status || ''}`
+
+        const cacheKey = `page-${effectivePage}-limit-${limit}-search-${params.search || ''}-status-${params.status || ''}-type-${params.room_type || ''}-floor-${params.floor || ''}-min-${params.min_price || ''}-max-${params.max_price || ''}`
 
         if (cache.has(cacheKey)) {
             const cached = cache.get(cacheKey)
@@ -58,6 +59,11 @@ export const useRoomStore = defineStore('room', () => {
                 per_page: limit,
                 search: params.search || undefined,
                 status: params.status || undefined,
+                room_type: params.room_type || undefined,
+                floor: params.floor || undefined,
+                min_price: params.min_price || undefined,
+                max_price: params.max_price || undefined,
+                facilities: params.facilities || undefined,
             }
 
             const cleanParams = Object.fromEntries(
