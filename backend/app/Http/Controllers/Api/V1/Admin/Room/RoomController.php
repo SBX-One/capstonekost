@@ -170,7 +170,7 @@ class RoomController extends Controller
 
     public function delete(RoomDeleteRequest $request)
     {
-        $ids = $request->validated();
+        $ids = $request->validated('id');
 
         foreach ($ids as $id) {
             $room = Room::findOrFail($id);
