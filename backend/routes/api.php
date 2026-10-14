@@ -26,6 +26,7 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/create', [AdminRoomController::class, 'create'])->name('create');
             Route::get('/rooms', [AdminRoomController::class, 'index'])->name('index');
             Route::get('/rooms/{id}', [AdminRoomController::class, 'show'])->name('show');
-            Route::patch('/update/{id}',[AdminRoomController::class, 'update'])->name('update');
+            Route::patch('/update/{id}', [AdminRoomController::class, 'update'])->name('update');
+            Route::delete('/delete', [AdminRoomController::class, 'delete'])->name('delete');
     });
 });
