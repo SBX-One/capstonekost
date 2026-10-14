@@ -4,15 +4,18 @@ namespace App\Http\Controllers\Api\V1\Admin\Room;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Admin\Room\RoomCreateResource;
 use App\Http\Resources\Api\V1\Admin\Room\RoomIndexResource;
 use App\Http\Resources\Api\V1\Admin\Room\RoomShowResource;
+use App\Http\Resources\Api\V1\Admin\Room\RoomUpdateResource;
 
 // Request Imports
 use App\Http\Requests\Api\V1\Admin\Room\RoomCreateRequest;
 use App\Http\Requests\Api\V1\Admin\Room\RoomIndexRequest;
+use App\Http\Requests\Api\V1\Admin\Room\RoomUpdateRequest;
 
 // Model Imports
 use App\Models\Room;
@@ -111,5 +114,51 @@ class RoomController extends Controller
         return (new RoomShowResource($room))
                 ->response()
                 ->setStatusCode(200);
+    }
+
+    public function update(RoomUpdateRequest $request, string $id)
+    {
+        $requestPayload = $request->validated();
+
+        $room = Room::findOrFail($id);
+
+        $room->update([
+            'name' => $requestPayload['name'],
+            'room_type_id' => $requestPayload['room_type'],
+            'price' => $requestPayload['price'],
+            'floor' => $requestPayload['floor'],
+            'overview' => $requestPayload['overview'],
+            'description' => $requestPayload['description'],
+            'rules' => $requestPayload['rules'],
+        ]);
+
+        $room->facilities()->detach();
+        $room->facilities()->attach($requestPayload['facilities']);
+        
+        $room->load('imagePaths');
+
+        foreach ($room->imagePaths as $image) {
+            Storage::disk('public')->delete($image->image_path);
+        }
+
+        $room->imagePaths()->delete();
+
+        $sortOrder = 1;
+        foreach ($request->file('images') as $image) {
+            $path = $image->store('images', 'public');
+
+            $room->imagePaths()->create([
+                    'image_path' =>  $path,
+                    'sort_order' => $sortOrder
+                ]);
+
+            $sortOrder++;
+        }
+
+        return (new RoomUpdateResource([
+                'room' => $room
+            ]))
+            ->response()
+            ->setStatusCode(201);
     }
 }
