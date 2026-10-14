@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('room_image_paths', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('room_id')->constrained('rooms');
+            $table->foreignId('room_id')->constrained('rooms')->cascadeOnDelete();
             $table->string('image_path', 255)->nullable(false);
             $table->smallInteger('sort_order')->nullable();
             $table->timestamps();
