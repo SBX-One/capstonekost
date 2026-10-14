@@ -134,8 +134,9 @@ class RoomController extends Controller
             'rules' => $requestPayload['rules'],
         ]);
 
+        $room->facilities()->detach();
+        
         if (filled($requestPayload['facilities'] ?? null)) {
-            $room->facilities()->detach();
             $room->facilities()->attach($requestPayload['facilities']);
         }
 
