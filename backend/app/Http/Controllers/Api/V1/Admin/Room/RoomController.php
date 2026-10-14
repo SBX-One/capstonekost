@@ -11,11 +11,13 @@ use App\Http\Resources\Api\V1\Admin\Room\RoomCreateResource;
 use App\Http\Resources\Api\V1\Admin\Room\RoomIndexResource;
 use App\Http\Resources\Api\V1\Admin\Room\RoomShowResource;
 use App\Http\Resources\Api\V1\Admin\Room\RoomUpdateResource;
+use App\Http\Resources\Api\V1\Admin\Room\RoomDeleteResource;
 
 // Request Imports
 use App\Http\Requests\Api\V1\Admin\Room\RoomCreateRequest;
 use App\Http\Requests\Api\V1\Admin\Room\RoomIndexRequest;
 use App\Http\Requests\Api\V1\Admin\Room\RoomUpdateRequest;
+use App\Http\Requests\Api\V1\Admin\Room\RoomDeleteRequest;
 
 // Model Imports
 use App\Models\Room;
@@ -164,5 +166,21 @@ class RoomController extends Controller
             ]))
             ->response()
             ->setStatusCode(201);
+    }
+
+    public function delete(RoomDeleteRequest $request)
+    {
+        $ids = $request->validated();
+
+        foreach ($ids as $id) {
+            $room = Room::findOrFail($id);
+            $room->delete();
+        }
+
+        return (new RoomDeleteResource([
+                'toReturn' => null
+            ]))
+            ->response()
+            ->setStatusCode(200);
     }
 }
