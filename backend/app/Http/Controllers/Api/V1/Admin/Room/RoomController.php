@@ -132,9 +132,11 @@ class RoomController extends Controller
             'rules' => $requestPayload['rules'],
         ]);
 
-        $room->facilities()->detach();
-        $room->facilities()->attach($requestPayload['facilities']);
-        
+        if (filled($requestPayload['facilities'] ?? null)) {
+            $room->facilities()->detach();
+            $room->facilities()->attach($requestPayload['facilities']);
+        }
+
         $room->load('imagePaths');
 
         foreach ($room->imagePaths as $image) {
@@ -143,16 +145,18 @@ class RoomController extends Controller
 
         $room->imagePaths()->delete();
 
-        $sortOrder = 1;
-        foreach ($request->file('images') as $image) {
-            $path = $image->store('images', 'public');
+        if (filled($request->file('images'))) {
+            $sortOrder = 1;
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('images', 'public');
 
-            $room->imagePaths()->create([
-                    'image_path' =>  $path,
-                    'sort_order' => $sortOrder
-                ]);
+                $room->imagePaths()->create([
+                        'image_path' =>  $path,
+                        'sort_order' => $sortOrder
+                    ]);
 
-            $sortOrder++;
+                $sortOrder++;
+            }
         }
 
         return (new RoomUpdateResource([
