@@ -77,7 +77,7 @@ class RoomController extends Controller
             ->when(
                 isset($requestQuery['room_type']),
                 function ($query) use ($requestQuery) {
-                    $query->where('room_type', $requestQuery['room_type']);
+                    $query->where('room_type_id', $requestQuery['room_type']);
                 }
             )
             ->when(
