@@ -52,7 +52,7 @@ const toggleSelectAll = event => {
                                 :checked="isAllSelected"
                                 :indeterminate="isIndeterminate"
                                 @change="toggleSelectAll"
-                                class="w-4 h-4 rounded-default border border-border-default bg-bg-default checked:bg-neutral-900 checked:border-neutral-900 focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none relative flex items-center justify-center checked:after:content-[''] checked:after:w-2 checked:after:h-3.5 checked:after:border-r-2 checked:after:border-b-2 checked:after:border-white checked:after:rotate-45 checked:after:absolute checked:after:top-px"
+                                class="w-5 h-5 rounded-default border border-border-default bg-bg-default checked:bg-neutral-900 checked:border-neutral-900 indeterminate:bg-neutral-900 indeterminate:border-neutral-900 focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none relative flex items-center justify-center transition-colors checked:after:content-[''] checked:after:w-1.5 checked:after:h-2.5 checked:after:border-r-2 checked:after:border-b-2 checked:after:border-white checked:after:rotate-45 checked:after:absolute checked:after:-mt-0.5 indeterminate:after:content-[''] indeterminate:after:w-2.5 indeterminate:after:h-0.5 indeterminate:after:bg-white indeterminate:after:absolute"
                             />
                         </th>
                         <th class="py-3.5 px-4 font-medium">Room</th>

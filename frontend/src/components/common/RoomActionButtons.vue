@@ -1,18 +1,11 @@
 <script setup>
-defineProps({
-    roomId: {
-        type: [Number, String],
-        required: true,
-    },
-});
-
 defineEmits(['view', 'edit', 'delete']);
 </script>
 
 <template>
-    <div class="flex items-center gap-3 select-none">
+    <div class="flex items-center justify-end gap-3 select-none">
         <button
-            @click="$emit('view', roomId)"
+            @click="$emit('view')"
             class="p-1.5 rounded-default text-text-secondary hover:text-action-primary hover:bg-action-secondary-hover transition-colors cursor-pointer"
             title="View Room Detail"
         >
@@ -32,11 +25,7 @@ defineEmits(['view', 'edit', 'delete']);
             </svg>
         </button>
 
-        <button
-            @click="$emit('edit', roomId)"
-            class="p-1.5 rounded-default text-text-secondary hover:text-action-primary hover:bg-action-secondary-hover transition-colors cursor-pointer"
-            title="Edit Room"
-        >
+        <button @click="$emit('edit')" class="p-1.5 rounded-default text-text-secondary hover:text-action-primary hover:bg-action-secondary-hover transition-colors cursor-pointer" title="Edit Room">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                     fill-rule="evenodd"
@@ -47,11 +36,7 @@ defineEmits(['view', 'edit', 'delete']);
             </svg>
         </button>
 
-        <button
-            @click="$emit('delete', roomId)"
-            class="p-1.5 rounded-default text-text-secondary hover:text-status-error hover:bg-status-error-bg transition-colors cursor-pointer"
-            title="Delete Room"
-        >
+        <button @click="$emit('delete')" class="p-1.5 rounded-default text-text-secondary hover:text-status-error hover:bg-status-error-bg transition-colors cursor-pointer" title="Delete Room">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                     d="M10.9 7.2H14.1C14.1 6.77565 13.9314 6.36869 13.6314 6.06863C13.3313 5.76857 12.9243 5.6 12.5 5.6C12.0757 5.6 11.6687 5.76857 11.3686 6.06863C11.0686 6.36869 10.9 6.77565 10.9 7.2ZM9.3 7.2C9.3 6.35131 9.63714 5.53737 10.2373 4.93726C10.8374 4.33714 11.6513 4 12.5 4C13.3487 4 14.1626 4.33714 14.7627 4.93726C15.3629 5.53737 15.7 6.35131 15.7 7.2H19.7C19.9122 7.2 20.1157 7.28429 20.2657 7.43431C20.4157 7.58434 20.5 7.78783 20.5 8C20.5 8.21217 20.4157 8.41566 20.2657 8.56569C20.1157 8.71571 19.9122 8.8 19.7 8.8H18.9944L18.2856 17.072C18.2175 17.8708 17.852 18.6149 17.2615 19.1571C16.671 19.6993 15.8985 20.0001 15.0968 20H9.9032C9.10153 20.0001 8.32902 19.6993 7.73852 19.1571C7.14802 18.6149 6.78254 17.8708 6.7144 17.072L6.0056 8.8H5.3C5.08783 8.8 4.88434 8.71571 4.73431 8.56569C4.58429 8.41566 4.5 8.21217 4.5 8C4.5 7.78783 4.58429 7.58434 4.73431 7.43431C4.88434 7.28429 5.08783 7.2 5.3 7.2H9.3ZM14.9 12C14.9 11.7878 14.8157 11.5843 14.6657 11.4343C14.5157 11.2843 14.3122 11.2 14.1 11.2C13.8878 11.2 13.6843 11.2843 13.5343 11.4343C13.3843 11.5843 13.3 11.7878 13.3 12V15.2C13.3 15.4122 13.3843 15.6157 13.5343 15.7657C13.6843 15.9157 13.8878 16 14.1 16C14.3122 16 14.5157 15.9157 14.6657 15.7657C14.8157 15.6157 14.9 15.4122 14.9 15.2V12ZM10.9 11.2C11.1122 11.2 11.3157 11.2843 11.4657 11.4343C11.6157 11.5843 11.7 11.7878 11.7 12V15.2C11.7 15.4122 11.6157 15.6157 11.4657 15.7657C11.3157 15.9157 11.1122 16 10.9 16C10.6878 16 10.4843 15.9157 10.3343 15.7657C10.1843 15.6157 10.1 15.4122 10.1 15.2V12C10.1 11.7878 10.1843 11.5843 10.3343 11.4343C10.4843 11.2843 10.6878 11.2 10.9 11.2ZM8.308 16.936C8.34208 17.3355 8.52493 17.7077 8.82035 17.9788C9.11577 18.2499 9.50223 18.4002 9.9032 18.4H15.0968C15.4975 18.3998 15.8836 18.2494 16.1786 17.9783C16.4737 17.7072 16.6563 17.3352 16.6904 16.936L17.388 8.8H7.612L8.308 16.936Z"

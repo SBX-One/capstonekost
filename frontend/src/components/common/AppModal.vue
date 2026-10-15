@@ -11,6 +11,12 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 
+const handleKeydown = event => {
+    if (event.key === 'Escape' && props.isOpen) {
+        emit('close');
+    }
+};
+
 const toggleBodyScroll = lock => {
     if (lock) {
         document.body.style.overflow = 'hidden';
@@ -32,12 +38,6 @@ watch(
     },
     { immediate: true }
 );
-
-const handleKeydown = event => {
-    if (event.key === 'Escape' && props.isOpen) {
-        emit('close');
-    }
-};
 
 onUnmounted(() => {
     toggleBodyScroll(false);

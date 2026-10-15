@@ -123,7 +123,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="relative inline-block text-left select-none">
+    <div class="relative inline-block text-left select-none w-full">
         <button
             ref="triggerRef"
             type="button"
@@ -132,7 +132,7 @@ onUnmounted(() => {
             class="w-full flex items-center justify-between gap-4 bg-bg-default border rounded-default transition-colors cursor-pointer focus:outline-none"
             :class="[
                 triggerSizeClasses,
-                isOpen ? 'border-border-focus bg-neutral-100' : 'border-border-default hover:bg-neutral-100',
+                isOpen ? 'border-border-focus/20 bg-neutral-100' : 'border-border-default hover:bg-neutral-100',
                 modelValue !== '' ? 'text-text-primary font-semibold' : 'text-text-secondary',
             ]"
             aria-haspopup="listbox"
@@ -149,7 +149,7 @@ onUnmounted(() => {
                 v-if="isOpen"
                 ref="dropdownRef"
                 :style="dropdownStyle"
-                class="fixed bg-bg-default border border-border-default rounded-default shadow-default py-1 z-9999 overflow-hidden animate-fadeIn"
+                class="fixed bg-bg-default border border-border-default rounded-default shadow-default z-9999 overflow-hidden animate-fadeIn"
                 role="listbox"
             >
                 <button

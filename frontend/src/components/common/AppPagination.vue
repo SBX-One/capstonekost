@@ -15,8 +15,6 @@ const currentPage = defineModel({
     default: 1,
 });
 
-const emit = defineEmits(['pageChange']);
-
 const displayedPages = computed(() => {
     const total = Number(props.totalPages) || 1;
     const current = Number(currentPage.value) || 1;
@@ -53,7 +51,6 @@ const changePage = page => {
     const total = Number(props.totalPages) || 1;
     if (typeof page === 'number' && page >= 1 && page <= total && page !== currentPage.value) {
         currentPage.value = page;
-        emit('pageChange', page);
     }
 };
 </script>

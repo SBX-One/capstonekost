@@ -8,7 +8,7 @@ const minPriceFilter = defineModel('minPrice', { default: '' });
 const maxPriceFilter = defineModel('maxPrice', { default: '' });
 const statusFilter = defineModel('status', { default: '' });
 
-const emit = defineEmits(['clear']);
+const emit = defineEmits(['reset']);
 
 const hasActiveFilters = computed(() => {
     return Boolean(roomTypeFilter.value || floorFilter.value || minPriceFilter.value || maxPriceFilter.value || statusFilter.value);
@@ -63,7 +63,7 @@ const statusOptions = [
 </script>
 
 <template>
-    <div class="flex items-center justify-between gap-4 mb-6 select-none w-full">
+    <div class="flex items-center justify-between gap-4 select-none w-full">
         <div class="flex items-center gap-3 flex-wrap">
             <div class="w-52">
                 <AppDropdown v-model="priceRangeModel" :options="priceOptions" placeholder="Any Price" size="sm" />
@@ -83,7 +83,7 @@ const statusOptions = [
             <button
                 v-if="hasActiveFilters"
                 type="button"
-                @click="$emit('clear')"
+                @click="$emit('reset')"
                 class="text-body-sm font-medium text-text-secondary hover:text-text-primary transition-colors cursor-pointer px-2 py-1"
             >
                 Clear Filters
