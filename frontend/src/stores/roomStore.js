@@ -29,8 +29,11 @@ export const useRoomStore = defineStore('room', () => {
     async function fetchRooms(page, params = {}) {
         const effectivePage = parseInt(page || params.page, 10) || 1
         const limit = parseInt(params.limit, 10) || 10
+        const facilitiesKey = Array.isArray(params.facilities)
+            ? [...params.facilities].sort().join(',')
+            : (params.facilities || '')
 
-        const cacheKey = `page-${effectivePage}-limit-${limit}-search-${params.search || ''}-status-${params.status || ''}-type-${params.room_type || ''}-floor-${params.floor || ''}-min-${params.min_price || ''}-max-${params.max_price || ''}`
+        const cacheKey = `page-${effectivePage}-limit-${limit}-search-${params.search || ''}-status-${params.status || ''}-type-${params.room_type || ''}-floor-${params.floor || ''}-min-${params.min_price || ''}-max-${params.max_price || ''}-fac-${facilitiesKey}`
 
         if (cache.has(cacheKey)) {
             const cached = cache.get(cacheKey)
@@ -49,7 +52,9 @@ export const useRoomStore = defineStore('room', () => {
         }
 
         controller?.abort()
-        controller = new AbortController()
+        const currentController = new AbortController()
+        controller = currentController
+
         isFetching.value = true
         error.value = null
 
@@ -72,7 +77,7 @@ export const useRoomStore = defineStore('room', () => {
 
             const response = await apiClient.get('/admin/rooms', {
                 params: cleanParams,
-                signal: controller.signal,
+                signal: currentController.signal,
             })
 
             const responseData = response.data
@@ -87,8 +92,8 @@ export const useRoomStore = defineStore('room', () => {
 
             roomMap.value = newMap
 
-            const metaTotal = responseData.meta?.total || response.headers['x-total-count']
-            totalCount.value = metaTotal ? parseInt(metaTotal, 10) : rawList.length
+            const metaTotal = responseData.meta?.total ?? response.headers['x-total-count']
+            totalCount.value = metaTotal !== undefined ? parseInt(metaTotal, 10) : rawList.length
 
             if (cache.size >= 50) {
                 const firstKey = cache.keys().next().value
@@ -108,7 +113,9 @@ export const useRoomStore = defineStore('room', () => {
 
             error.value = err.response?.data?.message || 'Failed to fetch rooms'
         } finally {
-            isFetching.value = false
+            if (controller === currentController) {
+                isFetching.value = false
+            }
         }
     }
 
@@ -152,7 +159,7 @@ export const useRoomStore = defineStore('room', () => {
         validationErrors.value = {}
 
         try {
-            const response = await apiClient.post('/admin/create', roomData, {
+            await apiClient.post('/admin/create', roomData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -205,6 +212,7 @@ export const useRoomStore = defineStore('room', () => {
 
         try {
             await apiClient.delete(`/admin/delete/${id}`)
+            totalCount.value = Math.max(0, totalCount.value - 1)
             clearCache()
             return true
         } catch (err) {
