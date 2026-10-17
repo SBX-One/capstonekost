@@ -28,7 +28,6 @@ const routes = [
         redirect: { name: 'register' }
     },
 
-
     {
         path: '/admin',
         component: () => import('@/components/layouts/AdminLayout.vue'),
@@ -48,12 +47,16 @@ const routes = [
                 name: 'admin-rooms',
                 component: () => import('@/views/admin/RoomManagementView.vue')
             },
+            {
+                path: 'rooms/add',
+                name: 'admin-room-add',
+                component: () => import('@/views/admin/AddRoomView.vue')
+            },
         ]
     },
 
     {
         path: '/tenant',
-
         meta: { requiresAuth: true, role: 'tenant' },
         children: [
             {
@@ -63,25 +66,32 @@ const routes = [
             {
                 path: 'dashboard',
                 name: 'tenant-dashboard',
-
+                // component: () => import('@/views/tenant/DashboardView.vue')
             },
             {
                 path: 'my-room',
                 name: 'tenant-my-room',
-
+                // component: () => import('@/views/tenant/MyRoomView.vue')
             },
             {
                 path: 'payments',
                 name: 'tenant-payments',
-
+                // component: () => import('@/views/tenant/PaymentHistoryView.vue')
             },
             {
                 path: 'complaints',
                 name: 'tenant-complaints',
-
+                // component: () => import('@/views/tenant/ComplaintView.vue')
             }
         ]
     },
+
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'not-found',
+        // component: () => import('@/views/errors/NotFoundView.vue')
+        redirect: '/'
+    }
 ]
 
 const router = createRouter({
@@ -91,17 +101,19 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     const authStore = useAuthStore()
+    const isAuthenticated = authStore.isAuthenticated
+    const userRole = authStore.userRole
 
-    if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    if (to.meta.requiresAuth && !isAuthenticated) {
         return next({ name: 'login' })
     }
 
-    if ((to.name === 'login' || to.name === 'register') && authStore.isAuthenticated) {
-        return next(authStore.userRole === 'admin' ? { name: 'admin-dashboard' } : { name: 'tenant-dashboard' })
+    if ((to.name === 'login' || to.name === 'register') && isAuthenticated) {
+        return next(userRole === 'admin' ? { name: 'admin-dashboard' } : { name: 'tenant-dashboard' })
     }
 
-    if (to.meta.role && authStore.userRole !== to.meta.role) {
-        return next(authStore.userRole === 'admin' ? { name: 'admin-dashboard' } : { name: 'tenant-dashboard' })
+    if (to.meta.role && userRole !== to.meta.role) {
+        return next(userRole === 'admin' ? { name: 'admin-dashboard' } : { name: 'tenant-dashboard' })
     }
 
     next()

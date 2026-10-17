@@ -18,7 +18,7 @@ export function useRoom() {
     } = storeToRefs(roomStore)
 
     function navigateToCreate() {
-        router.push({ name: 'AdminRoomCreate' })
+        router.push({ name: 'admin-room-add' })
     }
 
     function navigateToEdit(id) {
