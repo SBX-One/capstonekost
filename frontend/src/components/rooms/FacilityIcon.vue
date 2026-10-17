@@ -1,19 +1,9 @@
 <script setup>
-import * as LucideIcons from 'lucide-vue-next';
-import { computed } from 'vue';
-
 const props = defineProps({
     name: {
         type: String,
         required: true,
     },
-});
-
-const CUSTOM_DEFAULTS = ['Private Bathroom', 'Private Kitchen', 'AC', 'WiFi', 'Bed', 'Desk', 'Fan', 'TV'];
-
-const lucideComponent = computed(() => {
-    if (CUSTOM_DEFAULTS.includes(props.name)) return null;
-    return LucideIcons[props.name] || LucideIcons.HelpCircle;
 });
 </script>
 
@@ -35,7 +25,7 @@ const lucideComponent = computed(() => {
         />
     </svg>
 
-    <svg v-else-if="name === 'AC'" class="w-4 h-4 shrink-0" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg v-else-if="name === 'AC' || name === 'Air Conditioning'" class="w-4 h-4 shrink-0" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path
             d="M13.0769 2H2.92308C2.67826 2 2.44347 2.09725 2.27036 2.27037C2.09725 2.44348 2 2.67827 2 2.92309V7.53851C2 7.78333 2.09725 8.01812 2.27036 8.19123C2.44347 8.36435 2.67826 8.4616 2.92308 8.4616H13.0769C13.3217 8.4616 13.5565 8.36435 13.7296 8.19123C13.9027 8.01812 14 7.78333 14 7.53851V2.92309C14 2.67827 13.9027 2.44348 13.7296 2.27037C13.5565 2.09725 13.3217 2 13.0769 2Z"
             stroke-width="0.8"
@@ -131,5 +121,8 @@ const lucideComponent = computed(() => {
         />
     </svg>
 
-    <component v-else :is="lucideComponent" class="shrink-0" stroke-width="1.5" />
+    <svg v-else class="w-4 h-4 shrink-0" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="0.8" />
+        <path d="M8 5V8.5M8 11V11.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" />
+    </svg>
 </template>

@@ -31,15 +31,7 @@ const form = reactive({
     images: [null, null, null, null, null],
 });
 
-const { facilityOptions, handleCreateNewFacility } = useRoomFacilities(form.facilities);
-
-const onAddFacility = facilityPayload => {
-    const result = handleCreateNewFacility(facilityPayload);
-
-    if (result && result.status !== 'success') {
-        alert(result.message);
-    }
-};
+const { facilityOptions } = useRoomFacilities();
 
 const isFormDirty = ref(false);
 
@@ -252,13 +244,7 @@ const submitForm = async () => {
 
                     <div class="flex flex-col gap-200 w-full">
                         <label class="text-body-lg text-text-primary">Facilities</label>
-                        <FacilityChipGroup
-                            v-model="form.facilities"
-                            :options="facilityOptions"
-                            :show-add-button="true"
-                            @create-new="onAddFacility"
-                            @update:modelValue="validateField('facilities', form.facilities)"
-                        />
+                        <FacilityChipGroup v-model="form.facilities" :options="facilityOptions" @update:modelValue="validateField('facilities', form.facilities)" />
                         <p v-if="errors.facilities" class="text-body-sm text-status-error">{{ errors.facilities }}</p>
                     </div>
 
