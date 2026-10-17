@@ -8,14 +8,17 @@ export function useRoomFacilities(selectedFacilityIds) {
         { id: 3, label: 'AC' },
         { id: 4, label: 'WiFi' },
         { id: 5, label: 'Bed' },
+        { id: 6, label: 'Desk' },
+        { id: 7, label: 'Fan' },
+        { id: 8, label: 'TV' },
     ]);
 
-    const handleCreateNewFacility = (newFacilityName) => {
-        if (!newFacilityName || typeof newFacilityName !== 'string' || !newFacilityName.trim()) {
-            return { status: 'error', message: 'Invalid facility name.' };
+    const handleCreateNewFacility = (payload) => {
+        if (!payload || typeof payload !== 'object' || !payload.label || !payload.label.trim()) {
+            return { status: 'error', message: 'Invalid facility data.' };
         }
 
-        const normalizedInput = normalizeForComparison(newFacilityName);
+        const normalizedInput = normalizeForComparison(payload.label);
 
         const matchedFacility = facilityOptions.value.find(existingFacility => {
             const normalizedExisting = normalizeForComparison(existingFacility.label);
@@ -46,7 +49,12 @@ export function useRoomFacilities(selectedFacilityIds) {
             ? Math.max(...facilityOptions.value.map(option => option.id)) + 1
             : 1;
 
-        facilityOptions.value.push({ id: newId, label: newFacilityName.trim() });
+        facilityOptions.value.push({
+            id: newId,
+            label: payload.label.trim(),
+            icon_name: payload.icon_name || null
+        });
+
         selectedFacilityIds.push(newId);
 
         return { status: 'success', message: 'New facility added successfully.' };
