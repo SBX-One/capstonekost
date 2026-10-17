@@ -18,6 +18,7 @@ const props = defineProps({
 });
 
 const modelValue = defineModel({ default: '' });
+const emit = defineEmits(['update:modelValue', 'blur']);
 
 const isOpen = ref(false);
 const activeIndex = ref(-1);
@@ -63,6 +64,8 @@ const toggleDropdown = async () => {
         updatePosition();
         activeIndex.value = -1;
         await nextTick();
+    } else {
+        emit('blur');
     }
 };
 
@@ -71,6 +74,7 @@ const selectOption = opt => {
     modelValue.value = val;
     isOpen.value = false;
     triggerRef.value?.focus();
+    emit('blur');
 };
 
 const handleKeyDown = e => {
@@ -87,6 +91,7 @@ const handleKeyDown = e => {
     if (e.key === 'Escape') {
         isOpen.value = false;
         triggerRef.value?.focus();
+        emit('blur');
     } else if (e.key === 'ArrowDown') {
         e.preventDefault();
         activeIndex.value = (activeIndex.value + 1) % totalItems;
@@ -106,6 +111,7 @@ const handleKeyDown = e => {
 const handleClickOutside = event => {
     if (isOpen.value && triggerRef.value && !triggerRef.value.contains(event.target) && dropdownRef.value && !dropdownRef.value.contains(event.target)) {
         isOpen.value = false;
+        emit('blur');
     }
 };
 
@@ -132,7 +138,7 @@ onUnmounted(() => {
             class="w-full flex items-center justify-between gap-4 bg-bg-default border rounded-default transition-colors cursor-pointer focus:outline-none"
             :class="[
                 triggerSizeClasses,
-                isOpen ? 'border-border-focus/20 bg-neutral-100' : 'border-border-default hover:bg-neutral-100',
+                isOpen ? 'border-border-focus bg-neutral-100' : 'border-border-default hover:bg-neutral-100',
                 modelValue !== '' ? 'text-text-primary font-semibold' : 'text-text-secondary',
             ]"
             aria-haspopup="listbox"

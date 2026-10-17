@@ -6,6 +6,8 @@ const modelValue = defineModel({
     default: '',
 });
 
+defineEmits(['blur']);
+
 const props = defineProps({
     id: {
         type: String,
@@ -103,6 +105,15 @@ const variantClasses = computed(() => {
         </div>
 
         <div class="relative w-full flex items-center">
+            <div
+                v-if="$slots['icon-left'] || $slots['prefix']"
+                class="absolute left-300 top-1/2 -translate-y-1/2 flex items-center justify-center text-text-secondary font-semibold z-10 pointer-events-none"
+            >
+                <slot name="prefix">
+                    <slot name="icon-left" />
+                </slot>
+            </div>
+
             <textarea
                 v-if="isTextarea"
                 :id="id"
@@ -111,7 +122,8 @@ const variantClasses = computed(() => {
                 :disabled="disabled"
                 :required="required"
                 :rows="rows"
-                class="w-full text-body-md rounded-default border transition-colors duration-200 focus:outline-none resize-y"
+                @blur="$emit('blur', $event)"
+                class="w-full text-body-md rounded-default border transition-colors duration-200 focus:outline-none resize-y min-h-20 max-h-80"
                 :class="[sizeClasses, variantClasses, { 'pr-1000': showIconRight || $slots['icon-right'] }]"
             ></textarea>
 
@@ -123,11 +135,12 @@ const variantClasses = computed(() => {
                 :placeholder="placeholder"
                 :disabled="disabled"
                 :required="required"
+                @blur="$emit('blur', $event)"
                 class="w-full text-body-md rounded-default border transition-colors duration-200 focus:outline-none"
-                :class="[sizeClasses, variantClasses, { 'pr-1000': showIconRight || $slots['icon-right'] }]"
+                :class="[sizeClasses, variantClasses, { 'pr-1000': showIconRight || $slots['icon-right'] }, { 'pl-10.5': $slots['icon-left'] || $slots['prefix'] }]"
             />
 
-            <div v-if="showIconRight || $slots['icon-right']" class="absolute right-300 top-300 flex items-center justify-center text-text-secondary">
+            <div v-if="showIconRight || $slots['icon-right']" class="absolute right-300 top-1/2 -translate-y-1/2 flex items-center justify-center text-text-secondary pointer-events-none">
                 <slot name="icon-right" />
             </div>
         </div>
