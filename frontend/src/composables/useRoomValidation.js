@@ -43,6 +43,9 @@ export function useRoomValidation() {
         rules: [
             v => required(v, 'Rules')
         ],
+        facilities: [
+            v => required(v, 'Facilities')
+        ],
         image: [
             v => required(v, 'Room Image'),
             v => isAvifFile(v, 'Room Image'),
