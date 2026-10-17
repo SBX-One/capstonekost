@@ -96,3 +96,22 @@ export function validate(value, validators) {
     }
     return { valid: true, message: '' }
 }
+
+export function isAvifFile(file, fieldName = 'File') {
+    if (!file) return { valid: true, message: '' }
+
+    if (file.type !== 'image/avif' && !file.name.toLowerCase().endsWith('.avif')) {
+        return { valid: false, message: `${fieldName} must be an .avif file.` }
+    }
+    return { valid: true, message: '' }
+}
+
+export function maxFileSize(file, maxSizeMB, fieldName = 'File') {
+    if (!file) return { valid: true, message: '' }
+
+    const maxSizeBytes = maxSizeMB * 1024 * 1024
+    if (file.size > maxSizeBytes) {
+        return { valid: false, message: `${fieldName} must not exceed ${maxSizeMB}MB.` }
+    }
+    return { valid: true, message: '' }
+}

@@ -64,6 +64,7 @@ export function sanitizeRoomPayload(data) {
         floor: data.floor ? sanitizeNumber(data.floor, null) : null,
         price: data.price ? sanitizeNumber(data.price, 0) : 0,
         status: data.status === 'occupied' ? 'occupied' : 'available',
+        overview: data.overview ? sanitizeText(data.overview) : '',
         description: data.description ? sanitizeText(data.description) : '',
         rules: data.rules ? sanitizeText(data.rules) : '',
         facilities: Array.isArray(data.facilities) ? data.facilities.map(id => sanitizeNumber(id)).filter(Boolean) : []
