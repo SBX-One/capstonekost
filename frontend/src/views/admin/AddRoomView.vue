@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch, nextTick } from 'vue';
 import { useRouter, onBeforeRouteLeave } from 'vue-router';
 
 import { useRoom } from '@/composables/useRoom';
@@ -33,8 +33,8 @@ const form = reactive({
 
 const { facilityOptions, handleCreateNewFacility } = useRoomFacilities(form.facilities);
 
-const onAddFacility = facilityName => {
-    const result = handleCreateNewFacility(facilityName);
+const onAddFacility = facilityPayload => {
+    const result = handleCreateNewFacility(facilityPayload);
 
     if (result && result.status !== 'success') {
         alert(result.message);
@@ -145,6 +145,8 @@ const submitForm = async () => {
 
     if (success) {
         isFormDirty.value = false;
+        await nextTick();
+
         router.push({ name: 'admin-rooms' });
     }
 };
