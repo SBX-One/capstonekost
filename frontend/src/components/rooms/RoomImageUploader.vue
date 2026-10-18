@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeUnmount } from 'vue';
+import { ref, watch, computed, onBeforeUnmount } from 'vue';
 import BaseButton from '@/components/common/BaseButton.vue';
 
 const modelValue = defineModel({
@@ -13,11 +13,55 @@ const props = defineProps({
         type: String,
         default: '',
     },
+    existingImages: {
+        type: Array,
+        default: () => [],
+    },
 });
 
+const emit = defineEmits(['remove-existing']);
+
 const imagePreviews = ref([null, null, null, null, null]);
+const localExisting = ref([null, null, null, null, null]);
+const localError = ref('');
+
 const fileInput = ref(null);
 const activeImageIndex = ref(0);
+
+watch(
+    () => props.existingImages,
+    newImages => {
+        if (newImages && newImages.length > 0) {
+            const mapped = [null, null, null, null, null];
+            newImages.forEach(img => {
+                if (img && img.sort_order && img.sort_order <= 5) {
+                    mapped[img.sort_order - 1] = img;
+                }
+            });
+            localExisting.value = mapped;
+        }
+    },
+    { immediate: true, deep: true }
+);
+
+const getImageUrl = path => {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:8000';
+    return `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+};
+
+const displayPreviews = computed(() => {
+    return Array(5)
+        .fill(null)
+        .map((_, i) => {
+            if (imagePreviews.value[i]) return imagePreviews.value[i];
+            if (localExisting.value[i] && localExisting.value[i].image_path) {
+                return getImageUrl(localExisting.value[i].image_path);
+            }
+            return null;
+        });
+});
 
 const triggerFileInput = (index = 0) => {
     activeImageIndex.value = index;
@@ -27,9 +71,21 @@ const triggerFileInput = (index = 0) => {
 const processFile = (file, index) => {
     if (!file) return;
 
+    const isAvif = file.type === 'image/avif' || file.name.toLowerCase().endsWith('.avif');
+    if (!isAvif) {
+        localError.value = 'Invalid file format. Only .AVIF files are allowed.';
+        return;
+    }
+    localError.value = '';
+
     let targetIndex = index;
-    if (index !== 0 && !modelValue.value[0]) {
+    if (index !== 0 && !displayPreviews.value[0]) {
         targetIndex = 0;
+    }
+
+    if (localExisting.value[targetIndex]) {
+        emit('remove-existing', localExisting.value[targetIndex].id);
+        localExisting.value[targetIndex] = null;
     }
 
     if (imagePreviews.value[targetIndex]) {
@@ -41,20 +97,20 @@ const processFile = (file, index) => {
     modelValue.value = newImages;
 
     imagePreviews.value[targetIndex] = URL.createObjectURL(file);
-
     if (fileInput.value) fileInput.value.value = '';
 };
 
 const removeImage = index => {
     if (imagePreviews.value[index]) {
         URL.revokeObjectURL(imagePreviews.value[index]);
+        const newImages = [...modelValue.value];
+        newImages[index] = null;
+        modelValue.value = newImages;
+        imagePreviews.value[index] = null;
+    } else if (localExisting.value[index]) {
+        emit('remove-existing', localExisting.value[index].id);
+        localExisting.value[index] = null;
     }
-
-    const newImages = [...modelValue.value];
-    newImages[index] = null;
-    modelValue.value = newImages;
-    imagePreviews.value[index] = null;
-
     if (fileInput.value) fileInput.value.value = '';
 };
 
@@ -77,19 +133,18 @@ onBeforeUnmount(() => {
 
 <template>
     <div class="flex flex-col">
-        <input type="file" ref="fileInput" class="hidden" accept="image/avif" @change="handleFileSelect" />
+        <input type="file" ref="fileInput" class="hidden" accept="image/avif, .avif" @change="handleFileSelect" />
 
         <div
             class="w-full h-105 bg-neutral-100 border-2 border-dashed rounded-default flex flex-col items-center justify-center relative overflow-hidden transition-colors duration-200 cursor-pointer"
-            :class="error ? 'border-status-error' : 'border-border-default hover:border-border-focus'"
+            :class="localError || error ? 'border-status-error' : 'border-border-default hover:border-border-focus'"
             @dragover.prevent
             @dragenter.prevent
             @drop.prevent="handleFileDrop($event, 0)"
-            @click="!imagePreviews[0] && triggerFileInput(0)"
+            @click="!displayPreviews[0] && triggerFileInput(0)"
         >
-            <template v-if="imagePreviews[0]">
-                <img :src="imagePreviews[0]" class="w-full h-full object-cover absolute inset-0 z-0" />
-
+            <template v-if="displayPreviews[0]">
+                <img :src="displayPreviews[0]" class="w-full h-full object-cover absolute inset-0 z-0" />
                 <button
                     type="button"
                     @click.stop="removeImage(0)"
@@ -97,7 +152,6 @@ onBeforeUnmount(() => {
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
-
                 <div class="absolute inset-0 bg-black/40 z-10 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                     <BaseButton variant="secondary" class="bg-white border-none" @click.stop="triggerFileInput(0)"> Change Main Image </BaseButton>
                 </div>
@@ -115,27 +169,28 @@ onBeforeUnmount(() => {
                     />
                 </svg>
                 <p class="text-h4 text-text-primary mb-200 font-semibold">Choose a file and drag & drop it here.</p>
-                <p class="text-body-sm text-text-secondary mb-600">.AVIF up to 5 MB</p>
+                <p class="text-body-sm text-text-secondary mb-600">.AVIF format only (Max 5MB)</p>
                 <BaseButton variant="secondary" @click.stop="triggerFileInput(0)">Browse a file</BaseButton>
             </template>
         </div>
 
-        <p v-if="error" class="text-body-sm text-status-error mt-200">{{ error }}</p>
+        <p v-if="localError || error" class="text-body-sm text-status-error mt-200">
+            {{ localError || error }}
+        </p>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-200 mt-300">
             <div
                 v-for="i in 4"
                 :key="i"
                 class="aspect-square bg-neutral-100 border-2 border-dashed rounded-default flex items-center justify-center text-text-secondary hover:bg-neutral-200 transition-colors cursor-pointer relative overflow-hidden"
-                :class="imagePreviews[i] ? 'border-transparent' : 'border-border-default'"
+                :class="displayPreviews[i] ? 'border-transparent' : 'border-border-default'"
                 @dragover.prevent
                 @dragenter.prevent
                 @drop.prevent="handleFileDrop($event, i)"
-                @click="!imagePreviews[i] && triggerFileInput(i)"
+                @click="!displayPreviews[i] && triggerFileInput(i)"
             >
-                <template v-if="imagePreviews[i]">
-                    <img :src="imagePreviews[i]" class="w-full h-full object-cover absolute inset-0 z-0" />
-
+                <template v-if="displayPreviews[i]">
+                    <img :src="displayPreviews[i]" class="w-full h-full object-cover absolute inset-0 z-0" />
                     <button
                         type="button"
                         @click.stop="removeImage(i)"
@@ -145,7 +200,6 @@ onBeforeUnmount(() => {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
-
                     <div class="absolute inset-0 bg-black/40 z-10 flex flex-col items-center justify-center opacity-0 hover:opacity-100 transition-opacity" @click.stop="triggerFileInput(i)">
                         <svg class="w-6 h-6 text-neutral-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path

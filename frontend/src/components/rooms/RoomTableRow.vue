@@ -20,11 +20,21 @@ const { formatRupiah } = useRoom();
 const neutralFallbackImage =
     "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='%23a3a3a3' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'%3E%3C/circle%3E%3Cpolyline points='21 15 16 10 5 21'%3E%3C/polyline%3E%3C/svg%3E";
 
+const getImageUrl = path => {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+
+    const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:8000';
+
+    return `${baseUrl}/${path.replace(/^\//, '')}`;
+};
+
 const roomImage = computed(() => {
     if (Array.isArray(props.room.images) && props.room.images.length > 0) {
-        return props.room.images[0].image_path;
+        const mainImage = props.room.images.find(img => img.sort_order === 1) || props.room.images[0];
+        return getImageUrl(mainImage.image_path);
     }
-    return props.room.image || neutralFallbackImage;
+    return props.room.image ? getImageUrl(props.room.image) : neutralFallbackImage;
 });
 
 const roomName = computed(() => {
