@@ -183,7 +183,7 @@ export const useRoomStore = defineStore('room', () => {
         validationErrors.value = {}
 
         try {
-            await apiClient.patch(`/admin/update/${id}`, updatedData, {
+            await apiClient.post(`/admin/update/${id}`, updatedData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
