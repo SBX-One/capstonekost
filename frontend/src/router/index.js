@@ -52,6 +52,12 @@ const routes = [
                 name: 'admin-room-add',
                 component: () => import('@/views/admin/AddRoomView.vue')
             },
+            {
+                path: 'rooms/edit/:id',
+                name: 'admin-room-edit',
+                component: () => import('@/views/admin/EditRoomView.vue'),
+                props: true
+            },
         ]
     },
 
