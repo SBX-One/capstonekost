@@ -115,3 +115,31 @@ export function maxFileSize(file, maxSizeMB, fieldName = 'File') {
     }
     return { valid: true, message: '' }
 }
+
+export function validateFileArray(files, maxFiles = 5, maxSizeMB = 5, fieldName = 'File') {
+    if (!files || !Array.isArray(files)) {
+        return { valid: true, message: '' }
+    }
+
+    if (files.length > maxFiles) {
+        return { valid: false, message: `Maximum ${maxFiles} ${fieldName}s are allowed.` }
+    }
+
+    for (const [index, currentFile] of files.entries()) {
+        if (currentFile) {
+            if (!(currentFile instanceof File || currentFile instanceof Blob)) {
+                return { valid: false, message: `Data in slot ${index + 1} is corrupted or not a valid file.` }
+            }
+
+            const slotLabel = `${fieldName} slot ${index + 1}`
+
+            const formatValidation = isAvifFile(currentFile, slotLabel)
+            if (!formatValidation.valid) return formatValidation
+
+            const sizeValidation = maxFileSize(currentFile, maxSizeMB, slotLabel)
+            if (!sizeValidation.valid) return sizeValidation
+        }
+    }
+
+    return { valid: true, message: '' }
+}

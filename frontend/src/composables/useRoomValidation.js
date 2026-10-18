@@ -1,8 +1,8 @@
 import { useValidation } from '@/composables/useValidation'
-import { required, isNumeric, minValue, maxLength, isAvifFile, maxFileSize } from '@/utils/validators'
+import { required, isNumeric, minValue, maxLength, validateFileArray } from '@/utils/validators'
 import { useRoom } from '@/composables/useRoom'
 
-export function useRoomValidation() {
+export function useRoomValidation(isEdit = false) {
     const { formatRupiah } = useRoom()
 
     const rules = {
@@ -46,10 +46,11 @@ export function useRoomValidation() {
         facilities: [
             v => required(v, 'Facilities')
         ],
-        image: [
-            v => required(v, 'Room Image'),
-            v => isAvifFile(v, 'Room Image'),
-            v => maxFileSize(v, 5, 'Room Image')
+        images: isEdit ? [
+            v => validateFileArray(v, 5, 5, 'Room Image')
+        ] : [
+            v => required(v ? v[0] : null, 'Primary Room Image'),
+            v => validateFileArray(v, 5, 5, 'Room Image')
         ]
     }
 

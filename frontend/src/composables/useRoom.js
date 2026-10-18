@@ -22,7 +22,7 @@ export function useRoom() {
     }
 
     function navigateToEdit(id) {
-        router.push({ name: 'AdminRoomUpdate', params: { id } })
+        router.push({ name: 'admin-room-edit', params: { id } })
     }
 
     function formatRupiah(price) {
