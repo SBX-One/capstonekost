@@ -39,6 +39,8 @@ class RoomUpdateRequest extends FormRequest
                 'mimes:avif',
                 'max:2048',
             ],
+            'deleted_images' => ['nullable', 'array'],
+            'deleted_images.*' => ['integer', 'exists:room_image_paths,id']
         ];
     }
 
@@ -81,6 +83,10 @@ class RoomUpdateRequest extends FormRequest
 
             'image.image' => 'The uploaded file must be an image',
             'image.mimes' => 'Image must be in AVIF format',
+
+            'deleted_images.array' => 'Deleted images must be an array',
+            'deleted_images.*.integer' => 'Each deleted image ID must be an integer',
+            'deleted_images.*.exists' => 'One or more images IDs provided to delete are invalid',
         ];
     }
 }
