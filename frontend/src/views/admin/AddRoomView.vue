@@ -1,7 +1,6 @@
 <script setup>
-import { ref, reactive, watch, nextTick } from 'vue';
+import { ref, reactive, watch, nextTick, computed } from 'vue';
 import { useRouter, onBeforeRouteLeave } from 'vue-router';
-
 import { useRoom } from '@/composables/useRoom';
 import { useRoomValidation } from '@/composables/useRoomValidation';
 import { useRoomFacilities } from '@/composables/useRoomFacilities';
@@ -15,8 +14,8 @@ import RoomImageUploader from '@/components/rooms/RoomImageUploader.vue';
 
 const router = useRouter();
 const { createRoom, isMutating, formatRupiah } = useRoom();
-
 const { validateAll, validateField, errors, setFieldError } = useRoomValidation();
+const { facilityOptions } = useRoomFacilities();
 
 const form = reactive({
     name: '',
@@ -27,13 +26,15 @@ const form = reactive({
     overview: '',
     description: '',
     rules: '',
-    image: null,
     images: [null, null, null, null, null],
 });
 
-const { facilityOptions } = useRoomFacilities();
-
 const isFormDirty = ref(false);
+const displayPrice = ref('');
+
+const isSubmitDisabled = computed(() => {
+    return isMutating.value || !isFormDirty.value;
+});
 
 watch(
     form,
@@ -53,44 +54,29 @@ onBeforeRouteLeave((to, from, next) => {
 });
 
 watch(
-    () => form.images[0],
-    newFile => {
-        form.image = newFile;
-        validateField('image', newFile);
-    }
+    () => form.images,
+    newImages => {
+        validateField('images', newImages);
+    },
+    { deep: true }
 );
-
-const displayPrice = ref('');
 
 const handlePriceInput = event => {
     setFieldError('price', '');
-
-    const rawValue = event.target.value;
-    const numericValue = rawValue.replace(/[^0-9]/g, '');
-
+    const numericValue = event.target.value.replace(/[^0-9]/g, '');
     form.price = numericValue ? Number(numericValue) : '';
-
-    if (numericValue) {
-        const formatted = formatRupiah(Number(numericValue));
-        displayPrice.value = formatted.replace(/Rp\s?/g, '').trim();
-    } else {
-        displayPrice.value = '';
-    }
+    displayPrice.value = numericValue ? formatRupiah(Number(numericValue)).replace(/Rp\s?/g, '').trim() : '';
 };
 
 const adjustPrice = amount => {
-    let currentPrice = form.price ? Number(form.price) : 0;
-    let newPrice = currentPrice + amount;
-
+    const newPrice = (form.price ? Number(form.price) : 0) + amount;
     if (newPrice <= 0) {
         form.price = '';
         displayPrice.value = '';
     } else {
         form.price = newPrice;
-        const formatted = formatRupiah(newPrice);
-        displayPrice.value = formatted.replace(/Rp\s?/g, '').trim();
+        displayPrice.value = formatRupiah(newPrice).replace(/Rp\s?/g, '').trim();
     }
-
     validateField('price', form.price);
 };
 
@@ -112,31 +98,23 @@ const submitForm = async () => {
     const formData = new FormData();
 
     Object.entries(cleanData).forEach(([key, value]) => {
-        if (key !== 'facilities' && key !== 'images' && key !== 'image' && value !== null && value !== undefined) {
+        if (key !== 'facilities' && key !== 'images' && value !== null && value !== undefined && value !== '') {
             formData.append(key, value);
         }
     });
 
     if (Array.isArray(cleanData.facilities)) {
-        cleanData.facilities.forEach(id => {
-            formData.append('facilities[]', id);
-        });
+        cleanData.facilities.forEach(id => formData.append('facilities[]', id));
     }
 
-    if (form.images[0]) formData.append('image', form.images[0]);
-
     form.images.forEach((file, index) => {
-        if (index > 0 && file) {
-            formData.append('images[]', file);
-        }
+        if (file) formData.append(`images[${index}]`, file);
     });
 
     const success = await createRoom(formData);
-
     if (success) {
         isFormDirty.value = false;
         await nextTick();
-
         router.push({ name: 'admin-rooms' });
     }
 };
@@ -286,13 +264,13 @@ const submitForm = async () => {
                 </div>
 
                 <div class="lg:col-span-5 flex flex-col">
-                    <RoomImageUploader v-model="form.images" :error="errors.image" />
+                    <RoomImageUploader v-model="form.images" :error="errors.images" />
                 </div>
             </div>
 
             <div class="mt-600 pt-500 border-t border-border-default flex justify-end gap-300">
                 <BaseButton variant="secondary" type="button" size="lg" @click="router.back()">Cancel</BaseButton>
-                <BaseButton type="submit" variant="primary" size="lg" :disabled="isMutating">
+                <BaseButton type="submit" variant="primary" size="lg" :disabled="isSubmitDisabled">
                     {{ isMutating ? 'Saving...' : 'Add Room' }}
                 </BaseButton>
             </div>
