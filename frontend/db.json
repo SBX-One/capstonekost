@@ -13,347 +13,1265 @@
         {
             "id": 1,
             "name": "A-01",
-            "room_type": { "id": 1, "name": "Single Room" },
+            "room_type": {
+                "id": 1,
+                "name": "Single Room"
+            },
             "floor": 1,
-            "price": 1200000,
+            "price": 1050000,
             "status": "available",
-            "description": "Kamar single yang nyaman dengan pencahayaan alami yang baik.",
-            "rules": "Dilarang merokok di dalam kamar. Tamu menginap wajib lapor.",
-            "images": [{ "id": 1, "image_path": "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=600&q=80", "sort_order": 1 }],
+            "overview": "Kamar single ekonomis di lantai dasar.",
+            "description": "Kamar nyaman dengan pencahayaan alami. Sangat cocok untuk mahasiswa dengan budget hemat.",
+            "rules": "Dilarang merokok di dalam kamar. Tamu wajib lapor.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                },
+                {
+                    "id": 2,
+                    "image_path": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 2
+                }
+            ],
             "facilities": [
-                { "id": 1, "name": "Bed", "information": "Single size comfortable bed" },
-                { "id": 3, "name": "Fan", "information": "Wall fan cooling system" }
+                { "id": 5, "name": "Bed", "information": "Single size comfortable bed" },
+                { "id": 7, "name": "Fan", "information": "Wall fan cooling system" },
+                { "id": 4, "name": "WiFi", "information": "Standard internet access" }
             ],
             "utilities": [
-                { "id": 1, "name": "Water", "information": "Water usage included in rent" },
-                { "id": 2, "name": "Electricity", "information": "Electricity billed separately" }
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Water usage included in rent"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Electricity billed separately"
+                }
             ],
-            "created_at": "2026-10-01T10:00:00",
-            "updated_at": "2026-10-05T14:30:00"
+            "created_at": "2026-10-01T10:00:00.000Z",
+            "updated_at": "2026-10-18T10:06:49.367Z"
         },
         {
             "id": 2,
-            "name": "A-03",
-            "room_type": { "id": 1, "name": "Single Room" },
+            "name": "A-02",
+            "room_type": {
+                "id": 1,
+                "name": "Single Room"
+            },
             "floor": 1,
-            "price": 1500000,
+            "price": 1100000,
             "status": "available",
-            "description": "Kamar single luas dengan fasilitas lengkap.",
-            "rules": "Dilarang membawa hewan peliharaan.",
-            "images": [{ "id": 1, "image_path": "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=600&q=80", "sort_order": 1 }],
+            "overview": "Kamar single dekat pintu utama.",
+            "description": "Akses mudah tanpa naik tangga. Fasilitas kipas angin dinding yang sejuk.",
+            "rules": "Pintu utama dikunci jam 23.00.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                },
+                {
+                    "id": 2,
+                    "image_path": "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 2
+                }
+            ],
             "facilities": [
-                { "id": 1, "name": "Bed", "information": "Queen size bed" },
-                { "id": 2, "name": "AC", "information": "Air Conditioning" },
-                { "id": 4, "name": "WiFi", "information": "High-speed internet access" },
-                { "id": 5, "name": "Private Bathroom", "information": "En-suite bathroom inside room" }
+                { "id": 5, "name": "Bed", "information": "Single size bed" },
+                { "id": 7, "name": "Fan", "information": "Wall fan" },
+                { "id": 4, "name": "WiFi", "information": "Standard WiFi" },
+                { "id": 6, "name": "Desk", "information": "Study desk" }
             ],
             "utilities": [
-                { "id": 1, "name": "Water", "information": "Included" },
-                { "id": 2, "name": "Electricity", "information": "Token / Separate" }
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                }
             ],
-            "created_at": "2026-10-01T10:00:00",
-            "updated_at": "2026-10-05T14:30:00"
+            "created_at": "2026-10-02T10:00:00.000Z",
+            "updated_at": "2026-10-18T10:20:39.086Z"
         },
         {
             "id": 3,
-            "name": "A-04",
-            "room_type": { "id": 2, "name": "Double Room" },
+            "name": "A-03",
+            "room_type": {
+                "id": 1,
+                "name": "Single Room"
+            },
             "floor": 1,
-            "price": 1650000,
+            "price": 1350000,
             "status": "available",
-            "description": "Kamar double yang ideal untuk berbagi atau ruang lebih luas.",
-            "rules": "Menjaga kebersihan area bersama.",
-            "images": [{ "id": 1, "image_path": "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=600&q=80", "sort_order": 1 }],
-            "facilities": [
-                { "id": 1, "name": "Bed", "information": "Double bed" },
-                { "id": 2, "name": "Desk", "information": "Working desk and chair" },
-                { "id": 3, "name": "Fan", "information": "Fan cooler" },
-                { "id": 4, "name": "WiFi", "information": "High-speed WiFi" }
+            "overview": "Kamar single dengan AC.",
+            "description": "Tipe single room yang sudah di-upgrade dengan fasilitas AC untuk kenyamanan ekstra.",
+            "rules": "Dilarang memaku dinding.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
             ],
-            "utilities": [{ "id": 1, "name": "Water", "information": "Included" }],
-            "created_at": "2026-10-02T11:00:00",
-            "updated_at": "2026-10-06T09:00:00"
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Single bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Fast internet" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-03T10:00:00.000Z",
+            "updated_at": "2026-10-18T10:12:00.350Z"
         },
         {
             "id": 4,
-            "name": "A-05",
-            "room_type": { "id": 2, "name": "Double Room" },
+            "name": "A-04",
+            "room_type": {
+                "id": 1,
+                "name": "Single Room"
+            },
             "floor": 1,
-            "price": 1850000,
-            "status": "occupied",
-            "description": "Double room dengan fasilitas kamar mandi dalam dan AC.",
-            "rules": "Tamu luar dilarang menginap tanpa izin.",
-            "images": [{ "id": 1, "image_path": "https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&w=600&q=80", "sort_order": 1 }],
-            "facilities": [
-                { "id": 1, "name": "Bed", "information": "Double bed" },
-                { "id": 2, "name": "AC", "information": "Air Conditioning" },
-                { "id": 4, "name": "WiFi", "information": "WiFi included" },
-                { "id": 5, "name": "Private Bathroom", "information": "En-suite bathroom" }
+            "price": 1350000,
+            "status": "available",
+            "overview": "Kamar single strategis dengan AC.",
+            "description": "Menghadap ke arah taman mini, sirkulasi udara sangat baik meski tanpa menyalakan AC.",
+            "rules": "Matikan AC dan lampu jika meninggalkan kamar.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1522771731478-44eb9f310f88?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
             ],
-            "utilities": [{ "id": 1, "name": "Water", "information": "Included" }],
-            "created_at": "2026-10-02T12:00:00",
-            "updated_at": "2026-10-06T10:00:00"
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Single size bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "High-speed internet" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-04T10:00:00.000Z",
+            "updated_at": "2026-10-04T10:00:00.000Z"
         },
         {
             "id": 5,
-            "name": "A-06",
-            "room_type": { "id": 2, "name": "Double Room" },
+            "name": "A-05",
+            "room_type": {
+                "id": 1,
+                "name": "Single Room"
+            },
             "floor": 1,
-            "price": 2000000,
+            "price": 1400000,
             "status": "available",
-            "description": "Kamar double premium lengkap dengan TV dan meja kerja.",
-            "rules": "Harap mematuhi jam malam portal.",
-            "images": [{ "id": 1, "image_path": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80", "sort_order": 1 }],
-            "facilities": [
-                { "id": 1, "name": "Bed", "information": "Double bed" },
-                { "id": 2, "name": "Desk", "information": "Working desk" },
-                { "id": 3, "name": "AC", "information": "AC unit" },
-                { "id": 4, "name": "WiFi", "information": "Fast internet" },
-                { "id": 6, "name": "TV", "information": "Smart TV 32 inch" }
+            "overview": "Kamar single pojok yang tenang.",
+            "description": "Berada di sudut lorong, memberikan privasi ekstra dan bebas dari suara bising.",
+            "rules": "Tidak boleh membawa hewan peliharaan.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1536376072261-38c75010e6c9?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
             ],
-            "utilities": [{ "id": 1, "name": "Water", "information": "Included" }],
-            "created_at": "2026-10-03T08:00:00",
-            "updated_at": "2026-10-06T11:00:00"
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Single bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Standard WiFi" },
+                { "id": 6, "name": "Desk", "information": "Study desk" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-05T10:00:00.000Z",
+            "updated_at": "2026-10-18T07:53:13.361Z"
         },
         {
             "id": 6,
-            "name": "A-07",
-            "room_type": { "id": 3, "name": "Master Room" },
+            "name": "B-01",
+            "room_type": {
+                "id": 2,
+                "name": "Double Room"
+            },
             "floor": 1,
-            "price": 2200000,
+            "price": 1600000,
             "status": "available",
-            "description": "Master room eksklusif dengan fasilitas dapur pribadi.",
-            "rules": "Menjaga kebersihan area dapur pribadi.",
-            "images": [{ "id": 1, "image_path": "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=600&q=80", "sort_order": 1 }],
-            "facilities": [
-                { "id": 1, "name": "Bed", "information": "King size bed" },
-                { "id": 3, "name": "Fan", "information": "Cooler fan" },
-                { "id": 4, "name": "WiFi", "information": "Dedicated WiFi" },
-                { "id": 5, "name": "Private Bathroom", "information": "Luxurious bathroom" },
-                { "id": 7, "name": "Private Kitchen", "information": "Mini kitchen inside" }
+            "overview": "Kamar double untuk sharing 2 orang.",
+            "description": "Kamar luas dengan dua kasur tipe single, sangat cocok untuk ditempati bersama teman atau saudara.",
+            "rules": "Kapasitas maksimal 2 orang penghuni tetap.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                },
+                {
+                    "id": 2,
+                    "image_path": "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 2
+                }
             ],
-            "utilities": [{ "id": 1, "name": "Water", "information": "Included" }],
-            "created_at": "2026-10-03T09:00:00",
-            "updated_at": "2026-10-06T12:00:00"
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Two single beds" },
+                { "id": 7, "name": "Fan", "information": "Ceiling fan" },
+                { "id": 4, "name": "WiFi", "information": "Dedicated WiFi" },
+                { "id": 1, "name": "Private Bathroom", "information": "Inside bathroom" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Separate bill"
+                }
+            ],
+            "created_at": "2026-10-06T10:00:00.000Z",
+            "updated_at": "2026-10-18T10:12:25.675Z"
         },
         {
             "id": 7,
-            "name": "A-08",
-            "room_type": { "id": 3, "name": "Master Room" },
+            "name": "B-02",
+            "room_type": {
+                "id": 2,
+                "name": "Double Room"
+            },
             "floor": 1,
-            "price": 2450000,
+            "price": 1750000,
             "status": "available",
-            "description": "Master room luas dengan AC dan fasilitas lengkap.",
-            "rules": "Dilarang membuat kebisingan di atas jam 11 malam.",
-            "images": [{ "id": 1, "image_path": "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=600&q=80", "sort_order": 1 }],
-            "facilities": [
-                { "id": 1, "name": "Bed", "information": "King size bed" },
-                { "id": 2, "name": "Desk", "information": "Executive desk" },
-                { "id": 3, "name": "AC", "information": "Inverter AC" },
-                { "id": 4, "name": "WiFi", "information": "High speed internet" },
-                { "id": 5, "name": "Private Bathroom", "information": "Water heater included" }
+            "overview": "Double room kasur Queen dengan AC.",
+            "description": "Menyediakan kasur ukuran Queen yang lega. Dilengkapi kamar mandi dalam yang bersih.",
+            "rules": "Harap menjaga kebersihan area kloset.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
             ],
-            "utilities": [{ "id": 1, "name": "Water", "information": "Included" }],
-            "created_at": "2026-10-04T10:00:00",
-            "updated_at": "2026-10-06T13:00:00"
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Queen size bed" },
+                { "id": 3, "name": "AC", "information": "Inverter AC" },
+                { "id": 4, "name": "WiFi", "information": "Fast internet" },
+                { "id": 1, "name": "Private Bathroom", "information": "Shower included" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-07T10:00:00.000Z",
+            "updated_at": "2026-10-07T10:00:00.000Z"
         },
         {
             "id": 8,
-            "name": "A-09",
-            "room_type": { "id": 3, "name": "Master Room" },
+            "name": "B-03",
+            "room_type": {
+                "id": 2,
+                "name": "Double Room"
+            },
             "floor": 1,
-            "price": 2650000,
-            "status": "occupied",
-            "description": "Kamar tipe master termewah dengan dapur dan perlengkapan lengkap.",
-            "rules": "Patuhi peraturan tata tertib gedung kos.",
-            "images": [{ "id": 1, "image_path": "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80", "sort_order": 1 }],
-            "facilities": [
-                { "id": 1, "name": "Bed", "information": "King size bed" },
-                { "id": 3, "name": "AC", "information": "AC unit" },
-                { "id": 4, "name": "WiFi", "information": "WiFi" },
-                { "id": 6, "name": "TV", "information": "Smart TV" },
-                { "id": 5, "name": "Private Bathroom", "information": "En-suite" },
-                { "id": 7, "name": "Private Kitchen", "information": "Kitchenette" }
+            "price": 1850000,
+            "status": "available",
+            "overview": "Double room AC dengan meja kerja.",
+            "description": "Fasilitas lengkap untuk work from home atau mahasiswa tingkat akhir.",
+            "rules": "Buang sampah pada tempat sampah komunal setiap pagi.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
             ],
-            "utilities": [{ "id": 1, "name": "Water", "information": "Included" }],
-            "created_at": "2026-10-04T11:00:00",
-            "updated_at": "2026-10-06T14:00:00"
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Queen size bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Included" },
+                { "id": 1, "name": "Private Bathroom", "information": "En-suite" },
+                { "id": 6, "name": "Desk", "information": "Large work desk" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-08T10:00:00.000Z",
+            "updated_at": "2026-10-18T10:13:06.268Z"
         },
         {
             "id": 9,
-            "name": "A-01",
-            "room_type": { "id": 1, "name": "Single Room" },
-            "floor": 1,
-            "price": 1200000,
+            "name": "A-06",
+            "room_type": {
+                "id": 1,
+                "name": "Single Room"
+            },
+            "floor": 2,
+            "price": 1150000,
             "status": "available",
-            "description": "Kamar single yang nyaman dengan pencahayaan alami yang baik.",
-            "rules": "Dilarang merokok di dalam kamar. Tamu menginap wajib lapor.",
-            "images": [{ "id": 1, "image_path": "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=600&q=80", "sort_order": 1 }],
+            "overview": "Kamar single lantai 2 sirkulasi baik.",
+            "description": "Jendela mengarah ke jalan raya, cahaya matahari masuk sempurna di pagi hari.",
+            "rules": "Jemur pakaian di area jemuran lantai 2.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
+            ],
             "facilities": [
-                { "id": 1, "name": "Bed", "information": "Single size comfortable bed" },
-                { "id": 3, "name": "Fan", "information": "Wall fan cooling system" }
+                { "id": 5, "name": "Bed", "information": "Single size bed" },
+                { "id": 7, "name": "Fan", "information": "Wall fan" },
+                { "id": 4, "name": "WiFi", "information": "Standard WiFi" }
             ],
             "utilities": [
-                { "id": 1, "name": "Water", "information": "Water usage included in rent" },
-                { "id": 2, "name": "Electricity", "information": "Electricity billed separately" }
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                }
             ],
-            "created_at": "2026-10-01T10:00:00",
-            "updated_at": "2026-10-05T14:30:00"
+            "created_at": "2026-10-09T10:00:00.000Z",
+            "updated_at": "2026-10-09T10:00:00.000Z"
         },
         {
             "id": 10,
-            "name": "A-03",
-            "room_type": { "id": 1, "name": "Single Room" },
-            "floor": 1,
-            "price": 1500000,
+            "name": "A-07",
+            "room_type": {
+                "id": 1,
+                "name": "Single Room"
+            },
+            "floor": 2,
+            "price": 1400000,
             "status": "available",
-            "description": "Kamar single luas dengan fasilitas lengkap.",
-            "rules": "Dilarang membawa hewan peliharaan.",
-            "images": [{ "id": 1, "image_path": "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=600&q=80", "sort_order": 1 }],
+            "overview": "Kamar single tenang lantai 2 dengan AC.",
+            "description": "Cocok bagi penghuni yang mencari ketenangan setelah beraktivitas seharian.",
+            "rules": "Suara musik mohon dikecilkan di atas jam 21.00.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
+            ],
             "facilities": [
-                { "id": 1, "name": "Bed", "information": "Queen size bed" },
-                { "id": 2, "name": "AC", "information": "Air Conditioning" },
-                { "id": 4, "name": "WiFi", "information": "High-speed internet access" },
-                { "id": 5, "name": "Private Bathroom", "information": "En-suite bathroom inside room" }
+                { "id": 5, "name": "Bed", "information": "Single bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Fast WiFi" }
             ],
             "utilities": [
-                { "id": 1, "name": "Water", "information": "Included" },
-                { "id": 2, "name": "Electricity", "information": "Token / Separate" }
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
             ],
-            "created_at": "2026-10-01T10:00:00",
-            "updated_at": "2026-10-05T14:30:00"
+            "created_at": "2026-10-10T10:00:00.000Z",
+            "updated_at": "2026-10-10T10:00:00.000Z"
         },
         {
             "id": 11,
-            "name": "A-04",
-            "room_type": { "id": 2, "name": "Double Room" },
-            "floor": 1,
-            "price": 1650000,
-            "status": "available",
-            "description": "Kamar double yang ideal untuk berbagi atau ruang lebih luas.",
-            "rules": "Menjaga kebersihan area bersama.",
-            "images": [{ "id": 1, "image_path": "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=600&q=80", "sort_order": 1 }],
-            "facilities": [
-                { "id": 1, "name": "Bed", "information": "Double bed" },
-                { "id": 2, "name": "Desk", "information": "Working desk and chair" },
-                { "id": 3, "name": "Fan", "information": "Fan cooler" },
-                { "id": 4, "name": "WiFi", "information": "High-speed WiFi" }
+            "name": "B-04",
+            "room_type": {
+                "id": 2,
+                "name": "Double Room"
+            },
+            "floor": 2,
+            "price": 1800000,
+            "status": "occupied",
+            "overview": "Double room lantai 2 dengan balkon.",
+            "description": "Memiliki balkon mini pribadi untuk bersantai di sore hari atau menjemur handuk.",
+            "rules": "Dilarang membuang abu rokok dari balkon.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
             ],
-            "utilities": [{ "id": 1, "name": "Water", "information": "Included" }],
-            "created_at": "2026-10-02T11:00:00",
-            "updated_at": "2026-10-06T09:00:00"
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Double bed" },
+                { "id": 3, "name": "AC", "information": "Inverter AC" },
+                { "id": 4, "name": "WiFi", "information": "High-speed internet" },
+                { "id": 1, "name": "Private Bathroom", "information": "Shower and toilet" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-11T10:00:00.000Z",
+            "updated_at": "2026-10-11T10:00:00.000Z"
         },
         {
             "id": 12,
-            "name": "A-05",
-            "room_type": { "id": 2, "name": "Double Room" },
-            "floor": 1,
-            "price": 1850000,
-            "status": "occupied",
-            "description": "Double room dengan fasilitas kamar mandi dalam dan AC.",
-            "rules": "Tamu luar dilarang menginap tanpa izin.",
-            "images": [{ "id": 1, "image_path": "https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&w=600&q=80", "sort_order": 1 }],
-            "facilities": [
-                { "id": 1, "name": "Bed", "information": "Double bed" },
-                { "id": 2, "name": "AC", "information": "Air Conditioning" },
-                { "id": 4, "name": "WiFi", "information": "WiFi included" },
-                { "id": 5, "name": "Private Bathroom", "information": "En-suite bathroom" }
+            "name": "B-05",
+            "room_type": {
+                "id": 2,
+                "name": "Double Room"
+            },
+            "floor": 2,
+            "price": 1950000,
+            "status": "available",
+            "overview": "Kamar double luas menghadap timur.",
+            "description": "Sinar matahari pagi masuk secara optimal, kamar bebas dari kelembapan.",
+            "rules": "Gunakan AC sewajarnya.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
             ],
-            "utilities": [{ "id": 1, "name": "Water", "information": "Included" }],
-            "created_at": "2026-10-02T12:00:00",
-            "updated_at": "2026-10-06T10:00:00"
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Queen size bed" },
+                { "id": 3, "name": "AC", "information": "1 PK Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Stable internet" },
+                { "id": 1, "name": "Private Bathroom", "information": "En-suite" },
+                { "id": 6, "name": "Desk", "information": "Office desk" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-12T10:00:00.000Z",
+            "updated_at": "2026-10-12T10:00:00.000Z"
         },
         {
             "id": 13,
-            "name": "A-06",
-            "room_type": { "id": 2, "name": "Double Room" },
-            "floor": 1,
-            "price": 2000000,
-            "status": "available",
-            "description": "Kamar double premium lengkap dengan TV dan meja kerja.",
-            "rules": "Harap mematuhi jam malam portal.",
-            "images": [{ "id": 1, "image_path": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80", "sort_order": 1 }],
-            "facilities": [
-                { "id": 1, "name": "Bed", "information": "Double bed" },
-                { "id": 2, "name": "Desk", "information": "Working desk" },
-                { "id": 3, "name": "AC", "information": "AC unit" },
-                { "id": 4, "name": "WiFi", "information": "Fast internet" },
-                { "id": 6, "name": "TV", "information": "Smart TV 32 inch" }
+            "name": "B-06",
+            "room_type": {
+                "id": 2,
+                "name": "Double Room"
+            },
+            "floor": 2,
+            "price": 1950000,
+            "status": "occupied",
+            "overview": "Kamar double nyaman di lantai dua.",
+            "description": "Fasilitas lengkap dengan meja belajar besar dan lemari dua pintu.",
+            "rules": "Laporkan segera jika ada fasilitas yang rusak.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1522771731478-44eb9f310f88?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
             ],
-            "utilities": [{ "id": 1, "name": "Water", "information": "Included" }],
-            "created_at": "2026-10-03T08:00:00",
-            "updated_at": "2026-10-06T11:00:00"
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Double bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Fast WiFi" },
+                { "id": 1, "name": "Private Bathroom", "information": "En-suite bathroom" },
+                { "id": 6, "name": "Desk", "information": "Study desk" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-13T10:00:00.000Z",
+            "updated_at": "2026-10-13T10:00:00.000Z"
         },
         {
             "id": 14,
-            "name": "A-07",
-            "room_type": { "id": 3, "name": "Master Room" },
-            "floor": 1,
-            "price": 2200000,
+            "name": "B-07",
+            "room_type": {
+                "id": 2,
+                "name": "Double Room"
+            },
+            "floor": 2,
+            "price": 2000000,
             "status": "available",
-            "description": "Master room eksklusif dengan fasilitas dapur pribadi.",
-            "rules": "Menjaga kebersihan area dapur pribadi.",
-            "images": [{ "id": 1, "image_path": "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=600&q=80", "sort_order": 1 }],
-            "facilities": [
-                { "id": 1, "name": "Bed", "information": "King size bed" },
-                { "id": 3, "name": "Fan", "information": "Cooler fan" },
-                { "id": 4, "name": "WiFi", "information": "Dedicated WiFi" },
-                { "id": 5, "name": "Private Bathroom", "information": "Luxurious bathroom" },
-                { "id": 7, "name": "Private Kitchen", "information": "Mini kitchen inside" }
+            "overview": "Double room premium dengan area duduk.",
+            "description": "Ada space ekstra untuk meletakkan karpet atau beanbag di samping kasur.",
+            "rules": "Dilarang membawa alat masak elektronik besar.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
             ],
-            "utilities": [{ "id": 1, "name": "Water", "information": "Included" }],
-            "created_at": "2026-10-03T09:00:00",
-            "updated_at": "2026-10-06T12:00:00"
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Queen size bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Included" },
+                { "id": 1, "name": "Private Bathroom", "information": "Included" },
+                { "id": 8, "name": "TV", "information": "32 Inch TV" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-14T10:00:00.000Z",
+            "updated_at": "2026-10-14T10:00:00.000Z"
         },
         {
             "id": 15,
-            "name": "A-08",
-            "room_type": { "id": 3, "name": "Master Room" },
-            "floor": 1,
-            "price": 2450000,
-            "status": "available",
-            "description": "Master room luas dengan AC dan fasilitas lengkap.",
-            "rules": "Dilarang membuat kebisingan di atas jam 11 malam.",
-            "images": [{ "id": 1, "image_path": "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=600&q=80", "sort_order": 1 }],
-            "facilities": [
-                { "id": 1, "name": "Bed", "information": "King size bed" },
-                { "id": 2, "name": "Desk", "information": "Executive desk" },
-                { "id": 3, "name": "AC", "information": "Inverter AC" },
-                { "id": 4, "name": "WiFi", "information": "High speed internet" },
-                { "id": 5, "name": "Private Bathroom", "information": "Water heater included" },
-                { "id": 6, "name": "Private Bathroom", "information": "Water heater included" },
-                { "id": 7, "name": "Private Bathroom", "information": "Water heater included" },
-                { "id": 8, "name": "Private Bathroom", "information": "Water heater included" },
-                { "id": 9, "name": "Private Bathroom", "information": "Water heater included" },
-                { "id": 10, "name": "Private Bathroom", "information": "Water heater included" },
-                { "id": 11, "name": "Private Bathroom", "information": "Water heater included" },
-                { "id": 12, "name": "Private Bathroom", "information": "Water heater included" }
+            "name": "C-01",
+            "room_type": {
+                "id": 3,
+                "name": "Master Room"
+            },
+            "floor": 2,
+            "price": 2500000,
+            "status": "occupied",
+            "overview": "Master room eksklusif lantai dua.",
+            "description": "Dilengkapi dengan dapur mini pribadi sehingga Anda bisa memasak sendiri dengan nyaman.",
+            "rules": "Bersihkan area dapur pribadi setiap kali selesai memasak.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
             ],
-            "utilities": [{ "id": 1, "name": "Water", "information": "Included" }],
-            "created_at": "2026-10-04T10:00:00",
-            "updated_at": "2026-10-06T13:00:00"
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "King size bed" },
+                { "id": 3, "name": "AC", "information": "1 PK AC" },
+                { "id": 4, "name": "WiFi", "information": "Dedicated WiFi" },
+                { "id": 1, "name": "Private Bathroom", "information": "Premium bathroom" },
+                { "id": 2, "name": "Private Kitchen", "information": "Mini kitchen counter" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-15T10:00:00.000Z",
+            "updated_at": "2026-10-15T10:00:00.000Z"
         },
         {
             "id": 16,
-            "name": "A-09",
-            "room_type": { "id": 3, "name": "Master Room" },
-            "floor": 1,
-            "price": 2650000,
-            "status": "occupied",
-            "description": "Kamar tipe master termewah dengan dapur dan perlengkapan lengkap.",
-            "rules": "Patuhi peraturan tata tertib gedung kos.",
-            "images": [{ "id": 1, "image_path": "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80", "sort_order": 1 }],
-            "facilities": [
-                { "id": 1, "name": "Bed", "information": "King size bed" },
-                { "id": 3, "name": "AC", "information": "AC unit" },
-                { "id": 4, "name": "WiFi", "information": "WiFi" },
-                { "id": 6, "name": "TV", "information": "Smart TV" },
-                { "id": 5, "name": "Private Bathroom", "information": "En-suite" },
-                { "id": 7, "name": "Private Kitchen", "information": "Kitchenette" }
+            "name": "C-02",
+            "room_type": {
+                "id": 3,
+                "name": "Master Room"
+            },
+            "floor": 2,
+            "price": 2600000,
+            "status": "available",
+            "overview": "Master room dengan Smart TV.",
+            "description": "Tipe apartemen studio mini. Sudah termasuk Smart TV dan koneksi internet khusus.",
+            "rules": "Dilarang mengubah posisi perabotan besar.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
             ],
-            "utilities": [{ "id": 1, "name": "Water", "information": "Included" }],
-            "created_at": "2026-10-04T11:00:00",
-            "updated_at": "2026-10-06T14:00:00"
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "King size bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Dedicated line" },
+                { "id": 1, "name": "Private Bathroom", "information": "En-suite" },
+                { "id": 2, "name": "Private Kitchen", "information": "Mini pantry" },
+                { "id": 8, "name": "TV", "information": "Smart TV 43 Inch" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-16T10:00:00.000Z",
+            "updated_at": "2026-10-16T10:00:00.000Z"
+        },
+        {
+            "id": 17,
+            "name": "B-08",
+            "room_type": {
+                "id": 2,
+                "name": "Double Room"
+            },
+            "floor": 3,
+            "price": 1850000,
+            "status": "available",
+            "overview": "Double room view kota lantai 3.",
+            "description": "Pemandangan indah ke arah kota. Ventilasi sangat bagus, sangat sejuk di malam hari.",
+            "rules": "Pintu pagar lantai 3 wajib dikunci setelah jam 10 malam.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
+            ],
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Queen size bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "High speed" },
+                { "id": 1, "name": "Private Bathroom", "information": "Included" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-17T10:00:00.000Z",
+            "updated_at": "2026-10-17T10:00:00.000Z"
+        },
+        {
+            "id": 18,
+            "name": "B-09",
+            "room_type": {
+                "id": 2,
+                "name": "Double Room"
+            },
+            "floor": 3,
+            "price": 1900000,
+            "status": "occupied",
+            "overview": "Double room pojok lantai 3.",
+            "description": "Lebih luas dibanding tipe double standar. Terdapat lorong kecil untuk meletakkan sepatu.",
+            "rules": "Rak sepatu harap ditata dengan rapi.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
+            ],
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Double bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Included" },
+                { "id": 1, "name": "Private Bathroom", "information": "Included" },
+                { "id": 6, "name": "Desk", "information": "Study desk" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-18T10:00:00.000Z",
+            "updated_at": "2026-10-18T10:00:00.000Z"
+        },
+        {
+            "id": 19,
+            "name": "B-10",
+            "room_type": {
+                "id": 2,
+                "name": "Double Room"
+            },
+            "floor": 3,
+            "price": 2000000,
+            "status": "available",
+            "overview": "Double room premium fasilitas TV.",
+            "description": "Double room paling mewah di kelasnya, sudah dilengkapi TV berlayar datar 32 inch.",
+            "rules": "Batas volume TV maksimal 50 di malam hari.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
+            ],
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Queen bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Included" },
+                { "id": 1, "name": "Private Bathroom", "information": "Included" },
+                { "id": 8, "name": "TV", "information": "LED TV 32\"" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-19T10:00:00.000Z",
+            "updated_at": "2026-10-19T10:00:00.000Z"
+        },
+        {
+            "id": 20,
+            "name": "C-03",
+            "room_type": {
+                "id": 3,
+                "name": "Master Room"
+            },
+            "floor": 3,
+            "price": 2700000,
+            "status": "available",
+            "overview": "Master room lantai tertinggi bebas bising.",
+            "description": "Kamar dengan ketenangan absolut. Memiliki ranjang King size dan dapur mini yang menghadap jendela besar.",
+            "rules": "Hati-hati menjemur di balkon belakang.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
+            ],
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "King size bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Dedicated line" },
+                { "id": 1, "name": "Private Bathroom", "information": "Premium bathroom" },
+                { "id": 2, "name": "Private Kitchen", "information": "Pantry area" },
+                { "id": 6, "name": "Desk", "information": "Executive desk" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-20T10:00:00.000Z",
+            "updated_at": "2026-10-20T10:00:00.000Z"
+        },
+        {
+            "id": 21,
+            "name": "C-04",
+            "room_type": {
+                "id": 3,
+                "name": "Master Room"
+            },
+            "floor": 3,
+            "price": 2900000,
+            "status": "available",
+            "overview": "Master room dengan TV 43 Inch.",
+            "description": "Fasilitas hiburan luar biasa, TV pintar ukuran besar, kasur mewah, kamar mandi bersih dengan air panas.",
+            "rules": "Sewa di bayarkan paling lambat tanggal 5 setiap bulannya.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                },
+                {
+                    "id": 2,
+                    "image_path": "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 2
+                },
+                {
+                    "id": 3,
+                    "image_path": "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 3
+                }
+            ],
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "King size bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Fast WiFi" },
+                { "id": 1, "name": "Private Bathroom", "information": "Water heater included" },
+                { "id": 2, "name": "Private Kitchen", "information": "Included" },
+                { "id": 8, "name": "TV", "information": "Smart TV 43 Inch" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-21T10:00:00.000Z",
+            "updated_at": "2026-10-18T10:43:11.345Z"
+        },
+        {
+            "id": 22,
+            "name": "C-05",
+            "room_type": {
+                "id": 3,
+                "name": "Master Room"
+            },
+            "floor": 3,
+            "price": 3500000,
+            "status": "available",
+            "overview": "Suite Master paling mewah di gedung Kosanmu.",
+            "description": "Tipe termewah. Ruangan paling luas, AC inverter, Smart TV 50 inch, dapur marmer mini, kamar mandi premium.",
+            "rules": "Dilarang menyewakan ulang.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
+            ],
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Premium King bed" },
+                { "id": 3, "name": "AC", "information": "Inverter Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Dedicated ultra-fast WiFi" },
+                { "id": 1, "name": "Private Bathroom", "information": "Premium design" },
+                { "id": 2, "name": "Private Kitchen", "information": "Marble counter" },
+                { "id": 8, "name": "TV", "information": "Smart TV 50\"" },
+                { "id": 6, "name": "Desk", "information": "Executive desk" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-22T10:00:00.000Z",
+            "updated_at": "2026-10-22T10:00:00.000Z"
+        },
+        {
+            "id": 23,
+            "name": "B-11",
+            "room_type": {
+                "id": 2,
+                "name": "Double Room"
+            },
+            "floor": 3,
+            "price": 2050000,
+            "status": "occupied",
+            "overview": "Double room sejuk lantai 3.",
+            "description": "Interior estetik ala Korea. Terdapat pencahayaan LED rahasia di belakang tempat tidur.",
+            "rules": "Tamu menginap dikenakan charge tambahan.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
+            ],
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Queen size bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Included" },
+                { "id": 1, "name": "Private Bathroom", "information": "Included" },
+                { "id": 6, "name": "Desk", "information": "Aesthetic desk" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-23T10:00:00.000Z",
+            "updated_at": "2026-10-23T10:00:00.000Z"
+        },
+        {
+            "id": 24,
+            "name": "A-08",
+            "room_type": {
+                "id": 1,
+                "name": "Single Room"
+            },
+            "floor": 2,
+            "price": 1450000,
+            "status": "available",
+            "overview": "Kamar single lega dengan furnitur IKEA.",
+            "description": "Perabotan kamar semuanya brand baru berdesain minimalis dan fungsional.",
+            "rules": "Mohon rawat perabotan dengan baik.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
+            ],
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Single size bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Included" },
+                { "id": 6, "name": "Desk", "information": "IKEA Desk" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-24T10:00:00.000Z",
+            "updated_at": "2026-10-24T10:00:00.000Z"
+        },
+        {
+            "id": 25,
+            "name": "C-06",
+            "room_type": {
+                "id": 3,
+                "name": "Master Room"
+            },
+            "floor": 1,
+            "price": 2400000,
+            "status": "occupied",
+            "overview": "Master room akses langsung ke garasi.",
+            "description": "Sangat cocok jika Anda membawa kendaraan pribadi.",
+            "rules": "Harap parkir kendaraan pada garis batas yang ditentukan.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
+            ],
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "King size bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Included" },
+                { "id": 1, "name": "Private Bathroom", "information": "Included" },
+                { "id": 2, "name": "Private Kitchen", "information": "Included" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-25T10:00:00.000Z",
+            "updated_at": "2026-10-25T10:00:00.000Z"
+        },
+        {
+            "id": 26,
+            "name": "B-12",
+            "room_type": {
+                "id": 2,
+                "name": "Double Room"
+            },
+            "floor": 3,
+            "price": 2100000,
+            "status": "available",
+            "overview": "Double room eksklusif view pagi.",
+            "description": "Jendela kaca full dari atas ke bawah memberikan pemandangan estetis perkotaan.",
+            "rules": "Hati-hati dengan jendela kaca.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
+            ],
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Queen size bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Included" },
+                { "id": 1, "name": "Private Bathroom", "information": "Included" },
+                { "id": 6, "name": "Desk", "information": "Included" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-26T10:00:00.000Z",
+            "updated_at": "2026-10-26T10:00:00.000Z"
+        },
+        {
+            "id": 27,
+            "name": "A-09",
+            "room_type": {
+                "id": 1,
+                "name": "Single Room"
+            },
+            "floor": 3,
+            "price": 1500000,
+            "status": "available",
+            "overview": "Single room tertinggi udara sejuk.",
+            "description": "Satu-satunya kamar single di lantai 3. Sangat private, bersih.",
+            "rules": "Patuhi tata tertib umum.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1522771731478-44eb9f310f88?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
+            ],
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Single size bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Included" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-27T10:00:00.000Z",
+            "updated_at": "2026-10-27T10:00:00.000Z"
+        },
+        {
+            "id": 28,
+            "name": "C-07",
+            "room_type": {
+                "id": 3,
+                "name": "Master Room"
+            },
+            "floor": 2,
+            "price": 2800000,
+            "status": "occupied",
+            "overview": "Master Room dengan dua jendela.",
+            "description": "Sirkulasi udara ganda. AC 1 PK, kasur King, dan kitchen sink granit.",
+            "rules": "Larangan membawa durian masuk ke dalam kamar.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
+            ],
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "King bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Included" },
+                { "id": 1, "name": "Private Bathroom", "information": "Included" },
+                { "id": 2, "name": "Private Kitchen", "information": "Included" },
+                { "id": 8, "name": "TV", "information": "Included" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-28T10:00:00.000Z",
+            "updated_at": "2026-10-28T10:00:00.000Z"
+        },
+        {
+            "id": 29,
+            "name": "B-13",
+            "room_type": {
+                "id": 2,
+                "name": "Double Room"
+            },
+            "floor": 1,
+            "price": 1700000,
+            "status": "available",
+            "overview": "Double room dekat taman dalam.",
+            "description": "Kamar menghadap ke vertical garden di dalam gedung.",
+            "rules": "Tutup pintu agar serangga tidak masuk.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
+            ],
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "Double bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Included" },
+                { "id": 1, "name": "Private Bathroom", "information": "Included" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-29T10:00:00.000Z",
+            "updated_at": "2026-10-29T10:00:00.000Z"
+        },
+        {
+            "id": 30,
+            "name": "C-08",
+            "room_type": {
+                "id": 3,
+                "name": "Master Room"
+            },
+            "floor": 3,
+            "price": 3100000,
+            "status": "occupied",
+            "overview": "Master room super besar di sudut gedung.",
+            "description": "Apartemen studio mini super mewah. Akses tangga pribadi terpisah.",
+            "rules": "Ikuti protokol keamanan kos.",
+            "images": [
+                {
+                    "id": 1,
+                    "image_path": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80",
+                    "sort_order": 1
+                }
+            ],
+            "facilities": [
+                { "id": 5, "name": "Bed", "information": "King size bed" },
+                { "id": 3, "name": "AC", "information": "Air Conditioning" },
+                { "id": 4, "name": "WiFi", "information": "Included" },
+                { "id": 1, "name": "Private Bathroom", "information": "Included" },
+                { "id": 2, "name": "Private Kitchen", "information": "Included" },
+                { "id": 8, "name": "TV", "information": "Smart TV" },
+                { "id": 6, "name": "Desk", "information": "Large desk" }
+            ],
+            "utilities": [
+                {
+                    "id": 1,
+                    "name": "Water",
+                    "information": "Included"
+                },
+                {
+                    "id": 2,
+                    "name": "Electricity",
+                    "information": "Token"
+                }
+            ],
+            "created_at": "2026-10-30T10:00:00.000Z",
+            "updated_at": "2026-10-30T10:00:00.000Z"
         }
     ]
 }
