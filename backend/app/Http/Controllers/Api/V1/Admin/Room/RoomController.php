@@ -41,16 +41,13 @@ class RoomController extends Controller
         $room->facilities()->attach($roomData['facilities']);
         $room->utilities()->attach([1, 2]);
 
-        $sortOrder = 1;
-        foreach ($request->file('images') as $image) {
+        foreach ($request->file('images', []) as $key => $image) {
             $path = $image->store('images', 'public');
 
             $room->imagePaths()->create([
                     'image_path' =>  $path,
-                    'sort_order' => $sortOrder
+                    'sort_order' => ($key + 1)
                 ]);
-
-            $sortOrder++;
         }
 
         return (new RoomCreateResource([
@@ -140,26 +137,35 @@ class RoomController extends Controller
             $room->facilities()->attach($requestPayload['facilities']);
         }
 
-        $room->load('imagePaths');
+        $deletedImages = $request->validated('deleted_images') ?? [];
+        $deletedImages = $room->imagePaths()->whereIn('id', $deletedImages)->get();
 
-        foreach ($room->imagePaths as $image) {
+        foreach ($deletedImages as $image) {
             Storage::disk('public')->delete($image->image_path);
+            $image->delete();
         }
 
-        $room->imagePaths()->delete();
+        $existingOrder = $room->imagePaths()->pluck('sort_order')->all();
 
-        if (filled($request->file('images'))) {
-            $sortOrder = 1;
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('images', 'public');
-
-                $room->imagePaths()->create([
-                        'image_path' =>  $path,
-                        'sort_order' => $sortOrder
-                    ]);
-
-                $sortOrder++;
+        foreach ($request->validated('images', []) as $key => $image) {
+            if ($image === null) {
+                continue;
             }
+
+            $sortOrder = $key + 1;
+
+            if (in_array($sortOrder, $existingOrder, true)) {
+                return response()->json([
+                    'message' => "Can't fill image with the requested sorting order",
+                ], 422);
+            }
+
+            $room->imagePaths()->create([
+                'image_path' => $image->store('rooms', 'public'),
+                'sort_order' => $sortOrder,
+            ]);
+
+            $existingOrder[] = $sortOrder;
         }
 
         return (new RoomUpdateResource([
