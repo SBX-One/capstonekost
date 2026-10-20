@@ -4,28 +4,38 @@ import { useAuthStore } from '@/stores/authStore'
 const routes = [
     {
         path: '/',
-        component: () => import('@/components/layouts/AuthLayout.vue'),
-        redirect: { name: 'login' },
+        component: () => import('@/components/layouts/PublicLayout.vue'),
         children: [
             {
-                path: 'login',
+                path: '',
+                name: 'landing',
+                component: () => import('@/views/HomeView.vue'),
+                meta: { showSearchInNavbar: false }
+            },
+            {
+                path: 'rooms',
+                name: 'public-rooms',
+                //component: () => import('@/views/PublicRoomsView.vue'),
+                meta: { showSearchInNavbar: true }
+            }
+        ]
+    },
+
+    {
+        path: '/auth',
+        component: () => import('@/components/layouts/AuthLayout.vue'),
+        children: [
+            {
+                path: '/login',
                 name: 'login',
                 component: () => import('@/views/auth/LoginView.vue')
             },
             {
-                path: 'register',
+                path: '/register',
                 name: 'register',
                 component: () => import('@/views/auth/RegisterView.vue')
             }
         ]
-    },
-    {
-        path: '/login',
-        redirect: { name: 'login' }
-    },
-    {
-        path: '/register',
-        redirect: { name: 'register' }
     },
 
     {
@@ -102,7 +112,19 @@ const routes = [
 
 const router = createRouter({
     history: createWebHistory(),
-    routes
+    routes,
+    scrollBehavior(to, from, savedPosition) {
+        if (to.hash) {
+            return {
+                el: to.hash,
+                behavior: 'smooth',
+            }
+        }
+        if (savedPosition) {
+            return savedPosition;
+        }
+        return { top: 0, behavior: 'smooth' };
+    }
 })
 
 router.beforeEach((to, from, next) => {
