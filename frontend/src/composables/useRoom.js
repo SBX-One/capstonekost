@@ -26,7 +26,7 @@ export function useRoom() {
     }
 
     function formatRupiah(price) {
-        if (!price) return 'Rp 0'
+        if (!price && price !== 0) return 'Rp 0';
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
             currency: 'IDR',

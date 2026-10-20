@@ -23,7 +23,9 @@ export const useRoomStore = defineStore('room', () => {
     }
 
     function getRoomById(id) {
-        return roomMap.value.get(id)
+        const numericId = Number(id)
+        if (isNaN(numericId)) return undefined
+        return roomMap.value.get(numericId)
     }
 
     async function fetchRooms(page, params = {}) {
@@ -81,7 +83,9 @@ export const useRoomStore = defineStore('room', () => {
             })
 
             const responseData = response.data
-            const rawList = Array.isArray(responseData.data) ? responseData.data : []
+            const rawList = Array.isArray(responseData.data)
+                ? responseData.data
+                : (Array.isArray(responseData) ? responseData : []);
 
             const newMap = new Map()
             rawList.forEach((room) => {
@@ -120,17 +124,25 @@ export const useRoomStore = defineStore('room', () => {
     }
 
     async function fetchRoomById(id) {
-        if (roomMap.value.has(id)) {
-            return roomMap.value.get(id)
+        const numericId = Number(id)
+        if (isNaN(numericId) || numericId <= 0) {
+            error.value = 'Invalid room ID'
+            return null
+        }
+
+        if (roomMap.value.has(numericId)) {
+            return roomMap.value.get(numericId)
         }
 
         isFetching.value = true
         error.value = null
 
         try {
-            const response = await apiClient.get(`/admin/rooms/${id}`)
+            const response = await apiClient.get(`/admin/rooms/${numericId}`)
             const responseData = response.data
-            const roomData = responseData.data || responseData
+            const roomData = Array.isArray(responseData.data)
+                ? responseData.data[0]
+                : (responseData.data || responseData)
 
             if (roomData && roomData.id) {
                 roomMap.value = immutableSet(roomMap.value, roomData.id, roomData)
@@ -177,13 +189,19 @@ export const useRoomStore = defineStore('room', () => {
     }
 
     async function updateRoom(id, updatedData) {
+        const numericId = Number(id)
+        if (isNaN(numericId) || numericId <= 0) {
+            error.value = 'Invalid room ID'
+            return false
+        }
+
         if (isMutating.value) return false
         isMutating.value = true
         error.value = null
         validationErrors.value = {}
 
         try {
-            await apiClient.post(`/admin/update/${id}`, updatedData, {
+            await apiClient.post(`/admin/update/${numericId}`, updatedData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -201,23 +219,29 @@ export const useRoomStore = defineStore('room', () => {
     }
 
     async function deleteRoom(id) {
+        const numericId = Number(id)
+        if (isNaN(numericId) || numericId <= 0) {
+            error.value = 'Invalid room ID'
+            return false
+        }
+
         if (isMutating.value) return false
         isMutating.value = true
         error.value = null
 
-        const deletedRoom = roomMap.value.has(id)
-            ? structuredClone(toRaw(roomMap.value.get(id)))
+        const deletedRoom = roomMap.value.has(numericId)
+            ? structuredClone(toRaw(roomMap.value.get(numericId)))
             : null
-        roomMap.value = immutableDelete(roomMap.value, id)
+        roomMap.value = immutableDelete(roomMap.value, numericId)
 
         try {
-            await apiClient.delete(`/admin/delete/${id}`)
+            await apiClient.delete(`/admin/delete/${numericId}`)
             totalCount.value = Math.max(0, totalCount.value - 1)
             clearCache()
             return true
         } catch (err) {
             if (deletedRoom) {
-                roomMap.value = immutableSet(roomMap.value, id, deletedRoom)
+                roomMap.value = immutableSet(roomMap.value, numericId, deletedRoom)
             }
 
             error.value = err.response?.data?.message || 'Failed to delete room'
