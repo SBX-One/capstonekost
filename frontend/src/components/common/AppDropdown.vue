@@ -2,6 +2,10 @@
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps({
+    id: {
+        type: String,
+        default: null,
+    },
     options: {
         type: Array,
         required: true,
@@ -131,6 +135,7 @@ onUnmounted(() => {
 <template>
     <div class="relative inline-block text-left select-none w-full">
         <button
+            :id="id"
             ref="triggerRef"
             type="button"
             @click="toggleDropdown"

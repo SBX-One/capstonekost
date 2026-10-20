@@ -62,7 +62,7 @@ const changePage = page => {
             :disabled="currentPage === 1"
             @click="changePage(currentPage - 1)"
             :class="[
-                'w-10 h-10 rounded-default flex items-center justify-center transition-all duration-150',
+                'w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-150',
                 currentPage === 1 ? 'text-text-disabled cursor-not-allowed bg-transparent' : 'text-text-primary hover:bg-neutral-300 active:bg-neutral-900 active:text-white cursor-pointer',
             ]"
             aria-label="Previous Page"
@@ -81,7 +81,7 @@ const changePage = page => {
                 @click="changePage(page)"
                 :aria-current="page === currentPage ? 'page' : undefined"
                 :class="[
-                    'w-10 h-10 rounded-default text-body-md flex items-center justify-center transition-all duration-150 cursor-pointer',
+                    'w-10 h-10 rounded-xl text-body-md flex items-center justify-center transition-all duration-150 cursor-pointer',
                     page === currentPage ? 'bg-neutral-900 text-neutral-50' : 'text-text-primary hover:bg-neutral-300 active:bg-neutral-200',
                 ]"
             >
@@ -94,7 +94,7 @@ const changePage = page => {
             :disabled="currentPage === totalPages"
             @click="changePage(currentPage + 1)"
             :class="[
-                'w-10 h-10 rounded-default flex items-center justify-center transition-all duration-150',
+                'w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-150',
                 currentPage === totalPages ? 'text-text-disabled cursor-not-allowed bg-transparent' : 'text-text-primary hover:bg-neutral-300 active:bg-neutral-900 active:text-white cursor-pointer',
             ]"
             aria-label="Next Page"
