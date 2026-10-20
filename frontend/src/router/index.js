@@ -15,7 +15,7 @@ const routes = [
             {
                 path: 'rooms',
                 name: 'public-rooms',
-                //component: () => import('@/views/PublicRoomsView.vue'),
+                component: () => import('@/views/PublicBrowseView.vue'),
                 meta: { showSearchInNavbar: true }
             }
         ]

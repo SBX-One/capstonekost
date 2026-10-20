@@ -18,7 +18,7 @@ onBeforeUnmount(() => {
 });
 
 const navigateToAllRooms = () => {
-    router.push('/tenant/rooms');
+    router.push({ name: 'public-rooms' });
 };
 </script>
 
