@@ -61,7 +61,7 @@ const variantClasses = computed(() => {
     <button
         :type="type"
         :disabled="disabled || variant === 'disabled'"
-        class="inline-flex items-center justify-center gap-200 rounded-default font-semibold transition-colors duration-200 focus:outline-none"
+        class="inline-flex items-center justify-center gap-200 rounded-xl font-semibold transition-colors duration-200 focus:outline-none"
         :class="[sizeClasses, variantClasses, block ? 'w-full' : 'w-fit', disabled || variant === 'disabled' ? 'cursor-not-allowed' : 'cursor-pointer']"
     >
         <slot name="icon-left" />

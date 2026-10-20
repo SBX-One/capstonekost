@@ -71,6 +71,8 @@ body {
 
     /* --- RADIUS & SHADOW --- */
     --radius-default: 8px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
     --shadow-default: 0px 4px 16px 0px rgba(0, 0, 0, 0.08);
 
     /* --- SPACING TOKENS --- */
@@ -142,4 +144,9 @@ body {
     font-size: 12px;
     line-height: 24px;
     font-weight: 600;
+}
+
+/* --- FOOTER & NAV LINK UTILITIES --- */
+@utility link-footer {
+    @apply text-body-md md:text-body-lg font-medium text-neutral-300 hover:text-neutral-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-50 rounded-sm w-fit inline-block;
 }

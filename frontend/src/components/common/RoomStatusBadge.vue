@@ -28,7 +28,7 @@ const badgeClasses = computed(() => {
 </script>
 
 <template>
-    <span class="inline-flex items-center justify-center px-3 py-1 text-label-badge rounded-default tracking-wide select-none shrink-0 capitalize" :class="badgeClasses">
+    <span class="inline-flex items-center justify-center px-3 py-1 text-label-badge rounded-xl tracking-wide select-none shrink-0 capitalize" :class="badgeClasses">
         {{ status }}
     </span>
 </template>
