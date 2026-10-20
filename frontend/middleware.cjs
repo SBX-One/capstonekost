@@ -32,7 +32,7 @@ module.exports = (req, res, next) => {
     };
 
     // --- GET ROOMS ---
-    if (req.method === 'GET' && (req.path === '/api/admin/rooms' || req.path === '/rooms')) {
+    if (req.method === 'GET' && (req.path === '/api/admin/rooms' || req.path === '/rooms' || req.path === '/tenant/rooms' || req.path === '/api/tenant/rooms')) {
         let rooms = db.get('rooms').value() || [];
         const query = req.query;
 

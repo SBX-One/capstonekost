@@ -12,7 +12,11 @@ app.db = router.db
 
 app.use(jsonServer.rewriter({
     "/api/admin/rooms": "/rooms",
-    "/api/admin/rooms/:id": "/rooms/:id"
+    "/api/admin/rooms/:id": "/rooms/:id",
+    "/tenant/rooms": "/rooms",
+    "/tenant/rooms/:id": "/rooms/:id",
+    "/api/tenant/rooms": "/rooms",
+    "/api/tenant/rooms/:id": "/rooms/:id"
 }))
 
 app.use(jsonServer.defaults())
