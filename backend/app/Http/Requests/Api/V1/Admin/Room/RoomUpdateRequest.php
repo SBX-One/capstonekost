@@ -28,12 +28,12 @@ class RoomUpdateRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255', Rule::unique('rooms', 'name')->ignore($roomId)],
             'room_type' => ['required', 'integer', 'exists:room_types,id'],
-            'floor' => ['required', 'integer'],
+            'floor' => ['required', 'integer', 'exists:rooms,floor'],
             'price' => ['required', 'integer', 'min:0'],
             'facilities' => ['nullable', 'array'],
             'facilities.*' => ['integer', 'exists:facilities,id'],
-            'overview' => ['required', 'string'],
-            'description' => ['required', 'string'],
+            'overview' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string', 'max:255'],
             'rules' => ['required', 'string'],
             'images' => ['nullable', 'array', 'min:1', 'max:2048'],
             'images.*' => [
@@ -66,6 +66,7 @@ class RoomUpdateRequest extends FormRequest
 
             'floor.required' => 'Floor is required',
             'floor.integer' => 'Floor must be an integer',
+            'floor.exists' => 'Floor must exist (1, 2, 3)',
 
             'price.required' => 'Price is required',
             'price.integer' => 'Price must be an integer',
