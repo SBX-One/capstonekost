@@ -40,6 +40,10 @@ class RoomIndexRequest extends FormRequest
             'facilities.*' => [
                 'integer',
                 'exists:facilities,id'
+            ],
+            'search' => [
+                'string',
+                'nullable'
             ]
         ];
     }
