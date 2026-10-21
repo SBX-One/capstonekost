@@ -34,24 +34,26 @@ class AuthController extends Controller
 
         $number = $phoneNumberUtil->parse($user['phone'], 'ID');
 
-        if ($phoneNumberUtil->isValidNumber($number)) {
-            $phone = $phoneNumberUtil->format(
-                $number,
-                PhoneNumberFormat::E164
-            );
-
-            $existing_number = User::query()
-                                   ->where('phone', $phone)
-                                   ->first();
-
-            if ($existing_number) {
-                return response()->json([
-                    'message' => 'Phone number has already been taken.'
-                ], 422);
-            } 
-
-            $user['phone'] = $phone;
+        if (!$phoneNumberUtil->isValidNumber($number)) {
+            throw new \InvalidArgumentException('Invalid phone number format.');
         }
+
+        $phone = $phoneNumberUtil->format(
+            $number,
+            PhoneNumberFormat::E164
+        );
+
+        $existing_number = User::query()
+                               ->where('phone', $phone)
+                               ->first();
+
+        if ($existing_number) {
+            return response()->json([
+                'message' => 'Phone number has already been taken.'
+            ], 422);
+        } 
+
+        $user['phone'] = $phone;
 
         $user['password'] = Hash::make($user['password']);
 
