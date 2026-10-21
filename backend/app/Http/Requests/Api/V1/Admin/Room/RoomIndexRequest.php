@@ -48,6 +48,10 @@ class RoomIndexRequest extends FormRequest
                 'nullable',
                 'in:available,occupied',
             ],
+            'search' => [
+                'string',
+                'nullable'
+            ]
         ];
     }
 
