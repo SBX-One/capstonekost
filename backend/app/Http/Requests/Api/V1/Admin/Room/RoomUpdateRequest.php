@@ -4,6 +4,7 @@ namespace App\Http\Requests\Api\V1\Admin\Room;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RoomUpdateRequest extends FormRequest
 {
@@ -22,8 +23,10 @@ class RoomUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
+        $roomId = $this->route('id');
+
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', Rule::unique('rooms', 'name')->ignore($roomId)],
             'room_type' => ['required', 'integer', 'exists:room_types,id'],
             'floor' => ['required', 'integer'],
             'price' => ['required', 'integer', 'min:0'],
@@ -52,6 +55,7 @@ class RoomUpdateRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'name.unique' => 'This room name is already taken.',
             'name.required' => 'Name is required',
             'name.string' => 'Name must be a string',
             'name.max' => 'Name may not be greater than 255 characters',

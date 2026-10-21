@@ -132,6 +132,10 @@ class RoomController extends Controller
 
         $room = Room::findOrFail($id);
 
+        if ($requestPayload['name'] === $room->name) {
+            
+        }
+
         $room->update([
             'name' => $requestPayload['name'],
             'room_type_id' => $requestPayload['room_type'],
