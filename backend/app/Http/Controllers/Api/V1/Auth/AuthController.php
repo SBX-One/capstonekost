@@ -59,8 +59,14 @@ class AuthController extends Controller
 
         $token = Auth::tokenById($user->id);
 
+        $user = Auth::user();
+
         return (new AuthRegisterResource([
-            'token' => $token,
+                'token' => $token,
+                'id' => $user->id,
+                'name'=> $user->name,
+                'email'=> $user->email,
+                'role'=> $user->role
             ]))
             ->response()
             ->setStatusCode(201);
