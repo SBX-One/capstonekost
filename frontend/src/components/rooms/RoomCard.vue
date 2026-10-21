@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { useTenantRoom } from '@/composables/useTenantRoom';
 import RoomStatusBadge from '@/components/common/RoomStatusBadge.vue';
 import FacilityIcon from '@/components/rooms/FacilityIcon.vue';
+import { getImageUrl } from '@/utils/imageUtils';
 
 const props = defineProps({
     room: {
@@ -24,13 +25,6 @@ const props = defineProps({
 });
 
 const { formatRupiah, navigateToDetail } = useTenantRoom();
-
-const getImageUrl = path => {
-    if (!path) return '';
-    if (path.startsWith('http://') || path.startsWith('https://')) return path;
-    const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:8000';
-    return `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
-};
 
 const primaryImage = computed(() => {
     const images = props.room.images;

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, computed, onBeforeUnmount } from 'vue';
 import BaseButton from '@/components/common/BaseButton.vue';
+import { getImageUrl } from '@/utils/imageUtils';
 
 const modelValue = defineModel({
     type: Array,
@@ -43,13 +44,6 @@ watch(
     },
     { immediate: true, deep: true }
 );
-
-const getImageUrl = path => {
-    if (!path) return '';
-    if (path.startsWith('http://') || path.startsWith('https://')) return path;
-    const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:8000';
-    return `${baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
-};
 
 const displayPreviews = computed(() => {
     return Array(5)
