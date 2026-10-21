@@ -48,6 +48,14 @@ class RoomIndexRequest extends FormRequest
                 'nullable',
                 'in:available,occupied',
             ],
+            'facilities' => [
+                'array',
+                'nullable',
+            ],
+            'facilities.*' => [
+                'integer',
+                'exists:facilities,id'
+            ],
             'search' => [
                 'string',
                 'nullable'
