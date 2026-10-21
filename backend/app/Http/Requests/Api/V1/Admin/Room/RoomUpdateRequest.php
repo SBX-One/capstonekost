@@ -34,7 +34,7 @@ class RoomUpdateRequest extends FormRequest
             'facilities.*' => ['integer', 'exists:facilities,id'],
             'overview' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'max:255'],
-            'rules' => ['required', 'string'],
+            'rules' => ['required', 'string', 'max:255'],
             'images' => ['nullable', 'array', 'min:1', 'max:2048'],
             'images.*' => [
                 'required',
@@ -78,12 +78,15 @@ class RoomUpdateRequest extends FormRequest
 
             'overview.required' => 'Overview is required',
             'overview.string' => 'Overview must be a string',
+            'overview.max' => 'Overview must not be greater than 255 characters',
 
             'description.required' => 'Description is required',
             'description.string' => 'Description must be a string',
+            'description.max' => 'Description must not be greater than 255 characters',
 
             'rules.required' => 'Rules are required',
             'rules.string' => 'Rules must be a string',
+            'rules.max' => 'Rules must not be greater than 255 characters',
 
             'image.image' => 'The uploaded file must be an image',
             'image.mimes' => 'Image must be in AVIF format',

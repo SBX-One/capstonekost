@@ -25,13 +25,13 @@ class RoomCreateRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255', 'unique:rooms,name'],
             'room_type' => ['required', 'integer', 'exists:room_types,id'],
-            'floor' => ['required', 'integer'],
+            'floor' => ['required', 'integer', 'exists:rooms,floor'],
             'price' => ['required', 'integer', 'min:0'],
             'facilities' => ['nullable', 'array'],
             'facilities.*' => ['integer', 'exists:facilities,id'],
-            'overview' => ['required', 'string'],
-            'description' => ['required', 'string'],
-            'rules' => ['required', 'string'],
+            'overview' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string', 'max:255'],
+            'rules' => ['required', 'string', 'max:255'],
             'images' => ['required', 'array', 'min:1', 'max:2048'],
             'images.*' => [
                 'required',
@@ -61,6 +61,7 @@ class RoomCreateRequest extends FormRequest
 
             'floor.required' => 'Floor is required',
             'floor.integer' => 'Floor must be an integer',
+            'floor.exists' => 'Selected floor is invalid',
 
             'price.required' => 'Price is required',
             'price.integer' => 'Price must be an integer',
@@ -72,12 +73,15 @@ class RoomCreateRequest extends FormRequest
 
             'overview.required' => 'Overview is required',
             'overview.string' => 'Overview must be a string',
+            'overview.max' => 'Overview may not be greater than 255 characters',
 
             'description.required' => 'Description is required',
             'description.string' => 'Description must be a string',
+            'description.max' => 'Description may not be greater than 255 characters',
 
             'rules.required' => 'Rules are required',
             'rules.string' => 'Rules must be a string',
+            'rules.max' => 'Rules may not be greater than 255 characters',
 
             'image.required' => 'Image is required',
             'image.image' => 'The uploaded file must be an image',
