@@ -84,13 +84,17 @@ class RoomController extends Controller
                 }
             )
             ->when(
-                isset($requestQuery['status']),
+                isset($requestQuery['facilities']),
                 function ($query) use ($requestQuery) {
-                    $query->where('status', $requestQuery['status']);
+                    $query->whereHas(
+                        'facilities', function ($query) use ($requestQuery) {
+                            $query->whereIn('facilities.id', $requestQuery['facilities']);
+                        }
+                    );
                 }
             )
             ->paginate(9);
-
+            
         $rooms->load('roomType');
         $rooms->load('facilities');
         $rooms->load('utilities');
