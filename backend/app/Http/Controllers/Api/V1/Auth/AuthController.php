@@ -97,8 +97,14 @@ class AuthController extends Controller
     {
         $token = Auth::refresh();
 
+        $user = Auth::user();
+
         return (new AuthRefreshResource([
                 'token' => $token,
+                'id' => $user->id,
+                'name'=> $user->name,
+                'email'=> $user->email,
+                'role'=> $user->role
             ]))
             ->response()
             ->setStatusCode(200);
