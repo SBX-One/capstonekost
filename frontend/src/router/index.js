@@ -17,6 +17,13 @@ const routes = [
                 name: 'public-rooms',
                 component: () => import('@/views/PublicBrowseView.vue'),
                 meta: { showSearchInNavbar: true }
+            },
+            {
+                path: 'rooms/:id',
+                name: 'tenant-room-detail',
+                component: () => import('@/views/PublicRoomDetailView.vue'),
+                meta: { showSearchInNavbar: false },
+                props: true
             }
         ]
     },
