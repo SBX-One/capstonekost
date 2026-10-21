@@ -23,6 +23,12 @@ class RoomController extends Controller
 
         $rooms = Room::query()
             ->when(
+                isset($requestQuery['search']),
+                function ($query) use ($requestQuery) {
+                    $query->where('name', 'like', '%' . $requestQuery['search'] . '%');
+                }
+            )
+            ->when(
                 isset($requestQuery['min_price'], $requestQuery['max_price']),
                 function ($query) use ($requestQuery) {
                     $query->whereBetween('price', [
