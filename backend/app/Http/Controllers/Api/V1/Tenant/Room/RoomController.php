@@ -48,7 +48,7 @@ class RoomController extends Controller
                 function ($query) use ($requestQuery) {
                     $query->whereHas(
                         'facilities', function ($query) use ($requestQuery) {
-                            $query->where('facilities.id', $requestQuery['facilities']);
+                            $query->whereIn('facilities.id', $requestQuery['facilities']);
                         }
                     );
                 }
