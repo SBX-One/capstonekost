@@ -59,8 +59,6 @@ class AuthController extends Controller
 
         $token = Auth::tokenById($user->id);
 
-        $user = Auth::user();
-
         return (new AuthRegisterResource([
                 'token' => $token,
                 'id' => $user->id,
