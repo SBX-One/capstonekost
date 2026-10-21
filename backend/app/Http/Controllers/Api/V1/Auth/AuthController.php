@@ -82,8 +82,14 @@ class AuthController extends Controller
             ], 401);
         }
 
+        $user = Auth::user();
+
         return (new AuthLoginResource([
                 'token' => $token,
+                'id' => $user->id,
+                'name'=> $user->name,
+                'email'=> $user->email,
+                'role'=> $user->role
             ]))
             ->response()
             ->setStatusCode(200);
