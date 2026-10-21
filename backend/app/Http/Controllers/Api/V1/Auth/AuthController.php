@@ -95,9 +95,10 @@ class AuthController extends Controller
 
     public function refresh()
     {
-        $token = Auth::refresh();
 
         $user = Auth::user();
+        
+        $token = Auth::refresh();
 
         return (new AuthRefreshResource([
                 'token' => $token,
