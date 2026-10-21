@@ -59,6 +59,7 @@ class RoomController extends Controller
                     );
                 }
             )
+            ->orderByRaw("CASE WHEN status = 'available' THEN 0 ELSE 1 END")
             ->paginate(9);
 
         $rooms->load('roomType');
