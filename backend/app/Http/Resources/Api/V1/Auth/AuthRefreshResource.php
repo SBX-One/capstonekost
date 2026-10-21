@@ -16,7 +16,13 @@ class AuthRefreshResource extends JsonResource
     {
         return [
             'message' => "Token refreshed successfully.",
-            'token ' => $this->resource['token']
+            'token ' => $this->resource['token'],
+            'user' => [
+                'id' => $this->resource['id'],
+                'name' => $this->resource['name'],
+                'email' => $this->resource['email'],
+                'role' => $this->resource['role']
+            ]
         ];
     }
 }
