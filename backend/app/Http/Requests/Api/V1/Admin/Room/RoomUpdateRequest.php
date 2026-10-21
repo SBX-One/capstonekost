@@ -23,7 +23,7 @@ class RoomUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255', 'unique:rooms,name'],
+            'name' => ['required', 'string', 'max:255'],
             'room_type' => ['required', 'integer', 'exists:room_types,id'],
             'floor' => ['required', 'integer'],
             'price' => ['required', 'integer', 'min:0'],
@@ -55,7 +55,6 @@ class RoomUpdateRequest extends FormRequest
             'name.required' => 'Name is required',
             'name.string' => 'Name must be a string',
             'name.max' => 'Name may not be greater than 255 characters',
-            'name.unique' => 'Name has already been picked',
 
             'room_type.required' => 'Room type is required',
             'room_type.integer' => 'Room type must be an integer',
