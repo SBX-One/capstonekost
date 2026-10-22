@@ -50,8 +50,8 @@ const displayPreviews = computed(() => {
         .fill(null)
         .map((_, i) => {
             if (imagePreviews.value[i]) return imagePreviews.value[i];
-            if (localExisting.value[i] && localExisting.value[i].image_path) {
-                return getImageUrl(localExisting.value[i].image_path);
+            if (localExisting.value[i] && localExisting.value[i].path) {
+                return getImageUrl(localExisting.value[i].path);
             }
             return null;
         });

@@ -83,8 +83,8 @@ const loadExistingRoomData = async () => {
             form.facilities = data.facilities.map(fac => fac.id);
         }
 
-        if (Array.isArray(data.images)) {
-            dbImages.value = data.images;
+        if (Array.isArray(data.image_paths)) {
+            dbImages.value = data.image_paths;
         }
 
         originalForm.value = JSON.parse(JSON.stringify(form));
