@@ -18,7 +18,7 @@ const props = defineProps({
             status: 'available',
             overview: '',
             description: '',
-            images: [],
+            image_paths: [],
             facilities: [],
         }),
     },
@@ -27,12 +27,14 @@ const props = defineProps({
 const { formatRupiah, navigateToDetail } = useTenantRoom();
 
 const primaryImage = computed(() => {
-    const images = props.room.images;
+    const images = props.room.image_paths;
+
     if (Array.isArray(images) && images.length > 0) {
         const featured = images.find(img => img.sort_order === 1) || images[0];
-        return getImageUrl(featured?.image_path);
+        return getImageUrl(featured?.path);
     }
-    return getImageUrl(props.room.image_url);
+
+    return null;
 });
 
 const displayTitle = computed(() => {
