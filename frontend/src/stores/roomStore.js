@@ -218,33 +218,58 @@ export const useRoomStore = defineStore('room', () => {
         }
     }
 
-    async function deleteRoom(id) {
-        const numericId = Number(id)
-        if (isNaN(numericId) || numericId <= 0) {
-            error.value = 'Invalid room ID'
-            return false
+    async function deleteRoom(payloadIds) {
+        const idArray = Array.isArray(payloadIds) ? payloadIds : [payloadIds];
+
+        const validNumericIds = idArray.reduce((acc, item) => {
+            if (typeof item === 'number' || typeof item === 'string') {
+                const num = Number(item);
+
+                if (Number.isInteger(num) && num > 0) {
+                    acc.push(num);
+                }
+            }
+            return acc;
+        }, []);
+
+        if (validNumericIds.length === 0) {
+            const idText = idArray.length > 1 ? 'IDs' : 'ID';
+            error.value = `Invalid room ${idText} provided`;
+            return false;
         }
 
         if (isMutating.value) return false
         isMutating.value = true
         error.value = null
 
-        const deletedRoom = roomMap.value.has(numericId)
-            ? structuredClone(toRaw(roomMap.value.get(numericId)))
-            : null
-        roomMap.value = immutableDelete(roomMap.value, numericId)
+        const deletedRoomsBackup = validNumericIds.reduce((acc, id) => {
+            if (roomMap.value.has(id)) {
+                acc.push(structuredClone(toRaw(roomMap.value.get(id))));
+            }
+            return acc;
+        }, []);
+
+        const nextMap = new Map(roomMap.value);
+        validNumericIds.forEach(id => nextMap.delete(id));
+        roomMap.value = nextMap;
 
         try {
-            await apiClient.delete(`/admin/delete/${numericId}`)
-            totalCount.value = Math.max(0, totalCount.value - 1)
+            await apiClient.delete('/admin/delete', {
+                data: {
+                    id: validNumericIds
+                }
+            });
+
+            totalCount.value = Math.max(0, totalCount.value - validNumericIds.length);
             clearCache()
             return true
         } catch (err) {
-            if (deletedRoom) {
-                roomMap.value = immutableSet(roomMap.value, numericId, deletedRoom)
-            }
+            const restoredMap = new Map(roomMap.value);
+            deletedRoomsBackup.forEach(room => restoredMap.set(room.id, room));
+            roomMap.value = restoredMap;
 
-            error.value = err.response?.data?.message || 'Failed to delete room'
+            const roomText = validNumericIds.length > 1 ? 'rooms' : 'room';
+            error.value = err.response?.data?.message || `Failed to delete ${roomText}. Server error.`
             return false
         } finally {
             isMutating.value = false

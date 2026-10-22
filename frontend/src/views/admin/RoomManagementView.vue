@@ -38,8 +38,10 @@ const totalPages = computed(() => {
     return Math.ceil(totalCount.value / perPage.value) || 1;
 });
 
+const selectedRoomIds = ref([]);
 const isDeleteModalOpen = ref(false);
 const roomToDelete = ref(null);
+const isBulkDelete = ref(false);
 
 const isSuccessModalOpen = ref(false);
 const successModalTitle = ref('Success!');
@@ -62,24 +64,41 @@ function handleEdit(room) {
     navigateToEdit(room.id);
 }
 
-function handleDeleteClick(room) {
-    roomToDelete.value = room;
+function handleDeleteClick(room = null) {
+    if (room) {
+        roomToDelete.value = room;
+        isBulkDelete.value = false;
+    } else {
+        roomToDelete.value = null;
+        isBulkDelete.value = true;
+    }
     isDeleteModalOpen.value = true;
 }
 
 async function confirmDeleteRoom() {
-    if (!roomToDelete.value) return;
+    let success = false;
+    let deletedCount = 0;
+    const wasLastItemOnPage = rooms.value.length === (isBulkDelete.value ? selectedRoomIds.value.length : 1);
 
-    const deletedRoomName = roomToDelete.value.name || '';
-    const wasLastItemOnPage = rooms.value.length === 1;
+    if (isBulkDelete.value) {
+        if (selectedRoomIds.value.length === 0) return;
+        deletedCount = selectedRoomIds.value.length;
+        success = await deleteRoom(selectedRoomIds.value);
+    } else {
+        if (!roomToDelete.value) return;
+        deletedCount = 1;
+        success = await deleteRoom(roomToDelete.value.id);
+    }
 
-    const success = await deleteRoom(roomToDelete.value.id);
     isDeleteModalOpen.value = false;
 
     if (success) {
-        successModalTitle.value = `Room ${deletedRoomName} deleted successfully!`;
-        successModalMessage.value = 'The room has been removed from the room list.';
+        const roomText = deletedCount > 1 ? 'rooms' : 'room';
+        successModalTitle.value = 'Success!';
+        successModalMessage.value = isBulkDelete.value ? `${deletedCount} ${roomText} have been deleted.` : `Room ${roomToDelete.value?.name || ''} deleted successfully.`;
         isSuccessModalOpen.value = true;
+
+        selectedRoomIds.value = [];
 
         let targetPage = currentPage.value;
         if (wasLastItemOnPage && targetPage > 1) {
@@ -92,7 +111,9 @@ async function confirmDeleteRoom() {
             await loadRooms(targetPage);
         }
     }
+
     roomToDelete.value = null;
+    isBulkDelete.value = false;
 }
 
 function handleExport() {
@@ -113,6 +134,19 @@ onMounted(() => {
             </div>
 
             <div class="flex items-center gap-2">
+                <BaseButton v-if="selectedRoomIds.length > 0" variant="danger" size="md" @click="handleDeleteClick(null)">
+                    <template #icon-left>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                        </svg>
+                    </template>
+                    Delete Selected ({{ selectedRoomIds.length }})
+                </BaseButton>
+
                 <BaseButton variant="secondary" size="md" @click="handleExport">
                     <template #icon-left>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -143,7 +177,7 @@ onMounted(() => {
         </div>
 
         <div class="overflow-hidden mb-8">
-            <RoomTable :rooms="rooms" :is-loading="isFetching" @view="handleView" @edit="handleEdit" @delete="handleDeleteClick" />
+            <RoomTable :rooms="rooms" :is-loading="isFetching" v-model:selected-room-ids="selectedRoomIds" @view="handleView" @edit="handleEdit" @delete="handleDeleteClick" />
         </div>
 
         <div v-if="totalCount > 0" class="flex items-center justify-between">
@@ -160,8 +194,12 @@ onMounted(() => {
         <AppConfirmModal
             :is-open="isDeleteModalOpen"
             title="Delete Room?"
-            :message="`Are you sure you want to delete room ${roomToDelete?.name || ''}? This action cannot be undone.`"
-            confirm-text="Delete Room"
+            :message="
+                isBulkDelete
+                    ? `Are you sure you want to delete ${selectedRoomIds.length} selected rooms? This action cannot be undone.`
+                    : `Are you sure you want to delete room ${roomToDelete?.name || ''}? This action cannot be undone.`
+            "
+            confirm-text="Delete"
             cancel-text="Cancel"
             @close="isDeleteModalOpen = false"
             @confirm="confirmDeleteRoom"
