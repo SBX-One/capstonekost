@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin\Room;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Admin\Room\RoomCreateResource;
@@ -22,32 +23,46 @@ use App\Http\Requests\Api\V1\Admin\Room\RoomDeleteRequest;
 // Model Imports
 use App\Models\Room;
 
+// Exception Imports
+use App\Exceptions\Api\V1\Admin\Room\RoomCreateFailException;
+
 class RoomController extends Controller
 {
     public function create(RoomCreateRequest $request) 
     {
-        $roomData = $request->validated();
+        $uploadedImages = [];
 
-        $room = Room::query()
-                    ->create([
-                        'name' => $roomData['name'],
-                        'room_type_id' => $roomData['room_type'],
-                        'price' => $roomData['price'],
-                        'floor' => $roomData['floor'],
-                        'overview' => $roomData['overview'],
-                        'description' => $roomData['description'],
-                        'rules' => $roomData['rules']
-                    ]);
-        $room->facilities()->attach($roomData['facilities']);
-        $room->utilities()->attach([1, 2]);
+        try {
+            $room = DB::transaction(function () use ($request, &$uploadedImages) {
+                $roomData = $request->validated();
 
-        foreach ($request->file('images', []) as $key => $image) {
-            $path = $image->store('images', 'public');
-
-            $room->imagePaths()->create([
-                    'image_path' =>  $path,
-                    'sort_order' => ($key + 1)
+                $room = Room::query()->create([
+                    'name' => $roomData['name'],
+                    'room_type_id' => $roomData['room_type'],
+                    'price' => $roomData['price'],
+                    'floor' => $roomData['floor'],
+                    'overview' => $roomData['overview'],
+                    'description' => $roomData['description'],
+                    'rules' => $roomData['rules']
                 ]);
+
+                $room->facilities()->attach($roomData['facilities']);
+                $room->utilities()->attach([1, 2]);
+
+                foreach ($request->file('images', []) as $key => $image) {
+                    $path = $image->store('images', 'public');
+                    $uploadedImages[] = $path;
+
+                    $room->imagePaths()->create([
+                            'image_path' =>  $path,
+                            'sort_order' => ($key + 1)
+                        ]);
+                }
+
+                return $room;
+            });
+        } catch (\Throwable $e) {
+            throw new RoomCreateFailException($uploadedImages, $e);
         }
 
         return (new RoomCreateResource([
