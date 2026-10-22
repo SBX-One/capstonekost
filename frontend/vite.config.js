@@ -19,6 +19,7 @@ export default defineConfig({
     server: {
         watch: {
             ignored: ['**/db.json', '**/routes.json']
-        }
+        },
+        allowedHosts: true
     }
 })
