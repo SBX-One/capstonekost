@@ -2,10 +2,11 @@
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import AdminSidebarItem from '@/components/layouts/AdminSidebarItem.vue';
+import { useAuthStore } from '@/stores/authStore';
 
 const route = useRoute();
 const isCollapsed = ref(false);
-
+const authStore = useAuthStore();
 const toggleCollapse = () => {
     isCollapsed.value = !isCollapsed.value;
 };
@@ -18,7 +19,7 @@ const menuItems = [
 ];
 
 const generalItems = [
-    { label: 'Log Out', routeName: '', iconName: 'logout' },
+    { label: 'Log Out', onclick: authStore.logout, iconName: 'logout' },
     { label: 'Profile', routeName: '', iconName: 'profile' },
 ];
 </script>
@@ -70,6 +71,7 @@ const generalItems = [
                         :icon-name="item.iconName"
                         :is-active="route.name === item.routeName"
                         :is-collapsed="isCollapsed"
+                        @click="item.onclick ? item.onclick() : null"
                     />
                 </nav>
             </div>

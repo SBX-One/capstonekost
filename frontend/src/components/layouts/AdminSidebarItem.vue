@@ -8,7 +8,7 @@ defineProps({
     },
     to: {
         type: [String, Object],
-        required: true,
+        default: null,
     },
     iconName: {
         type: String,
@@ -28,7 +28,9 @@ defineProps({
 <template>
     <div :class="{ 'tooltip tooltip-right w-full': isCollapsed }" :data-tip="isCollapsed ? label : ''">
         <router-link
+            :is="to ? 'router-link' : 'button'"
             :to="to"
+            :type="to ? undefined : 'button'"
             class="flex items-center transition-all duration-200 text-h5 select-none w-full"
             :class="[
                 isActive ? 'bg-action-primary text-text-inverse shadow-default' : 'text-neutral-500 hover:bg-neutral-400 hover:text-neutral-50',
