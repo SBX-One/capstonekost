@@ -39,7 +39,7 @@ const handleRegister = async () => {
     isLoading.value = true;
     try {
         await authStore.register(payload);
-        router.push('/tenant/dashboard');
+        router.push('/login');
     } catch (err) {
         if (err.response?.status === 422 && err.response?.data?.errors) {
             const apiErrors = err.response.data.errors;
