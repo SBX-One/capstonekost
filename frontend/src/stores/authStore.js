@@ -21,23 +21,34 @@ export const useAuthStore = defineStore('auth', () => {
 
     async function register(payload) {
         const response = await apiClient.post('/register', payload)
-        if (response.data.accessToken) setToken(response.data.accessToken)
-        if (response.data.user) setUser(response.data.user)
-        return response.data
+        const rawResponse = response.data
+        const authData = rawResponse?.data || rawResponse || {}
+
+        return authData
     }
 
     async function login(credentials) {
         const response = await apiClient.post('/login', credentials)
-        if (response.data.accessToken) setToken(response.data.accessToken)
-        if (response.data.user) setUser(response.data.user)
-        return response.data
+        const rawResponse = response.data
+        const authData = rawResponse?.data || rawResponse || {}
+
+        if (authData.token) setToken(authData.token)
+        if (authData.user) setUser(authData.user)
+
+        return authData
     }
 
     async function refreshToken() {
         const response = await apiClient.post('/refresh')
-        const newToken = response.data.token
-        setToken(newToken)
-        return newToken
+        const rawResponse = response.data
+        const authData = rawResponse?.data || rawResponse || {}
+
+        if (authData.token) {
+            setToken(authData.token)
+            return authData.token
+        }
+
+        throw new Error('Refresh failed: No valid token received from server.')
     }
 
     async function logout() {
@@ -46,7 +57,7 @@ export const useAuthStore = defineStore('auth', () => {
                 await apiClient.post('/logout')
             }
         } catch (err) {
-            console.warn('Sesi habis atau server offline saat logout:', err)
+            console.warn('Logout failed on server or session already expired:', err?.response?.data?.message || err.message || err)
         } finally {
             clearAuth()
             window.location.replace('/login')
