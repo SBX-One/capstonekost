@@ -139,7 +139,9 @@ router.beforeEach((to, from, next) => {
     const isAuthenticated = authStore.isAuthenticated
     const userRole = authStore.userRole
 
-    if (to.meta.requiresAuth && !isAuthenticated) {
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+
+    if (requiresAuth && !isAuthenticated) {
         return next({ name: 'login' })
     }
 
@@ -147,7 +149,7 @@ router.beforeEach((to, from, next) => {
         return next(userRole === 'admin' ? { name: 'admin-dashboard' } : { name: 'tenant-dashboard' })
     }
 
-    if (to.meta.role && userRole !== to.meta.role) {
+    if (requiresAuth && to.meta.role && userRole !== to.meta.role) {
         return next(userRole === 'admin' ? { name: 'admin-dashboard' } : { name: 'tenant-dashboard' })
     }
 
