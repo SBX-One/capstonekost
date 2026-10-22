@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue';
 import { getImageUrl } from '@/utils/imageUtils';
 
 const props = defineProps({
-    images: {
+    imagePaths: {
         type: Array,
         default: () => [],
     },
@@ -12,7 +12,7 @@ const props = defineProps({
 const activeIndex = ref(0);
 
 watch(
-    () => props.images,
+    () => props.imagePaths,
     () => {
         activeIndex.value = 0;
     },
@@ -20,12 +20,12 @@ watch(
 );
 
 const sortedImages = computed(() => {
-    if (!props.images || !Array.isArray(props.images)) return [];
+    if (!props.imagePaths || !Array.isArray(props.imagePaths)) return [];
 
-    return props.images
-        .filter(img => img && typeof img.image_path === 'string' && img.image_path.trim() !== '')
+    return props.imagePaths
+        .filter(img => img && typeof img.path === 'string' && img.path.trim() !== '')
         .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
-        .map(img => getImageUrl(img.image_path));
+        .map(img => getImageUrl(img.path));
 });
 
 const thumbnailSlots = computed(() => {

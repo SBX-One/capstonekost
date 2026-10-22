@@ -144,7 +144,7 @@ const handleBookClick = () => {
         </div>
 
         <div v-else-if="room" class="flex flex-col w-full gap-8 md:gap-14">
-            <RoomDetailGallery :images="room.images" />
+            <RoomDetailGallery :image-paths="room.image_paths" />
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
                 <div class="lg:col-span-8 flex flex-col">
                     <RoomDetailInfo :room="room" />
