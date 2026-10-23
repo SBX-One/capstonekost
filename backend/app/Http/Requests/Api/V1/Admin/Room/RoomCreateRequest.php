@@ -36,8 +36,9 @@ class RoomCreateRequest extends FormRequest
             'images.*' => [
                 'required',
                 'image',
-                'mimes:avif',
+                'mimes:webp',
                 'max:2048',
+                'extensions:webp'
             ],
         ];
     }

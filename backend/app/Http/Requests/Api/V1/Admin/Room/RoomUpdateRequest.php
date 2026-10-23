@@ -39,8 +39,9 @@ class RoomUpdateRequest extends FormRequest
             'images.*' => [
                 'required',
                 'image',
-                'mimes:avif',
+                'mimes:webp',
                 'max:2048',
+                'extensions:webp'
             ],
             'deleted_images' => ['nullable', 'array'],
             'deleted_images.*' => ['integer', 'exists:room_image_paths,id']
@@ -89,7 +90,7 @@ class RoomUpdateRequest extends FormRequest
             'rules.max' => 'Rules must not be greater than 255 characters',
 
             'image.image' => 'The uploaded file must be an image',
-            'image.mimes' => 'Image must be in AVIF format',
+            'image.mimes' => 'Image must be in .webp format',
 
             'deleted_images.array' => 'Deleted images must be an array',
             'deleted_images.*.integer' => 'Each deleted image ID must be an integer',

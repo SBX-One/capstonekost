@@ -50,7 +50,7 @@ class RoomController extends Controller
                 $room->utilities()->attach([1, 2]);
 
                 foreach ($request->file('images', []) as $key => $image) {
-                    $path = $image->store('images', 'public');
+                    $path = $image->store('rooms', 'public');
                     $uploadedImages[] = $path;
 
                     $room->imagePaths()->create([
