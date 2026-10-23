@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Admin\Room\RoomController as AdminRoomController;
 use App\Http\Controllers\Api\V1\Tenant\Room\RoomController as TenantRoomController;
+use App\Http\Controllers\Api\V1\Meta\RoomsMetaController;
 
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
