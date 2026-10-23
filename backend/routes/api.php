@@ -11,6 +11,8 @@ Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/refresh', [AuthController::class, 'refresh'])->name('refresh');
 
+Route::get('/rooms/meta', [RoomsMetaController::class, 'meta'])->name('meta');
+
 Route::prefix('/tenant')
     ->name('tenant.')->group(function () {
     Route::get('/rooms', [TenantRoomController::class, 'index'])->name('index');
