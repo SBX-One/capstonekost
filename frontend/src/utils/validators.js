@@ -97,11 +97,11 @@ export function validate(value, validators) {
     return { valid: true, message: '' }
 }
 
-export function isAvifFile(file, fieldName = 'File') {
+export function isWebPFile(file, fieldName = 'File') {
     if (!file) return { valid: true, message: '' }
 
-    if (file.type !== 'image/avif' && !file.name.toLowerCase().endsWith('.avif')) {
-        return { valid: false, message: `${fieldName} must be an .avif file.` }
+    if (file.type !== 'image/webp' && !file.name.toLowerCase().endsWith('.webp')) {
+        return { valid: false, message: `${fieldName} failed to convert or is not a valid .webp format.` }
     }
     return { valid: true, message: '' }
 }
@@ -116,7 +116,7 @@ export function maxFileSize(file, maxSizeMB, fieldName = 'File') {
     return { valid: true, message: '' }
 }
 
-export function validateFileArray(files, maxFiles = 5, maxSizeMB = 5, fieldName = 'File') {
+export function validateFileArray(files, maxFiles = 5, maxSizeMB = 2, fieldName = 'File') {
     if (!files || !Array.isArray(files)) {
         return { valid: true, message: '' }
     }
@@ -133,7 +133,7 @@ export function validateFileArray(files, maxFiles = 5, maxSizeMB = 5, fieldName 
 
             const slotLabel = `${fieldName} slot ${index + 1}`
 
-            const formatValidation = isAvifFile(currentFile, slotLabel)
+            const formatValidation = isWebPFile(currentFile, slotLabel)
             if (!formatValidation.valid) return formatValidation
 
             const sizeValidation = maxFileSize(currentFile, maxSizeMB, slotLabel)

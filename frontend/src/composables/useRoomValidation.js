@@ -47,10 +47,10 @@ export function useRoomValidation(isEdit = false) {
             v => required(v, 'Facilities')
         ],
         images: isEdit ? [
-            v => validateFileArray(v, 5, 5, 'Room Image')
+            v => validateFileArray(v, 5, 2, 'Room Image')
         ] : [
             v => required(v ? v[0] : null, 'Primary Room Image'),
-            v => validateFileArray(v, 5, 5, 'Room Image')
+            v => validateFileArray(v, 5, 2, 'Room Image')
         ]
     }
 
