@@ -2,6 +2,7 @@
 import { ref, watch, computed, onBeforeUnmount } from 'vue';
 import BaseButton from '@/components/common/BaseButton.vue';
 import { getImageUrl } from '@/utils/imageUtils';
+import { useImageCompressor } from '@/composables/useImageCompressor';
 
 const modelValue = defineModel({
     type: Array,
@@ -28,6 +29,7 @@ const localError = ref('');
 
 const fileInput = ref(null);
 const activeImageIndex = ref(0);
+const { isCompressing, compressError, compressToWebP } = useImageCompressor();
 
 watch(
     () => props.existingImages,
@@ -58,19 +60,29 @@ const displayPreviews = computed(() => {
 });
 
 const triggerFileInput = (index = 0) => {
+    if (isCompressing.value) return;
     activeImageIndex.value = index;
     if (fileInput.value) fileInput.value.click();
 };
 
-const processFile = (file, index) => {
+const processFile = async (file, index) => {
     if (!file) return;
 
-    const isAvif = file.type === 'image/avif' || file.name.toLowerCase().endsWith('.avif');
-    if (!isAvif) {
-        localError.value = 'Invalid file format. Only .AVIF files are allowed.';
+    if (file.size > 5 * 1024 * 1024) {
+        localError.value = 'File is too large. Maximum input size is 5MB.';
+        if (fileInput.value) fileInput.value.value = '';
         return;
     }
+
     localError.value = '';
+
+    const finalFile = await compressToWebP(file, 2);
+
+    if (!finalFile) {
+        localError.value = compressError.value;
+        if (fileInput.value) fileInput.value.value = '';
+        return;
+    }
 
     let targetIndex = index;
     if (index !== 0 && !displayPreviews.value[0]) {
@@ -87,14 +99,16 @@ const processFile = (file, index) => {
     }
 
     const newImages = [...modelValue.value];
-    newImages[targetIndex] = file;
+    newImages[targetIndex] = finalFile;
     modelValue.value = newImages;
 
-    imagePreviews.value[targetIndex] = URL.createObjectURL(file);
+    imagePreviews.value[targetIndex] = URL.createObjectURL(finalFile);
     if (fileInput.value) fileInput.value.value = '';
 };
 
 const removeImage = index => {
+    if (isCompressing.value) return;
+
     if (imagePreviews.value[index]) {
         URL.revokeObjectURL(imagePreviews.value[index]);
         const newImages = [...modelValue.value];
@@ -109,8 +123,14 @@ const removeImage = index => {
 };
 
 const handleFileDrop = (e, index = 0) => {
+    if (isCompressing.value) return;
     const file = e.dataTransfer?.files[0];
-    if (file) processFile(file, index);
+
+    if (file && file.type.startsWith('image/')) {
+        processFile(file, index);
+    } else {
+        localError.value = 'Invalid file type. Only image files are allowed.';
+    }
 };
 
 const handleFileSelect = e => {
@@ -126,8 +146,16 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div class="flex flex-col">
-        <input type="file" ref="fileInput" class="hidden" accept="image/avif, .avif" @change="handleFileSelect" />
+    <div class="flex flex-col relative">
+        <div v-if="isCompressing" class="absolute inset-0 z-50 bg-white/70 backdrop-blur-sm flex flex-col items-center justify-center rounded-default border-2 border-transparent">
+            <svg class="animate-spin h-8 w-8 text-action-primary mb-2" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-body-sm font-medium text-text-primary">Optimizing Image...</span>
+        </div>
+
+        <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="handleFileSelect" />
 
         <div
             class="w-full h-105 bg-neutral-100 border-2 border-dashed rounded-default flex flex-col items-center justify-center relative overflow-hidden transition-colors duration-200 cursor-pointer"
@@ -162,8 +190,8 @@ onBeforeUnmount(() => {
                         stroke="currentColor"
                     />
                 </svg>
-                <p class="text-h4 text-text-primary mb-200 font-semibold">Choose a file and drag & drop it here.</p>
-                <p class="text-body-sm text-text-secondary mb-600">.AVIF format only (Max 5MB)</p>
+                <p class="text-h4 text-text-primary mb-200 font-semibold">Choose an image and drag & drop it here.</p>
+                <p class="text-body-sm text-text-secondary mb-600">All Images supported (Max Input 5MB)</p>
                 <BaseButton variant="secondary" @click.stop="triggerFileInput(0)">Browse a file</BaseButton>
             </template>
         </div>
