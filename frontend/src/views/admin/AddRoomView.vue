@@ -26,7 +26,7 @@ const form = reactive({
     overview: '',
     description: '',
     rules: '',
-    images: [null, null, null, null, null],
+    images: [null, null, null, null],
 });
 
 const isFormDirty = ref(false);

@@ -116,7 +116,7 @@ export function maxFileSize(file, maxSizeMB, fieldName = 'File') {
     return { valid: true, message: '' }
 }
 
-export function validateFileArray(files, maxFiles = 5, maxSizeMB = 2, fieldName = 'File') {
+export function validateFileArray(files, maxFiles = 4, maxSizeMB = 2, fieldName = 'File') {
     if (!files || !Array.isArray(files)) {
         return { valid: true, message: '' }
     }
