@@ -34,7 +34,7 @@ export const useTenantRoomStore = defineStore('tenantRoom', () => {
             ? [...params.facilities].sort().join(',')
             : (params.facilities || '');
 
-        const cacheKey = `page-${effectivePage}-limit-${limit}-type-${params.room_type || ''}-floor-${params.floor || ''}-min-${params.min_price || ''}-max-${params.max_price || ''}-fac-${facilitiesKey}`;
+        const cacheKey = `page-${effectivePage}-limit-${limit}-search-${params.search || ''}-type-${params.room_type || ''}-floor-${params.floor || ''}-min-${params.min_price || ''}-max-${params.max_price || ''}-fac-${facilitiesKey}`;
 
         if (cache.has(cacheKey)) {
             const cached = cache.get(cacheKey);
@@ -63,6 +63,7 @@ export const useTenantRoomStore = defineStore('tenantRoom', () => {
             const rawParams = {
                 page: effectivePage,
                 per_page: limit,
+                search: params.search || undefined,
                 room_type: params.room_type || undefined,
                 floor: params.floor || undefined,
                 min_price: params.min_price || undefined,

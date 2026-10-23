@@ -66,14 +66,14 @@ const floorOptions = [
 ];
 
 const facilityOptions = [
-    { id: 'ac', name: 'AC' },
-    { id: 'private-bathroom', name: 'Private Bathroom' },
-    { id: 'private-kitchen', name: 'Private Kitchen' },
-    { id: 'wifi', name: 'WiFi' },
-    { id: 'bed', name: 'Bed' },
-    { id: 'desk', name: 'Desk' },
-    { id: 'tv', name: 'TV' },
-    { id: 'fan', name: 'Fan' },
+    { id: 1, name: 'Private Bathroom' },
+    { id: 2, name: 'Private Kitchen' },
+    { id: 3, name: 'AC' },
+    { id: 4, name: 'WiFi' },
+    { id: 5, name: 'Bed' },
+    { id: 6, name: 'Desk' },
+    { id: 7, name: 'Fan' },
+    { id: 8, name: 'TV' },
 ];
 </script>
 
