@@ -41,7 +41,7 @@ class RoomIndexRequest extends FormRequest
             'floor' => [
                 'integer',
                 'nullable',
-                'exists:rooms,floor',
+                'in:1,2,3',
             ],
             'status' => [
                 'string',
