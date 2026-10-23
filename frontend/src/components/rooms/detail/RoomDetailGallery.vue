@@ -28,15 +28,6 @@ const sortedImages = computed(() => {
         .map(img => getImageUrl(img.path));
 });
 
-const thumbnailSlots = computed(() => {
-    const imgs = sortedImages.value;
-    const slots = [];
-    for (let i = 0; i < 4; i++) {
-        slots.push(imgs[i] || null);
-    }
-    return slots;
-});
-
 const nextImage = () => {
     if (sortedImages.value.length <= 1) return;
     activeIndex.value = (activeIndex.value + 1) % sortedImages.value.length;
@@ -117,30 +108,18 @@ const handleImageError = event => {
         </div>
 
         <div v-if="sortedImages.length > 1" class="hidden lg:flex lg:col-span-3 flex-col gap-4 lg:h-150 xl:h-173">
-            <template v-for="(img, index) in thumbnailSlots" :key="index">
-                <button
-                    v-if="img"
-                    @click="setActiveImage(index)"
-                    :aria-label="`View image ${index + 1}`"
-                    :aria-current="activeIndex === index ? 'true' : 'false'"
-                    class="w-full flex-1 rounded-lg overflow-hidden cursor-pointer relative border-2 transition-all focus:outline-none"
-                    :class="activeIndex === index ? 'border-neutral-900' : 'border-transparent hover:border-border-default'"
-                >
-                    <img :src="img" @error="handleImageError" alt="" role="presentation" class="w-full h-full object-cover" />
-                    <div class="absolute inset-0 transition-colors" :class="activeIndex === index ? 'bg-transparent' : 'bg-black/20 hover:bg-black/10'"></div>
-                </button>
-
-                <div v-else class="w-full flex-1 rounded-lg bg-neutral-100 border-2 border-dashed border-border-default flex items-center justify-center text-neutral-300 select-none">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="1.5"
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                    </svg>
-                </div>
-            </template>
+            <button
+                v-for="(img, index) in sortedImages"
+                :key="index"
+                @click="setActiveImage(index)"
+                :aria-label="`View image ${index + 1}`"
+                :aria-current="activeIndex === index ? 'true' : 'false'"
+                class="w-full flex-1 rounded-lg overflow-hidden cursor-pointer relative border-2 transition-all focus:outline-none"
+                :class="activeIndex === index ? 'border-neutral-900' : 'border-transparent hover:border-border-default'"
+            >
+                <img :src="img" @error="handleImageError" alt="" role="presentation" class="w-full h-full object-cover" />
+                <div class="absolute inset-0 transition-colors" :class="activeIndex === index ? 'bg-transparent' : 'bg-black/20 hover:bg-black/10'"></div>
+            </button>
         </div>
     </div>
 </template>
