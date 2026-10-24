@@ -11,11 +11,17 @@ use App\Models\BookingRecord;
 // Resource Imports
 use App\Http\Resources\Api\V1\Admin\Booking\BookingIndexResource;
 
+// Request Validation Imports
+use App\Http\Requests\Api\V1\Admin\Booking\BookingIndexRequest;
+
 class BookingController extends Controller
 {
-    public function index()
+    public function index(BookingIndexRequest $request)
     {
         $bookingData = BookingRecord::query()
+            ->when($request->filled('status'), function ($query) use ($request) {
+                return $query->where('status', $request->input('status'));
+            })
             ->select('id', 'room_id', 'user_id', 'move_in', 'move_out', 'rental_duration', 'status', 'total', 'created_at')
             ->with([
                 'room' => fn ($q) => $q->select('id', 'room_type_id', 'name', 'floor', 'price', 'status', 'overview', 'description', 'rules'),
