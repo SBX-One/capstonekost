@@ -125,7 +125,7 @@ const handleRegister = async () => {
                     <button
                         type="button"
                         @click="showPassword = !showPassword"
-                        class="text-text-disabled hover:text-text-primary focus:outline-none cursor-pointer flex items-center justify-center"
+                        class="pointer-events-auto text-text-disabled hover:text-text-primary focus:outline-none cursor-pointer flex items-center justify-center"
                         :aria-label="showPassword ? 'Hide password' : 'Show password'"
                     >
                         <svg v-if="showPassword" class="w-400 h-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
