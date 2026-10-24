@@ -1,5 +1,6 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
+import { useRoomMeta } from '@/composables/useRoomMeta';
 import AppDropdown from '@/components/common/AppDropdown.vue';
 
 const roomTypeFilter = defineModel('roomType', { default: '' });
@@ -10,72 +11,48 @@ const statusFilter = defineModel('status', { default: '' });
 
 const emit = defineEmits(['reset']);
 
+const { roomTypes, floors, priceRanges, statuses, fetchRoomMeta } = useRoomMeta();
+
+onMounted(() => {
+    fetchRoomMeta();
+});
+
 const hasActiveFilters = computed(() => {
     return Boolean(roomTypeFilter.value || floorFilter.value || minPriceFilter.value || maxPriceFilter.value || statusFilter.value);
 });
 
 const priceRangeModel = computed({
     get() {
-        if (minPriceFilter.value === '1200000' && maxPriceFilter.value === '1699999') return 'range1';
-        if (minPriceFilter.value === '1700000' && maxPriceFilter.value === '2199999') return 'range2';
-        if (minPriceFilter.value === '2200000' && maxPriceFilter.value === '2800000') return 'range3';
-        return '';
+        const range = priceRanges.value.find(r => r.raw.min_price.toString() === minPriceFilter.value?.toString() && r.raw.max_price.toString() === maxPriceFilter.value?.toString());
+        return range ? range.value : '';
     },
     set(val) {
-        if (val === 'range1') {
-            minPriceFilter.value = '1200000';
-            maxPriceFilter.value = '1699999';
-        } else if (val === 'range2') {
-            minPriceFilter.value = '1700000';
-            maxPriceFilter.value = '2199999';
-        } else if (val === 'range3') {
-            minPriceFilter.value = '2200000';
-            maxPriceFilter.value = '2800000';
+        const range = priceRanges.value.find(r => r.value === val);
+        if (range) {
+            minPriceFilter.value = range.raw.min_price.toString();
+            maxPriceFilter.value = range.raw.max_price.toString();
         } else {
             minPriceFilter.value = '';
             maxPriceFilter.value = '';
         }
     },
 });
-
-const priceOptions = [
-    { label: 'Rp1.200.000 – Rp1.699.999', value: 'range1' },
-    { label: 'Rp1.700.000 – Rp2.199.999', value: 'range2' },
-    { label: 'Rp2.200.000 – Rp2.800.000', value: 'range3' },
-];
-
-const roomTypeOptions = [
-    { label: 'Single Room', value: '1' },
-    { label: 'Double Room', value: '2' },
-    { label: 'Master Room', value: '3' },
-];
-
-const floorOptions = [
-    { label: 'Floor 1', value: '1' },
-    { label: 'Floor 2', value: '2' },
-    { label: 'Floor 3', value: '3' },
-];
-
-const statusOptions = [
-    { label: 'Available', value: 'available' },
-    { label: 'Occupied', value: 'occupied' },
-];
 </script>
 
 <template>
     <div class="flex items-center justify-between gap-4 select-none w-full">
         <div class="flex items-center gap-3 flex-wrap">
             <div class="w-52">
-                <AppDropdown v-model="priceRangeModel" :options="priceOptions" placeholder="Any Price" size="sm" />
+                <AppDropdown v-model="priceRangeModel" :options="priceRanges" placeholder="Any Price" size="sm" />
             </div>
             <div class="w-44">
-                <AppDropdown v-model="roomTypeFilter" :options="roomTypeOptions" placeholder="All Room Types" size="sm" />
+                <AppDropdown v-model="roomTypeFilter" :options="roomTypes" placeholder="All Room Types" size="sm" />
             </div>
             <div class="w-36">
-                <AppDropdown v-model="floorFilter" :options="floorOptions" placeholder="All Floors" size="sm" />
+                <AppDropdown v-model="floorFilter" :options="floors" placeholder="All Floors" size="sm" />
             </div>
             <div class="w-40">
-                <AppDropdown v-model="statusFilter" :options="statusOptions" placeholder="All Statuses" size="sm" />
+                <AppDropdown v-model="statusFilter" :options="statuses" placeholder="All Statuses" size="sm" />
             </div>
         </div>
 

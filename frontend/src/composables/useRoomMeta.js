@@ -30,7 +30,6 @@ export function useRoomMeta() {
         try {
             const response = await apiClient.get('/rooms/meta');
             const data = response.data?.data;
-            console.log(data)
 
             if (!data) throw new Error('Invalid metadata format from server');
 

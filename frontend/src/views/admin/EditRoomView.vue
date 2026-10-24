@@ -5,7 +5,7 @@ import isEqual from 'lodash/isEqual';
 
 import { useRoom } from '@/composables/useRoom';
 import { useRoomValidation } from '@/composables/useRoomValidation';
-import { useRoomFacilities } from '@/composables/useRoomFacilities';
+import { useRoomMeta } from '@/composables/useRoomMeta';
 import { sanitizeRoomPayload } from '@/utils/sanitizers';
 
 import AppDropdown from '@/components/common/AppDropdown.vue';
@@ -21,7 +21,8 @@ const props = defineProps({
 const router = useRouter();
 const { fetchRoomById, updateRoom, isMutating, isFetching, formatRupiah } = useRoom();
 const { validateAll, validateField, errors, setFieldError } = useRoomValidation(true);
-const { facilityOptions } = useRoomFacilities();
+
+const { roomTypes, floors, facilities, fetchRoomMeta } = useRoomMeta();
 
 const form = reactive({
     name: '',
@@ -65,12 +66,13 @@ const isSubmitDisabled = computed(() => {
 });
 
 const loadExistingRoomData = async () => {
+    await fetchRoomMeta();
     const data = await fetchRoomById(props.id);
 
     if (data) {
         form.name = data.name;
-        form.room_type = data.room_type?.id || data.room_type;
-        form.floor = data.floor;
+        form.room_type = data.room_type?.id?.toString() || data.room_type?.toString();
+        form.floor = data.floor?.toString();
         form.price = data.price;
 
         if (data.price) displayPrice.value = formatRupiah(data.price).replace(/Rp\s?/g, '').trim();
@@ -152,17 +154,6 @@ const adjustPrice = amount => {
     validateField('price', form.price);
 };
 
-const roomTypeOptions = [
-    { label: 'Single Room', value: 1 },
-    { label: 'Double Room', value: 2 },
-    { label: 'Master Room', value: 3 },
-];
-const floorOptions = [
-    { label: 'Floor 1', value: 1 },
-    { label: 'Floor 2', value: 2 },
-    { label: 'Floor 3', value: 3 },
-];
-
 const submitForm = async () => {
     if (!validateAll(form)) return;
 
@@ -234,7 +225,7 @@ const submitForm = async () => {
                             <label class="text-body-lg text-text-primary">Room Type</label>
                             <AppDropdown
                                 v-model="form.room_type"
-                                :options="roomTypeOptions"
+                                :options="roomTypes"
                                 placeholder="Select Room Type"
                                 @update:modelValue="setFieldError('room_type', '')"
                                 @blur="validateField('room_type', form.room_type)"
@@ -246,13 +237,7 @@ const submitForm = async () => {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-400">
                         <div class="flex flex-col gap-200 w-full">
                             <label class="text-body-lg text-text-primary">Floor</label>
-                            <AppDropdown
-                                v-model="form.floor"
-                                :options="floorOptions"
-                                placeholder="Select Floor"
-                                @update:modelValue="setFieldError('floor', '')"
-                                @blur="validateField('floor', form.floor)"
-                            />
+                            <AppDropdown v-model="form.floor" :options="floors" placeholder="Select Floor" @update:modelValue="setFieldError('floor', '')" @blur="validateField('floor', form.floor)" />
                             <p v-if="errors.floor" class="text-body-sm text-status-error">{{ errors.floor }}</p>
                         </div>
 
@@ -285,7 +270,6 @@ const submitForm = async () => {
                                                     ? 'text-neutral-300 cursor-not-allowed bg-neutral-50'
                                                     : 'text-text-secondary hover:text-neutral-900 hover:bg-neutral-100 cursor-pointer'
                                             "
-                                            aria-label="Decrease price by 50.000"
                                         >
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4" />
@@ -298,7 +282,6 @@ const submitForm = async () => {
                                             type="button"
                                             @click.stop="adjustPrice(50000)"
                                             class="w-8 h-full flex items-center justify-center text-text-secondary hover:text-neutral-900 hover:bg-neutral-100 transition-colors focus:outline-none cursor-pointer"
-                                            aria-label="Increase price by 50.000"
                                         >
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -312,7 +295,7 @@ const submitForm = async () => {
 
                     <div class="flex flex-col gap-200 w-full">
                         <label class="text-body-lg text-text-primary">Facilities</label>
-                        <FacilityChipGroup v-model="form.facilities" :options="facilityOptions" @update:modelValue="validateField('facilities', form.facilities)" />
+                        <FacilityChipGroup v-model="form.facilities" :options="facilities" @update:modelValue="validateField('facilities', form.facilities)" />
                         <p v-if="errors.facilities" class="text-body-sm text-status-error">{{ errors.facilities }}</p>
                     </div>
 
