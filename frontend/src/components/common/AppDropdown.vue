@@ -34,10 +34,15 @@ const dropdownStyle = ref({
     width: '0px',
 });
 
+const isValueMatch = (optVal, currentVal) => {
+    if (currentVal === '') return false;
+    return String(optVal) === String(currentVal);
+};
+
 const selectedLabel = computed(() => {
     const found = props.options.find(opt => {
         const val = typeof opt === 'object' ? opt.value : opt;
-        return val === modelValue.value;
+        return isValueMatch(val, modelValue.value);
     });
     if (found === undefined || modelValue.value === '') return props.placeholder;
     return typeof found === 'object' ? found.label : found;
@@ -101,7 +106,7 @@ const handleKeyDown = e => {
         activeIndex.value = (activeIndex.value + 1) % totalItems;
     } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        activeIndex.value = (activeIndex.value - 1 + totalItems + totalItems) % totalItems;
+        activeIndex.value = (activeIndex.value - 1 + totalItems) % totalItems;
     } else if (e.key === 'Enter') {
         e.preventDefault();
         if (activeIndex.value === 0) {
@@ -156,43 +161,68 @@ onUnmounted(() => {
         </button>
 
         <Teleport to="body">
-            <div
-                v-if="isOpen"
-                ref="dropdownRef"
-                :style="dropdownStyle"
-                class="fixed bg-bg-default border border-border-default rounded-default shadow-default z-9999 overflow-hidden animate-fadeIn"
-                role="listbox"
+            <transition
+                enter-active-class="transition ease-out duration-150"
+                enter-from-class="transform opacity-0 scale-95 translate-y-2"
+                enter-to-class="transform opacity-100 scale-100 translate-y-0"
+                leave-active-class="transition ease-in duration-100"
+                leave-from-class="transform opacity-100 scale-100 translate-y-0"
+                leave-to-class="transform opacity-0 scale-95 translate-y-2"
             >
-                <button
-                    type="button"
-                    @click="selectOption('')"
-                    class="w-full text-left transition-colors"
-                    :class="[
-                        itemSizeClasses,
-                        modelValue === '' ? 'bg-neutral-200 font-semibold text-text-primary' : 'text-text-secondary hover:bg-neutral-100',
-                        { 'bg-neutral-200': activeIndex === 0 },
-                    ]"
+                <div
+                    v-if="isOpen"
+                    ref="dropdownRef"
+                    :style="dropdownStyle"
+                    class="fixed bg-bg-default border border-border-default rounded-default shadow-default z-9999 max-h-60 overflow-y-auto custom-scrollbar flex flex-col"
+                    role="listbox"
                 >
-                    {{ placeholder }}
-                </button>
+                    <button
+                        type="button"
+                        @click="selectOption('')"
+                        class="w-full text-left transition-colors shrink-0"
+                        :class="[
+                            itemSizeClasses,
+                            modelValue === '' ? 'bg-neutral-200 font-semibold text-text-primary' : 'text-text-secondary hover:bg-neutral-100',
+                            { 'bg-neutral-200': activeIndex === 0 },
+                        ]"
+                    >
+                        {{ placeholder }}
+                    </button>
 
-                <button
-                    v-for="(opt, index) in options"
-                    :key="index"
-                    type="button"
-                    @click="selectOption(opt)"
-                    class="w-full text-left transition-colors relative"
-                    :class="[
-                        itemSizeClasses,
-                        (typeof opt === 'object' ? opt.value : opt) === modelValue ? 'bg-neutral-200 text-text-primary font-semibold pl-6' : 'text-text-primary hover:bg-neutral-100',
-                        { 'bg-neutral-100': activeIndex === index + 1 },
-                    ]"
-                    role="option"
-                >
-                    <span v-if="(typeof opt === 'object' ? opt.value : opt) === modelValue" class="absolute left-2 top-1/2 -translate-y-1/2 w-1 h-4 bg-action-primary rounded-full"></span>
-                    {{ typeof opt === 'object' ? opt.label : opt }}
-                </button>
-            </div>
+                    <button
+                        v-for="(opt, index) in options"
+                        :key="index"
+                        type="button"
+                        @click="selectOption(opt)"
+                        class="w-full text-left transition-colors relative shrink-0"
+                        :class="[
+                            itemSizeClasses,
+                            isValueMatch(typeof opt === 'object' ? opt.value : opt, modelValue) ? 'bg-neutral-200 text-text-primary font-semibold pl-6' : 'text-text-primary hover:bg-neutral-100',
+                            { 'bg-neutral-100': activeIndex === index + 1 },
+                        ]"
+                        role="option"
+                    >
+                        <span v-if="isValueMatch(typeof opt === 'object' ? opt.value : opt, modelValue)" class="absolute left-2 top-1/2 -translate-y-1/2 w-1 h-4 bg-action-primary rounded-full"></span>
+                        {{ typeof opt === 'object' ? opt.label : opt }}
+                    </button>
+                </div>
+            </transition>
         </Teleport>
     </div>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #e5e5e5;
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #d4d4d4;
+}
+</style>
