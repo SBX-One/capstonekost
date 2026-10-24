@@ -11,6 +11,8 @@ class Facility extends Model
 {
     use HasFactory;
 
+    protected $hidden = ['pivot'];
+
     /**
      * Get all rooms that have this facility.
      */

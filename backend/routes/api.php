@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Admin\Room\RoomController as AdminRoomController;
 use App\Http\Controllers\Api\V1\Tenant\Room\RoomController as TenantRoomController;
 use App\Http\Controllers\Api\V1\Meta\RoomsMetaController;
+use App\Http\Controllers\Api\V1\Tenant\Booking\BookingController;
 
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -32,4 +33,10 @@ Route::middleware('auth:api')->group(function () {
             Route::patch('/update/{id}', [AdminRoomController::class, 'update'])->name('update');
             Route::delete('/delete', [AdminRoomController::class, 'delete'])->name('delete');
     });
+
+    Route::prefix('/tenant')
+        ->middleware('role:tenant')
+        ->name('tenant.')->group(function () {
+            Route::get('/bookings', [BookingController::class, 'index'])->name('index');
+        });
 });
