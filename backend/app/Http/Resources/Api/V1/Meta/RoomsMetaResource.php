@@ -14,34 +14,38 @@ class RoomsMetaResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'filter' => [
-                'prices' => [
-                    [
-                        'min_price' => 1200000,
-                        'max_price' => 1699999
-                    ],
-                    [
-                        'min_price' => 1700000,
-                        'max_price' => 2199999
-                    ],
-                    [
-                        'min_price' => 2200000,
-                        'max_price' => 2800000
-                    ],
+            'prices' => [
+                [
+                    'id' => 'range_1',
+                    'min_price' => 1200000,
+                    'max_price' => 1699999
                 ],
-                'floors' => [
-                    [
-                        'floor' => '1'
-                    ],
-                    [
-                        'floor' => '2'
-                    ],
-                    [
-                        'floor' => '3'
-                    ]
+                [   
+                    'id' => 'range_2',
+                    'min_price' => 1700000,
+                    'max_price' => 2199999
                 ],
-                'room_types' => $this->resource['roomTypes']
+                [
+                    'id' => 'range_3',
+                    'min_price' => 2200000,
+                    'max_price' => 2800000
+                ],
             ],
+            'floors' => [
+                [
+                    'id' => 1,
+                    'name' => 'Floor 1'
+                ],
+                [
+                    'id' => 2,
+                    'name' => 'Floor 2'
+                ],
+                [
+                    'id' => 3,
+                    'name' => 'Floor 3'
+                ]
+            ],
+            'room_types' => $this->resource['roomTypes'],
             'facilities' => $this->resource['facilities'],
             'utilities' => $this->resource['utilities']
         ];
