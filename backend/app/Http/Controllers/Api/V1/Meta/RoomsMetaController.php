@@ -17,9 +17,9 @@ class RoomsMetaController extends Controller
 {
     public function meta() 
     {
-        $roomTypes = RoomType::select('id', 'name');
-        $facilities = Facility::select('id', 'name', 'information', 'icon_name');
-        $utilities = Utility::select('id', 'name', 'information', 'icon_name');
+        $roomTypes = RoomType::select('id', 'name')->get();
+        $facilities = Facility::select('id', 'name', 'information', 'icon_name')->get();
+        $utilities = Utility::select('id', 'name', 'information', 'icon_name')->get();
 
         return (new RoomsMetaResource([
             'roomTypes' => $roomTypes,

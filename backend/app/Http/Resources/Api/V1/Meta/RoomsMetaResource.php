@@ -40,23 +40,10 @@ class RoomsMetaResource extends JsonResource
                         'floor' => '3'
                     ]
                 ],
-                'room_types' => $this->resource->roomTypes->map(fn ($roomType) => [
-                    'id' => $roomType->id,
-                    'name' => $roomType->name
-                ])
+                'room_types' => $this->resource['roomTypes']
             ],
-            'facilities' => $this->resource->facilities->map(fn ($facility) => [
-                'id' => $facility->id,
-                'icon_name' => $facility->iconName,
-                'name' => $facility->name,
-                'information' => $facility->information,
-            ]),
-            'utilities' => $this->resource->utilities->map(fn ($utility) => [
-                'id' => $utility->id,
-                'name' => $utility->name,
-                'icon_name' => $utility->iconName,
-                'information' => $utility->information,
-            ]),
+            'facilities' => $this->resource['facilities'],
+            'utilities' => $this->resource['utilities']
         ];
     }
 }
