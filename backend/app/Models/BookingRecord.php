@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 
@@ -37,10 +37,10 @@ class BookingRecord extends Model
     }
 
     /**
-     * Get all contacts for this booking record.
+     * Get the contact for this booking record.
      */
-    public function contacts(): HasMany
+    public function contact(): HasOne
     {
-        return $this->hasMany(BookingContact::class, 'booking_record_id');
+        return $this->hasOne(BookingContact::class, 'booking_record_id');
     }
 }
