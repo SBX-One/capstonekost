@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 // Request Imports
 use App\Http\Requests\Api\V1\Tenant\Room\RoomIndexRequest;
+use App\Http\Requests\Api\V1\Tenant\Room\RoomShowRequest;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Tenant\Room\RoomIndexResource;
@@ -73,7 +74,7 @@ class RoomController extends Controller
                ]);
     }
 
-    public function show (Request $request, string $id)
+    public function show (RoomShowRequest $request, string $id)
     {
         $room = Room::findOrFail($id);
         $room->load('roomType');
