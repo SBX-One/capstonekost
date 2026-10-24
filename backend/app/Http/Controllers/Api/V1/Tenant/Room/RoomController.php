@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\Api\V1\Tenant\Room\RoomIndexRequest;
 
 // Resource Imports
-use App\Http\Resources\Api\V1\Admin\Room\RoomIndexResource;
+use App\Http\Resources\Api\V1\Tenant\Room\RoomIndexResource;
 use App\Http\Resources\Api\V1\Tenant\Room\RoomShowResource;
 
 // Model Imports

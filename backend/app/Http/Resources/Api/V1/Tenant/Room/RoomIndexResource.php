@@ -41,7 +41,8 @@ class RoomIndexResource extends JsonResource
                 'id' => $image->id,
                 'path' => $image->image_path,
                 'sort_order' => $image->sort_order
-            ])
+            ]),
+            'available_date' => $this->resource['available_date']
         ];
     }
 }
