@@ -62,38 +62,7 @@ defineProps({
                         {{ utility.name }}
                     </span>
                     <div class="flex items-start gap-3 w-full">
-                        <svg v-if="utility.name.toLowerCase().includes('water')" class="w-6 h-6 text-text-primary shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M16.7857 13.385C16.7878 14.6027 16.2812 15.7732 15.3736 16.648C14.8681 17.1324 14.2521 17.5043 13.5714 17.736M20 13.692C20 13.6918 20 13.6917 20 13.6915M20 13.6915C19.9996 7.11473 12.5 2 12.5 2C12.5 2 5 7.115 5 13.692C5 15.63 5.78964 17.489 7.19643 18.86C8.60321 20.231 10.5114 21 12.5 21C14.4886 21 16.3968 20.23 17.8036 18.86C19.2102 17.4901 19.9999 15.6303 20 13.6915ZM20 13.6915C20 13.6913 20 13.6912 20 13.691"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke="currentColor"
-                            />
-                        </svg>
-
-                        <svg
-                            v-else-if="utility.name.toLowerCase().includes('electricity')"
-                            class="w-6 h-6 text-text-primary shrink-0 mt-0.5"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path
-                                d="M9.53809 2V4.7M16.4612 2V4.7M12.9996 16.4V20M13.8004 7.85L11.3877 9.8075C11.1292 10.0172 11.3139 10.3187 11.7362 10.3745L14.2631 10.7093C14.7131 10.7687 14.8839 11.1035 14.57 11.3069L11.5769 13.25"
-                                stroke-width="1.5"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke="currentColor"
-                            />
-                            <path
-                                d="M15.6619 4.69922H10.3381C7.87114 4.69922 6.63767 4.69922 5.95575 5.32742C5.27498 5.95472 5.4619 6.91862 5.8369 8.84642L6.44152 11.9514C7.04152 15.0348 8.7146 16.3992 13 16.3992C17.2854 16.3992 18.9585 15.0348 19.5585 11.9514L20.1631 8.84642C20.5381 6.91862 20.725 5.95472 20.0443 5.32742C19.3635 4.70012 18.1289 4.69922 15.6619 4.69922Z"
-                                stroke-width="1.5"
-                                stroke="currentColor"
-                            />
-                        </svg>
-
-                        <FacilityIcon v-else :name="utility.name" class="w-6 h-6 text-text-primary shrink-0 mt-0.5" />
+                        <FacilityIcon :name="utility.name" class="w-6 h-6 text-text-primary shrink-0 mt-0.5" />
                         <span class="text-h4 text-text-primary wrap-break-word line-clamp-2" :title="utility.information">
                             {{ utility.information }}
                         </span>
