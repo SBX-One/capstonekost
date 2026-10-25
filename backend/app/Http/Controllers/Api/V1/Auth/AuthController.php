@@ -57,7 +57,9 @@ class AuthController extends Controller
 
         $user['password'] = Hash::make($user['password']);
 
-        $user = User::query()->create($user);
+        $user['role'] = 'tenant'; 
+
+        $user = User::query()->create($user)->refresh();
 
         $token = Auth::tokenById($user->id);
 
