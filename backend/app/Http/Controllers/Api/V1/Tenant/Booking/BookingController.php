@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Tenant\Booking;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
 
 // Model Imports 
 use App\Models\BookingRecord;
@@ -16,6 +17,7 @@ use App\Http\Resources\Api\V1\Tenant\Booking\BookingShowResource;
 
 // Request Imports
 use App\Http\Requests\Api\V1\Tenant\Booking\BookingShowRequest;
+use App\Http\Requests\Api\V1\Tenant\Booking\BookingBookRequest;
 
 class BookingController extends Controller
 {
@@ -55,5 +57,50 @@ class BookingController extends Controller
         return (new BookingShowResource($room))
             ->response()
             ->setStatusCode(200);
+    }
+
+    public function book(BookingBookRequest $request, string $id)
+    {        
+        $room = Room::findOrFail($id); 
+        $userId = Auth::id();
+
+        $request = $request->validated();
+
+        $existingBookings = BookingRecord::query()
+            ->where('room_id', $request['id'])
+            ->whereIn('status', ['pending', 'active'])
+            ->where('move_in', '<', $request['move_in'])
+            ->where('move_out', '>', $request['move_out'])
+            ->exists();
+
+        if ($existingBookings) {
+            throw new \Exception('This room is already booked for the selected dates.');
+        }
+
+        $months = (
+            Carbon::parse($request['move_in'])
+            ->diffInDays(Carbon::parse($request['move_out']))
+            ) / 30;
+        
+        if ($months !== $request['rental_duration']) {
+            throw new \Exception('Move in and move out dates is not equal to' . ' ' . $request['rental_duration'] . ' ' . 'month(s) rental duration time.');
+        }
+
+        if ($room['price'] * $request['rental_duration'] !== $request['total']) {
+            throw new \Exception('Total amount is not equal to the room price multiplied by the rental duration.');
+        }
+
+        $bookingRecord = BookingRecord::query()->create([
+            'room_id' => $id,
+            'user_id' => $userId,
+            'move_in' => $request['move_in'],
+            'move_out' => $request['move_out'],
+            'rental_duration' => $request['rental_duration'],
+            'total' => $request['total']
+        ]);
+
+        return (new BookingBookResource($bookingRecord))
+            ->response()
+            ->setStatusCode(201);
     }
 }
