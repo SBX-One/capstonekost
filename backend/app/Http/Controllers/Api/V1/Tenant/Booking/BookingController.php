@@ -87,17 +87,13 @@ class BookingController extends Controller
             throw new \Exception('Move in and move out dates is not equal to' . ' ' . $request['rental_duration'] . ' ' . 'month(s) rental duration time.');
         }
 
-        if ($room['price'] * $request['rental_duration'] !== $request['total']) {
-            throw new \Exception('Total amount is not equal to the room price multiplied by the rental duration.');
-        }
-
         $bookingRecord = BookingRecord::query()->create([
             'room_id' => $id,
             'user_id' => $userId,
             'move_in' => $request['move_in'],
             'move_out' => $request['move_out'],
             'rental_duration' => $request['rental_duration'],
-            'total' => $request['total']
+            'total' => ($room->price * $request['rental_duration'])
         ]);
 
         return (new BookingBookResource($bookingRecord))

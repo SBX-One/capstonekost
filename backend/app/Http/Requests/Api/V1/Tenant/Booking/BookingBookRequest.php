@@ -27,7 +27,6 @@ class BookingBookRequest extends FormRequest
             'move_in' => ['required', 'date', 'date_format:Y-m-d', 'required_with:move_out'],
             'move_out' => ['required', 'date', 'date_format:Y-m-d', 'required_with:move_in'],
             'rental_duration' => ['required', 'int', 'min:1'],
-            'total' => ['required', 'int', 'min:1']
         ];
     }
 
@@ -47,10 +46,6 @@ class BookingBookRequest extends FormRequest
             'rental_duration.required' => 'The rental duration is required.',
             'rental_duration.int' => 'The rental duration must be an integer.',
             'rental_duration.min' => 'The rental duration must be at least 1.',
-
-            'total.required' => 'The total amount is required.',
-            'total.int' => 'The total amount must be an integer.',
-            'total.min' => 'The total amount must be at least 1.',
         ];
     }
 }
