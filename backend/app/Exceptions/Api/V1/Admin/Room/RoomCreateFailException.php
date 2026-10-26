@@ -43,5 +43,4 @@ class RoomCreateFailException extends Exception
             'message' => 'Failed to create room. Please try again.',
         ], 500);
     }
-
 }

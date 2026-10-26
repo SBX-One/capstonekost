@@ -25,6 +25,9 @@ use App\Models\Room;
 
 // Exception Imports
 use App\Exceptions\Api\V1\Admin\Room\RoomCreateFailException;
+use App\Exceptions\Api\V1\Admin\Room\RoomUpdateFailException;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class RoomController extends Controller
 {
@@ -143,59 +146,76 @@ class RoomController extends Controller
 
     public function update(RoomUpdateRequest $request, string $id)
     {
+        $imagesToDelete = [];
+        $uploadedImages = [];
+        
         $requestPayload = $request->validated();
 
-        $room = Room::findOrFail($id);
+        try {
+            $room = DB::transaction(function () use (
+                $requestPayload, 
+                $id, 
+                &$imagesToDelete, 
+                &$uploadedImages
+            ) {
+                $room = Room::findOrFail($id);
 
-        if ($requestPayload['name'] === $room->name) {
-            
+                $room->update([
+                    'name' => $requestPayload['name'],
+                    'room_type_id' => $requestPayload['room_type'],
+                    'price' => $requestPayload['price'],
+                    'floor' => $requestPayload['floor'],
+                    'overview' => $requestPayload['overview'],
+                    'description' => $requestPayload['description'],
+                    'rules' => $requestPayload['rules'],
+                ]);
+
+                $room->facilities()->detach();
+                
+                if (filled($requestPayload['facilities'] ?? null)) {
+                    $room->facilities()->attach($requestPayload['facilities']);
+                }
+
+                $imagesToDelete = $requestPayload['deleted_images'] ?? [];
+                $imagesToDelete = $room->imagePaths()->whereIn('id', $imagesToDelete)->get();
+
+                $imagesToDelete->each->delete();
+
+                $existingOrder = $room->imagePaths()->pluck('sort_order')->all();
+
+                foreach ($requestPayload['images'] ?? [] as $key => $image) {
+                    if ($image === null) {
+                        continue;
+                    }
+
+                    $sortOrder = $key + 1;
+
+                    if (in_array($sortOrder, $existingOrder, true)) {
+                        throw ValidationException::withMessages([
+                            'images' => ["Can't fill image with the requested sorting order."],
+                        ]);
+                    }
+
+                    $image_path = $image->store('rooms', 'public');
+
+                    $uploadedImages[] = $image_path;
+
+                    $room->imagePaths()->create([
+                        'image_path' => $image_path,
+                        'sort_order' => $sortOrder,
+                    ]);
+
+                    $existingOrder[] = $sortOrder;
+                }
+
+                return $room;
+            });
+        } catch (\Throwable $e) {
+            throw new RoomUpdateFailException($uploadedImages, $e);
         }
 
-        $room->update([
-            'name' => $requestPayload['name'],
-            'room_type_id' => $requestPayload['room_type'],
-            'price' => $requestPayload['price'],
-            'floor' => $requestPayload['floor'],
-            'overview' => $requestPayload['overview'],
-            'description' => $requestPayload['description'],
-            'rules' => $requestPayload['rules'],
-        ]);
-
-        $room->facilities()->detach();
-        
-        if (filled($requestPayload['facilities'] ?? null)) {
-            $room->facilities()->attach($requestPayload['facilities']);
-        }
-
-        $deletedImages = $request->validated('deleted_images') ?? [];
-        $deletedImages = $room->imagePaths()->whereIn('id', $deletedImages)->get();
-
-        foreach ($deletedImages as $image) {
+        foreach ($imagesToDelete as $image) {
             Storage::disk('public')->delete($image->image_path);
-            $image->delete();
-        }
-
-        $existingOrder = $room->imagePaths()->pluck('sort_order')->all();
-
-        foreach ($request->validated('images', []) as $key => $image) {
-            if ($image === null) {
-                continue;
-            }
-
-            $sortOrder = $key + 1;
-
-            if (in_array($sortOrder, $existingOrder, true)) {
-                return response()->json([
-                    'message' => "Can't fill image with the requested sorting order",
-                ], 422);
-            }
-
-            $room->imagePaths()->create([
-                'image_path' => $image->store('rooms', 'public'),
-                'sort_order' => $sortOrder,
-            ]);
-
-            $existingOrder[] = $sortOrder;
         }
 
         return (new RoomUpdateResource([
