@@ -92,6 +92,12 @@ const routes = [
                 // component: () => import('@/views/tenant/DashboardView.vue')
             },
             {
+                path: 'booking/:id',
+                name: 'tenant-booking-request',
+                component: () => import('@/views/tenant/BookingRequestView.vue'),
+                props: true
+            },
+            {
                 path: 'my-room',
                 name: 'tenant-my-room',
                 // component: () => import('@/views/tenant/MyRoomView.vue')

@@ -2,6 +2,7 @@
 import { computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useTenantRoom } from '@/composables/useTenantRoom';
+import { useAuthStore } from '@/stores/authStore';
 
 import RoomDetailGallery from '@/components/rooms/detail/RoomDetailGallery.vue';
 import RoomDetailInfo from '@/components/rooms/detail/RoomDetailInfo.vue';
@@ -15,6 +16,7 @@ const props = defineProps({
 });
 
 const router = useRouter();
+const authStore = useAuthStore();
 const { fetchTenantRoomById, getRoomById, isFetching } = useTenantRoom();
 
 const room = computed(() => getRoomById(props.id));
@@ -51,8 +53,16 @@ const handleAskClick = () => {
     console.log('Open Ask Owner Modal for Room ID:', props.id);
 };
 
-const handleBookClick = () => {
-    console.log('Open Sign In Modal / Redirect for Booking Room ID:', props.id);
+const handleBookClick = payload => {
+    if (authStore.isAuthenticated) {
+        router.push({
+            name: 'tenant-booking-request',
+            params: { id: props.id },
+            query: { moveIn: payload?.checkInDate },
+        });
+    } else {
+        console.log('User not logged in. Open Sign In Modal / Redirect for Booking Room ID:', props.id);
+    }
 };
 </script>
 
