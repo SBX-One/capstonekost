@@ -14,6 +14,7 @@ use App\Models\Room;
 // Resource Imports 
 use App\Http\Resources\Api\V1\Tenant\Booking\BookingIndexResource;
 use App\Http\Resources\Api\V1\Tenant\Booking\BookingShowResource;
+use App\Http\Resources\Api\V1\Tenant\Booking\BookingBookResource;
 
 // Request Imports
 use App\Http\Requests\Api\V1\Tenant\Booking\BookingShowRequest;
