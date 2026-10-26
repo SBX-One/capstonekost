@@ -1,3 +1,5 @@
+import dayjs from 'dayjs'
+
 export function required(value, fieldName = 'This field') {
     if (
         value === null ||
@@ -141,5 +143,38 @@ export function validateFileArray(files, maxFiles = 4, maxSizeMB = 2, fieldName 
         }
     }
 
+    return { valid: true, message: '' }
+}
+
+export function isValidDate(value, fieldName = 'Date') {
+    if (!value) return { valid: true, message: '' }
+
+    if (!dayjs(value).isValid()) {
+        return { valid: false, message: `${fieldName} is not a valid date format.` }
+    }
+    return { valid: true, message: '' }
+}
+
+export function minDateToday(value, fieldName = 'Date') {
+    if (!value) return { valid: true, message: '' }
+
+    const date = dayjs(value).startOf('day')
+    const today = dayjs().startOf('day')
+
+    if (date.isBefore(today)) {
+        return { valid: false, message: `${fieldName} cannot be in the past.` }
+    }
+    return { valid: true, message: '' }
+}
+
+export function isAfterDate(value, compareDate, fieldName = 'Date', compareFieldName = 'previous date') {
+    if (!value || !compareDate) return { valid: true, message: '' }
+
+    const date = dayjs(value).startOf('day')
+    const compare = dayjs(compareDate).startOf('day')
+
+    if (date.isBefore(compare) || date.isSame(compare)) {
+        return { valid: false, message: `${fieldName} must be strictly after ${compareFieldName}.` }
+    }
     return { valid: true, message: '' }
 }
