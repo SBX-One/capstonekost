@@ -8,9 +8,14 @@ use Illuminate\Support\Facades\Auth;
 
 // Model Imports 
 use App\Models\BookingRecord;
+use App\Models\Room;
 
 // Resource Imports 
 use App\Http\Resources\Api\V1\Tenant\Booking\BookingIndexResource;
+use App\Http\Resources\Api\V1\Tenant\Booking\BookingShowResource;
+
+// Request Imports
+use App\Http\Requests\Api\V1\Tenant\Booking\BookingShowRequest;
 
 class BookingController extends Controller
 {
@@ -35,5 +40,20 @@ class BookingController extends Controller
             ->additional([
                 'message' => 'Booking records successfully retrieved'
             ]);
+    }
+
+    public function show(BookingShowRequest $request, string $id)
+    {
+        $room = Room::query()
+            ->with([
+                'roomType' => fn ($q) => $q->select('id', 'name'),
+                'facilities' => fn ($q) => $q->select('facilities.id', 'facilities.name', 'facilities.icon_name'),
+                'utilities' => fn ($q) => $q->select('utilities.id', 'utilities.name', 'utilities.icon_name'),
+            ])
+            ->findOrFail($id);
+
+        return (new BookingShowResource($room))
+            ->response()
+            ->setStatusCode(200);
     }
 }

@@ -41,5 +41,6 @@ Route::middleware('auth:api')->group(function () {
         ->middleware('role:tenant')
         ->name('tenant.')->group(function () {
             Route::get('/bookings', [TenantBookingController::class, 'index'])->name('index');
+            Route::get('/rooms/book/{id}', [TenantBookingController::class, 'show'])->name('index');
         });
 });
