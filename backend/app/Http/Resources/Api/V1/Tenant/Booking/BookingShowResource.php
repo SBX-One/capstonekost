@@ -36,7 +36,8 @@ class BookingShowResource extends JsonResource
                 'id' => $utility['id'],
                 'name' => $utility['name'],
                 'icon_name' => $utility['icon_name']
-            ])
+            ]),
+            'available_date' => $this->resource['available_date']
         ];
     }
 }
