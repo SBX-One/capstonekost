@@ -14,7 +14,7 @@ const toggleCollapse = () => {
 const menuItems = [
     { label: 'Dashboard', routeName: 'admin-dashboard', iconName: 'dashboard' },
     { label: 'Room', routeName: 'admin-rooms', iconName: 'room' },
-    { label: 'Booking', routeName: '', iconName: 'booking' },
+    { label: 'Booking', routeName: 'admin-bookings', iconName: 'booking' },
     { label: 'Payment', routeName: '', iconName: 'payment' },
 ];
 
