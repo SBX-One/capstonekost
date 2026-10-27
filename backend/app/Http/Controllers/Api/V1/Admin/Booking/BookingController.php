@@ -44,10 +44,10 @@ class BookingController extends Controller
             ])
             ->get();
         
-        // return BookingIndexResource::collection($bookingData)
-        //     ->additional([
-        //         'message' => 'Booking records successfully retrieved'
-        //     ]);
+        return BookingIndexResource::collection($bookingData)
+            ->additional([
+                'message' => 'Booking records successfully retrieved'
+            ]);
     }
 
     public function reject(BookingRejectRequest $request)
