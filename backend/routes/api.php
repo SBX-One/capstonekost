@@ -35,6 +35,13 @@ Route::middleware('auth:api')->group(function () {
             Route::patch('/update/{id}', [AdminRoomController::class, 'update'])->name('update');
             Route::delete('/delete', [AdminRoomController::class, 'delete'])->name('delete');
             Route::get('/bookings', [AdminBookingController::class, 'index'])->name('index');
+
+            Route::prefix('/rooms')
+                ->name('rooms.')->group(function () {
+                    Route::get('/', [AdminRoomController::class, 'index'])->name('index');
+                    Route::get('/{id}', [AdminRoomController::class, 'show'])->name('show');
+                    Route::post('/bookings/reject', [AdminBookingController::class, 'reject'])->name('reject');
+                });
     });
 
     Route::prefix('/tenant')
