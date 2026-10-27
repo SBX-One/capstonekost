@@ -41,6 +41,7 @@ Route::middleware('auth:api')->group(function () {
                     Route::get('/', [AdminRoomController::class, 'index'])->name('index');
                     Route::get('/{id}', [AdminRoomController::class, 'show'])->name('show');
                     Route::post('/bookings/reject', [AdminBookingController::class, 'reject'])->name('reject');
+                    Route::post('/bookings/approve', [AdminBookingController::class, 'approve'])->name('approve');
                 });
     });
 
