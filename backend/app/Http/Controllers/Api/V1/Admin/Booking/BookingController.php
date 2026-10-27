@@ -13,6 +13,7 @@ use App\Http\Resources\Api\V1\Admin\Booking\BookingIndexResource;
 
 // Request Validation Imports
 use App\Http\Requests\Api\V1\Admin\Booking\BookingIndexRequest;
+use App\Http\Requests\Api\V1\Admin\Booking\BookingRejectRequest;
 
 class BookingController extends Controller
 {
@@ -37,5 +38,28 @@ class BookingController extends Controller
             ->additional([
                 'message' => 'Booking records successfully retrieved'
             ]);
+    }
+
+    public function reject(BookingRejectRequest $request)
+    {
+        $id = $request->validated('id');
+
+        $bookings = BookingRecord::whereIn('id', $id)->get();
+
+        foreach ($bookings as $booking) {
+            if ($booking->status !== 'pending') {
+                throw new \Exception(
+                    "Booking ID {$booking->id} cannot be rejected because its status is '{$booking->status}'. Only pending status bookings can be cancelled."
+                );
+            }
+        }
+
+        $bookings = BookingRecord::whereIn('id', $id)->update([
+            'status' => 'rejected'
+        ]);
+
+        return (new BookingRejectResource($bookings))
+                ->response()
+                ->setStatusCode(200);
     }
 }
