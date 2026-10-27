@@ -65,13 +65,13 @@ class BookingController extends Controller
         $room = Room::findOrFail($id); 
         $userId = Auth::id();
 
-        $request = $request->validated();
+        $booking = $request->validated();
 
         $existingBookings = BookingRecord::query()
-            ->where('room_id', $request['id'])
+            ->where('room_id', $id)
             ->whereIn('status', ['pending', 'active'])
-            ->where('move_in', '<', $request['move_in'])
-            ->where('move_out', '>', $request['move_out'])
+            ->where('move_in', '<', $booking['move_out'])
+            ->where('move_out', '>', $booking['move_in'])
             ->exists();
 
         if ($existingBookings) {
@@ -79,21 +79,21 @@ class BookingController extends Controller
         }
 
         $months = (
-            Carbon::parse($request['move_in'])
-            ->diffInDays(Carbon::parse($request['move_out']))
+            Carbon::parse($booking['move_in'])
+            ->diffInDays(Carbon::parse($booking['move_out']))
             ) / 30;
         
-        if ($months !== $request['rental_duration']) {
-            throw new \Exception('Move in and move out dates is not equal to' . ' ' . $request['rental_duration'] . ' ' . 'month(s) rental duration time.');
+        if ($months != $booking['rental_duration']) {
+            throw new \Exception('Move in and move out dates is not equal to' . ' ' . $booking['rental_duration'] . ' ' . 'month(s) rental duration time.');
         }
 
         $bookingRecord = BookingRecord::query()->create([
             'room_id' => $id,
             'user_id' => $userId,
-            'move_in' => $request['move_in'],
-            'move_out' => $request['move_out'],
-            'rental_duration' => $request['rental_duration'],
-            'total' => ($room->price * $request['rental_duration'])
+            'move_in' => $booking['move_in'],
+            'move_out' => $booking['move_out'],
+            'rental_duration' => $booking['rental_duration'],
+            'total' => ($room->price * $booking['rental_duration'])
         ]);
 
         return (new BookingBookResource($bookingRecord))
