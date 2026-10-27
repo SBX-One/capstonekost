@@ -11,6 +11,13 @@ const metaData = ref({
     statuses: [
         { label: 'Available', value: 'available' },
         { label: 'Occupied', value: 'occupied' }
+    ],
+    bookingStatuses: [
+        { label: 'Pending', value: 'pending' },
+        { label: 'Canceled', value: 'cancelled' },
+        { label: 'Active', value: 'active' },
+        { label: 'Rejected', value: 'rejected' },
+        { label: 'Completed', value: 'complete' }
     ]
 });
 
@@ -75,6 +82,7 @@ export function useRoomMeta() {
         facilities: computed(() => metaData.value.facilities),
         utilities: computed(() => metaData.value.utilities),
         statuses: computed(() => metaData.value.statuses),
+        bookingStatuses: computed(() => metaData.value.bookingStatuses),
 
         isMetaFetching,
         metaError,
