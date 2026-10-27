@@ -1,13 +1,12 @@
 import { defineStore } from "pinia";
 import { ref, computed, toRaw } from "vue";
 import apiClient from "@/services/api";
-import { immutableDelete, immutableSet } from "@/utils/mapUtils";
+import { immutableSet } from "@/utils/mapUtils";
 
 export const useRoomStore = defineStore('room', () => {
     let controller = null
 
     const roomMap = ref(new Map())
-
     const isFetching = ref(false)
     const isMutating = ref(false)
     const error = ref(null)
