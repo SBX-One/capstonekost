@@ -49,11 +49,11 @@ const selectedLabel = computed(() => {
 });
 
 const triggerSizeClasses = computed(() => {
-    return props.size === 'sm' ? 'px-3 py-2 text-body-sm' : 'px-3 py-3 text-body-md';
+    return props.size === 'sm' ? 'px-3 h-9 text-body-sm' : 'px-3 h-11 text-body-md';
 });
 
 const itemSizeClasses = computed(() => {
-    return props.size === 'sm' ? 'px-3 py-1.5 text-body-sm' : 'px-4 py-2 text-body-md';
+    return props.size === 'sm' ? 'px-3 min-h-9 text-body-sm' : 'px-4 min-h-11 text-body-md';
 });
 
 const updatePosition = () => {
@@ -154,7 +154,7 @@ onUnmounted(() => {
             aria-haspopup="listbox"
             :aria-expanded="isOpen"
         >
-            <span class="truncate flex items-center">
+            <span class="truncate flex items-center h-full">
                 <slot name="selected" :selected-label="selectedLabel" :model-value="modelValue">
                     {{ selectedLabel }}
                 </slot>
@@ -183,13 +183,14 @@ onUnmounted(() => {
                     <button
                         type="button"
                         @click="selectOption('')"
-                        class="w-full text-left transition-colors shrink-0"
+                        class="w-full text-left transition-colors shrink-0 flex items-center relative"
                         :class="[
                             itemSizeClasses,
-                            modelValue === '' ? 'bg-neutral-200 font-semibold text-text-primary' : 'text-text-secondary hover:bg-neutral-100',
-                            { 'bg-neutral-200': activeIndex === 0 },
+                            modelValue === '' ? 'bg-neutral-100 font-semibold text-text-primary' : 'text-text-secondary hover:bg-neutral-100',
+                            { 'bg-neutral-100': activeIndex === 0 },
                         ]"
                     >
+                        <span v-if="modelValue === ''" class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-action-primary rounded-r-full"></span>
                         {{ placeholder }}
                     </button>
 
@@ -201,15 +202,21 @@ onUnmounted(() => {
                         class="w-full text-left transition-colors relative shrink-0 flex items-center"
                         :class="[
                             itemSizeClasses,
-                            isValueMatch(typeof opt === 'object' ? opt.value : opt, modelValue) ? 'bg-neutral-200 text-text-primary font-semibold pl-6' : 'text-text-primary hover:bg-neutral-100',
+                            isValueMatch(typeof opt === 'object' ? opt.value : opt, modelValue) ? 'bg-neutral-100 text-text-primary font-semibold' : 'text-text-primary hover:bg-neutral-100',
                             { 'bg-neutral-100': activeIndex === index + 1 },
                         ]"
                         role="option"
                     >
-                        <span v-if="isValueMatch(typeof opt === 'object' ? opt.value : opt, modelValue)" class="absolute left-2 top-1/2 -translate-y-1/2 w-1 h-4 bg-action-primary rounded-full"></span>
-                        <slot name="option" :option="opt" :is-selected="isValueMatch(typeof opt === 'object' ? opt.value : opt, modelValue)">
-                            {{ typeof opt === 'object' ? opt.label : opt }}
-                        </slot>
+                        <span
+                            v-if="isValueMatch(typeof opt === 'object' ? opt.value : opt, modelValue)"
+                            class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-action-primary rounded-r-full"
+                        ></span>
+
+                        <div class="flex items-center h-full w-full">
+                            <slot name="option" :option="opt" :is-selected="isValueMatch(typeof opt === 'object' ? opt.value : opt, modelValue)">
+                                {{ typeof opt === 'object' ? opt.label : opt }}
+                            </slot>
+                        </div>
                     </button>
                 </div>
             </transition>
