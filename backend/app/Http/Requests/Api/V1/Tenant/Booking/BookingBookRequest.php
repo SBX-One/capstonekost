@@ -27,6 +27,9 @@ class BookingBookRequest extends FormRequest
             'move_in' => ['required', 'date', 'date_format:Y-m-d', 'required_with:move_out'],
             'move_out' => ['required', 'date', 'date_format:Y-m-d', 'required_with:move_in'],
             'rental_duration' => ['required', 'int', 'min:1'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'phone' => ['required', 'min:10', 'max:20']
         ];
     }
 
