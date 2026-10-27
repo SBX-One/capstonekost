@@ -50,7 +50,7 @@ class BookingController extends Controller
         $bookings = BookingRecord::whereIn('id', $id)->get();
 
         foreach ($bookings as $booking) {
-            if ($booking->status !== 'pending') {
+            if ($booking->status === 'rejected') {
                 throw new \Exception(
                     "Booking ID {$booking->id} is already rejected."
                 );
