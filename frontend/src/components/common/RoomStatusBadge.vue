@@ -6,7 +6,7 @@ const props = defineProps({
         type: String,
         required: true,
         validator: value => {
-            const validStatuses = ['available', 'occupied', 'pending', 'active', 'completed', 'rejected'];
+            const validStatuses = ['available', 'occupied', 'pending', 'active', 'completed', 'rejected', 'canceled'];
             return validStatuses.includes(value.toLowerCase().trim());
         },
     },
@@ -19,6 +19,7 @@ const statusClassMap = {
     occupied: 'bg-neutral-200 text-text-secondary',
     completed: 'bg-neutral-200 text-text-secondary',
     rejected: 'bg-status-error-bg text-status-error',
+    canceled: 'bg-status-error-bg text-status-error',
 };
 
 const badgeClasses = computed(() => {
@@ -28,7 +29,7 @@ const badgeClasses = computed(() => {
 </script>
 
 <template>
-    <span class="inline-flex items-center justify-center px-3 py-1 text-label-badge rounded-xl tracking-wide select-none shrink-0 capitalize" :class="badgeClasses">
+    <span class="inline-flex items-center justify-center px-3 py-1 text-label-badge rounded-default tracking-wide select-none shrink-0 capitalize" :class="badgeClasses">
         {{ status }}
     </span>
 </template>

@@ -5,7 +5,7 @@ const props = defineProps({
     variant: {
         type: String,
         default: 'primary',
-        validator: val => ['primary', 'secondary', 'destructive', 'ghost', 'disabled'].includes(val),
+        validator: val => ['primary', 'secondary', 'destructive', 'ghost', 'disabled', 'success'].includes(val),
     },
     size: {
         type: String,
@@ -48,6 +48,8 @@ const variantClasses = computed(() => {
             return 'bg-transparent hover:bg-action-secondary-hover active:bg-action-secondary-pressed text-text-primary border border-border-default';
         case 'destructive':
             return 'bg-action-destructive hover:bg-action-destructive-hover active:bg-action-destructive-pressed text-text-inverse border-transparent';
+        case 'success':
+            return 'bg-status-success hover:bg-green-700 active:bg-green-800 text-white border-transparent';
         case 'ghost':
             return 'bg-transparent hover:text-neutral-700 active:text-text-primary text-text-secondary border-transparent';
         case 'primary':
@@ -65,9 +67,7 @@ const variantClasses = computed(() => {
         :class="[sizeClasses, variantClasses, block ? 'w-full' : 'w-fit', disabled || variant === 'disabled' ? 'cursor-not-allowed' : 'cursor-pointer']"
     >
         <slot name="icon-left" />
-
         <slot>Button</slot>
-
         <slot name="icon-right" />
     </button>
 </template>

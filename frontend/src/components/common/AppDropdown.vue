@@ -154,7 +154,11 @@ onUnmounted(() => {
             aria-haspopup="listbox"
             :aria-expanded="isOpen"
         >
-            <span class="truncate">{{ selectedLabel }}</span>
+            <span class="truncate flex items-center">
+                <slot name="selected" :selected-label="selectedLabel" :model-value="modelValue">
+                    {{ selectedLabel }}
+                </slot>
+            </span>
             <svg class="w-4 h-4 text-text-secondary shrink-0 transition-transform duration-200" :class="{ 'rotate-180': isOpen }" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3.5 5.83325L7 9.33325L10.5 5.83325" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
@@ -194,7 +198,7 @@ onUnmounted(() => {
                         :key="index"
                         type="button"
                         @click="selectOption(opt)"
-                        class="w-full text-left transition-colors relative shrink-0"
+                        class="w-full text-left transition-colors relative shrink-0 flex items-center"
                         :class="[
                             itemSizeClasses,
                             isValueMatch(typeof opt === 'object' ? opt.value : opt, modelValue) ? 'bg-neutral-200 text-text-primary font-semibold pl-6' : 'text-text-primary hover:bg-neutral-100',
@@ -203,7 +207,9 @@ onUnmounted(() => {
                         role="option"
                     >
                         <span v-if="isValueMatch(typeof opt === 'object' ? opt.value : opt, modelValue)" class="absolute left-2 top-1/2 -translate-y-1/2 w-1 h-4 bg-action-primary rounded-full"></span>
-                        {{ typeof opt === 'object' ? opt.label : opt }}
+                        <slot name="option" :option="opt" :is-selected="isValueMatch(typeof opt === 'object' ? opt.value : opt, modelValue)">
+                            {{ typeof opt === 'object' ? opt.label : opt }}
+                        </slot>
                     </button>
                 </div>
             </transition>
