@@ -73,9 +73,14 @@ class BookingController extends Controller
         $bookings = BookingRecord::whereIn('id', $id)->get();
 
         foreach ($bookings as $booking) {
+            if ($booking->status === 'approved') {
+                throw new \Exception(
+                    "Booking ID {$booking->id} is already approved"
+                );
+
             if ($booking->status !== 'pending') {
                 throw new \Exception(
-                    "Booking ID {$booking->id} cannot be rejected because its status is '{$booking->status}'. Only pending status bookings can be cancelled."
+                    "Booking ID {$booking->id} cannot be approved because its status is '{$booking->status}'. Only pending status bookings can be approved."
                 );
             }
         }
