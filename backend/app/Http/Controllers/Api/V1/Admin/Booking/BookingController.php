@@ -23,8 +23,15 @@ class BookingController extends Controller
     public function index(BookingIndexRequest $request)
     {
         $bookingData = BookingRecord::query()
+            ->when($request->filled('search'), function ($query) use ($request) {
+                return $query->whereHas('room', function ($query) use ($request) {
+                    $query->where(
+                        'name', 'like', '%' . $request->validated('search') . '%'
+                    );
+                });
+            })
             ->when($request->filled('status'), function ($query) use ($request) {
-                return $query->where('status', $request->input('status'));
+                return $query->where('status', $request->validated('status'));
             })
             ->select('id', 'room_id', 'user_id', 'move_in', 'move_out', 'rental_duration', 'status', 'total', 'created_at')
             ->with([
@@ -37,10 +44,10 @@ class BookingController extends Controller
             ])
             ->get();
         
-        return BookingIndexResource::collection($bookingData)
-            ->additional([
-                'message' => 'Booking records successfully retrieved'
-            ]);
+        // return BookingIndexResource::collection($bookingData)
+        //     ->additional([
+        //         'message' => 'Booking records successfully retrieved'
+        //     ]);
     }
 
     public function reject(BookingRejectRequest $request)
