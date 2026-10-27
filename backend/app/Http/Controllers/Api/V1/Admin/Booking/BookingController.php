@@ -52,6 +52,10 @@ class BookingController extends Controller
         foreach ($bookings as $booking) {
             if ($booking->status !== 'pending') {
                 throw new \Exception(
+                    "Booking ID {$booking->id} is already rejected."
+                );
+            } elseif ($booking->status !== 'pending') {
+                throw new \Exception(
                     "Booking ID {$booking->id} cannot be rejected because its status is '{$booking->status}'. Only pending status bookings can be cancelled."
                 );
             }
@@ -75,10 +79,9 @@ class BookingController extends Controller
         foreach ($bookings as $booking) {
             if ($booking->status === 'approved') {
                 throw new \Exception(
-                    "Booking ID {$booking->id} is already approved"
+                    "Booking ID {$booking->id} is already approved."
                 );
-
-            if ($booking->status !== 'pending') {
+            } elseif ($booking->status !== 'pending') {
                 throw new \Exception(
                     "Booking ID {$booking->id} cannot be approved because its status is '{$booking->status}'. Only pending status bookings can be approved."
                 );
