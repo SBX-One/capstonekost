@@ -10,6 +10,7 @@ use App\Models\BookingRecord;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Admin\Booking\BookingIndexResource;
+use App\Http\Resources\Api\V1\Admin\Booking\BookingRejectResource;
 
 // Request Validation Imports
 use App\Http\Requests\Api\V1\Admin\Booking\BookingIndexRequest;
