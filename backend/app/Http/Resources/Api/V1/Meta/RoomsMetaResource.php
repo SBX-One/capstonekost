@@ -55,6 +55,32 @@ class RoomsMetaResource extends JsonResource
                     'name' => 'Occupied'
                 ]
             ],
+            'booking_statuses' => [
+                [
+                    'id' => 'pending',
+                    'name' => 'Pending'
+                ],
+                [
+                    'id' => 'cancelled',
+                    'name' => 'Cancelled'
+                ],
+                [
+                    'id' => 'rejected',
+                    'name' => 'Rejected'
+                ],
+                [
+                    'id' => 'approved',
+                    'name' => 'Approved'
+                ],
+                [
+                    'id' => 'active',
+                    'name' => 'Active'
+                ],
+                [
+                    'id' => 'completed',
+                    'name' => 'Completed'
+                ]
+            ],
             'room_types' => $this->resource['roomTypes'],
             'facilities' => $this->resource['facilities'],
             'utilities' => $this->resource['utilities']
