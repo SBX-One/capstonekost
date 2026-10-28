@@ -12,6 +12,7 @@ use App\Models\BookingRecord;
 use App\Http\Resources\Api\V1\Admin\Booking\BookingIndexResource;
 use App\Http\Resources\Api\V1\Admin\Booking\BookingRejectResource;
 use App\Http\Resources\Api\V1\Admin\Booking\BookingApproveResource;
+use App\Http\Resources\Api\V1\Admin\Booking\BookingShowResource;
 
 // Request Validation Imports
 use App\Http\Requests\Api\V1\Admin\Booking\BookingIndexRequest;
@@ -45,6 +46,23 @@ class BookingController extends Controller
             ->additional([
                 'message' => 'Booking records successfully retrieved'
             ]);
+    }
+
+    public function show(Request $request, string $id)
+    {
+        $roomDetailData = BookingRecord::query()
+            ->select('id', 'room_id', 'user_id', 'move_in', 'move_out', 'rental_duration', 'status', 'total', 'created_at')
+            ->with([
+                'room' => fn ($q) => $q->select('id', 'name', 'room_type_id', 'price', 'floor'),
+                'room.roomType' => fn ($q) => $q->select('id', 'name'),
+                'room.facilities' => fn ($q) => $q->select('facilities.id', 'facilities.name', 'facilities.icon_name'),
+                'room.utilities' => fn ($q) => $q->select('utilities.id', 'utilities.name', 'utilities.icon_name'),
+                'contact' => fn ($q) => $q->select('id', 'booking_record_id', 'name', 'phone_number', 'email'),
+                'bookingCancellation' => fn ($q) => $q->select('id', 'booking_record_id', 'reason')
+            ])
+            ->findOrFail($id);
+
+        return (new BookingShowResource($roomDetailData));
     }
 
     public function reject(BookingRejectRequest $request)
