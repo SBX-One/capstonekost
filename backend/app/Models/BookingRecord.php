@@ -43,4 +43,9 @@ class BookingRecord extends Model
     {
         return $this->hasOne(BookingContact::class, 'booking_record_id');
     }
+
+    public function bookingCancellation(): HasOne
+    {
+        return $this->hasOne(BookingCancellation::class, 'booking_record_id');
+    }
 }
