@@ -35,10 +35,7 @@ class BookingController extends Controller
             })
             ->select('id', 'room_id', 'user_id', 'move_in', 'move_out', 'rental_duration', 'status', 'total', 'created_at')
             ->with([
-                'room' => fn ($q) => $q->select('id', 'room_type_id', 'name', 'floor', 'price', 'status', 'overview', 'description', 'rules'),
-                'room.roomType' => fn ($q) => $q->select('id', 'name'),
-                'room.facilities' => fn ($q) => $q->select('facilities.id', 'facilities.name', 'facilities.icon_name'),
-                'room.utilities' => fn ($q) => $q->select('utilities.id', 'utilities.name', 'utilities.icon_name'),
+                'room' => fn ($q) => $q->select('id', 'name'),
                 'contact' => fn ($q) => $q->select('id', 'booking_record_id', 'name', 'phone_number', 'email'),
                 'user' => fn ($q) => $q->select('id', 'name', 'email')
             ])
