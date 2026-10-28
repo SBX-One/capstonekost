@@ -56,6 +56,15 @@ class BookingShowResource extends JsonResource
                     'id' => $cancellation->id,
                     'reason' => $cancellation->reason,
                 ]
+            ),
+            'payment_overview' => $this->whenLoaded(
+                'roomBill',
+                fn ($bill) => [
+                    'latest_payment' => $bill->paymentRecord->created_at,
+                    'status' => $bill->status,
+                    'next_due_date' => $bill->next_due_date,
+                    'amount' => $bill->paymentRecord->amount
+                ]
             )
         ];
     }
