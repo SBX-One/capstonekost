@@ -45,14 +45,14 @@ class RoomsMetaResource extends JsonResource
                     'name' => 'Floor 3'
                 ]
             ],
-            'status' => [
+            'room_statuses' => [
                 [
-                    'id' => 1,
-                    'name' => 'available'
+                    'id' => 'available',
+                    'name' => 'Available'
                 ],
                 [
-                    'id' => 2,
-                    'name' => 'occupied'
+                    'id' => 'occupied',
+                    'name' => 'Occupied'
                 ]
             ],
             'room_types' => $this->resource['roomTypes'],
