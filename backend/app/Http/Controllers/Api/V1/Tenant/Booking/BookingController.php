@@ -21,6 +21,7 @@ use App\Models\BookingContact;
 use App\Http\Resources\Api\V1\Tenant\Booking\BookingIndexResource;
 use App\Http\Resources\Api\V1\Tenant\Booking\BookingShowResource;
 use App\Http\Resources\Api\V1\Tenant\Booking\BookingBookResource;
+use App\Http\Resources\Api\V1\Tenant\Booking\BookingDetailResource;
 
 // Request Imports
 use App\Http\Requests\Api\V1\Tenant\Booking\BookingShowRequest;
@@ -64,6 +65,28 @@ class BookingController extends Controller
         return (new BookingShowResource($room))
             ->response()
             ->setStatusCode(200);
+    }
+
+    public function detail(Request $request, string $id) 
+    {
+        $userId = Auth::id();
+
+        $roomDetailData = BookingRecord::query()
+            ->where('user_id', $userId)
+            ->select('id', 'room_id', 'user_id', 'move_in', 'move_out', 'rental_duration', 'status', 'total', 'created_at')
+            ->with([
+                'room' => fn ($q) => $q->select('id', 'name', 'room_type_id', 'price', 'floor'),
+                'room.roomType' => fn ($q) => $q->select('id', 'name'),
+                'room.facilities' => fn ($q) => $q->select('facilities.id', 'facilities.name', 'facilities.icon_name'),
+                'room.utilities' => fn ($q) => $q->select('utilities.id', 'utilities.name', 'utilities.icon_name'),
+                'contact' => fn ($q) => $q->select('id', 'booking_record_id', 'name', 'phone_number', 'email'),
+                'bookingCancellation' => fn ($q) => $q->select('id', 'booking_record_id', 'reason'),
+                'roomBill' => fn ($q) => $q->select('id', 'booking_record_id', 'last_payment_id', 'status', 'next_due_date'),
+                'roomBill.paymentRecord' => fn ($q) => $q->select('id', 'booking_record_id', 'amount', 'created_at')
+            ])
+            ->findOrFail($id);
+        
+        return (new BookingDetailResource($roomDetailData));
     }
 
     public function book(BookingBookRequest $request, string $id)
