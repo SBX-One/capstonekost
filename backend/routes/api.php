@@ -57,5 +57,6 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/rooms/book/{id}', [TenantBookingController::class, 'show'])->name('show');
             Route::post('/rooms/book/{id}', [TenantBookingController::class, 'book'])->name('book');
             Route::get('/rooms/book/detail/{id}', [TenantBookingController::class, 'detail'])->name('detail');
+            Route::post('/rooms/book/cancel/{id}', [TenantBookingController::class, 'cancel'])->name('cancel');
         });
 });

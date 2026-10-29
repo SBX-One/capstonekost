@@ -16,16 +16,19 @@ use libphonenumber\PhoneNumberUtil;
 use App\Models\BookingRecord;
 use App\Models\Room;
 use App\Models\BookingContact;
+use App\Models\BookingCancellation;
 
 // Resource Imports 
 use App\Http\Resources\Api\V1\Tenant\Booking\BookingIndexResource;
 use App\Http\Resources\Api\V1\Tenant\Booking\BookingShowResource;
 use App\Http\Resources\Api\V1\Tenant\Booking\BookingBookResource;
 use App\Http\Resources\Api\V1\Tenant\Booking\BookingDetailResource;
+use App\Http\Resources\Api\V1\Tenant\Booking\BookingCancelResource;
 
 // Request Imports
 use App\Http\Requests\Api\V1\Tenant\Booking\BookingShowRequest;
 use App\Http\Requests\Api\V1\Tenant\Booking\BookingBookRequest;
+use App\Http\Requests\Api\V1\Tenant\Booking\BookingCancelRequest;
 
 class BookingController extends Controller
 {
@@ -158,5 +161,33 @@ class BookingController extends Controller
         return (new BookingBookResource($bookingRecord))
             ->response()
             ->setStatusCode(201);
+    }
+
+    public function cancel(BookingCancelRequest $request, string $id)
+    {
+        $reason = $request->validated('reason');
+
+        $booking = BookingRecord::findOrFail($id);
+        
+        if ($booking->status === 'cancelled') {
+            throw new \Exception(
+                "Booking ID {$booking->id} is already cancelled."
+            );
+        } else if ($booking->status !== 'pending') {
+            throw new \Exception(
+                "Booking ID {$booking->id} cannot be cancelled because its status is '{$booking->status}'. Only pending status bookings can be approved."
+            );
+        }
+
+        $booking->update([
+            'status' => 'cancelled'
+        ]);
+
+        BookingCancellation::query()->create([
+            'booking_record_id' => $booking->id,
+            'reason' => $reason
+        ]);
+        
+        return (new BookingCancelResource($booking));
     }
 }
