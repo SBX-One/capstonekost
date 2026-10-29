@@ -29,6 +29,7 @@ use App\Http\Resources\Api\V1\Tenant\Booking\BookingCancelResource;
 use App\Http\Requests\Api\V1\Tenant\Booking\BookingShowRequest;
 use App\Http\Requests\Api\V1\Tenant\Booking\BookingBookRequest;
 use App\Http\Requests\Api\V1\Tenant\Booking\BookingCancelRequest;
+use App\Http\Requests\Api\V1\Tenant\Booking\BookingShowDetailRequest;
 
 class BookingController extends Controller
 {
@@ -70,26 +71,30 @@ class BookingController extends Controller
             ->setStatusCode(200);
     }
 
-    public function detail(Request $request, string $id) 
+    public function detail(BookingShowDetailRequest $request) 
     {
         $userId = Auth::id();
 
+        $ids = $request->validated('id');
+
         $roomDetailData = BookingRecord::query()
             ->where('user_id', $userId)
+            ->whereIn('id', $ids)
             ->select('id', 'room_id', 'user_id', 'move_in', 'move_out', 'rental_duration', 'status', 'total', 'created_at')
             ->with([
                 'room' => fn ($q) => $q->select('id', 'name', 'room_type_id', 'price', 'floor'),
                 'room.roomType' => fn ($q) => $q->select('id', 'name'),
                 'room.facilities' => fn ($q) => $q->select('facilities.id', 'facilities.name', 'facilities.icon_name'),
                 'room.utilities' => fn ($q) => $q->select('utilities.id', 'utilities.name', 'utilities.icon_name'),
+                'room.imagePaths' => fn ($q) => $q->select('id', 'room_id', 'image_path', 'sort_order'),
                 'contact' => fn ($q) => $q->select('id', 'booking_record_id', 'name', 'phone_number', 'email'),
                 'bookingCancellation' => fn ($q) => $q->select('id', 'booking_record_id', 'reason'),
                 'roomBill' => fn ($q) => $q->select('id', 'booking_record_id', 'last_payment_id', 'status', 'next_due_date'),
                 'roomBill.paymentRecord' => fn ($q) => $q->select('id', 'booking_record_id', 'amount', 'created_at')
             ])
-            ->findOrFail($id);
+            ->get();
         
-        return (new BookingDetailResource($roomDetailData));
+        return BookingDetailResource::collection($roomDetailData);
     }
 
     public function book(BookingBookRequest $request, string $id)

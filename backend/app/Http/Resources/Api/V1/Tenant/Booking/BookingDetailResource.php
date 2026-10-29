@@ -43,6 +43,11 @@ class BookingDetailResource extends JsonResource
                     'id' => $utility->id,
                     'name' => $utility->name,
                     'icon_name' => $utility->icon_name
+                ]),
+                'images' => $this->resource->room->imagePaths->map(fn ($image) => [
+                    'id' => $image->id,
+                    'image_path' => $image->image_path,
+                    'sort_order' => $image->sort_order
                 ])
             ],
             'contacts' => [

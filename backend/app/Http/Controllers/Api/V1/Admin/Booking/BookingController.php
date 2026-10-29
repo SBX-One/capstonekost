@@ -20,6 +20,7 @@ use App\Http\Resources\Api\V1\Admin\Booking\BookingShowResource;
 use App\Http\Requests\Api\V1\Admin\Booking\BookingIndexRequest;
 use App\Http\Requests\Api\V1\Admin\Booking\BookingRejectRequest;
 use App\Http\Requests\Api\V1\Admin\Booking\BookingApproveRequest;
+use App\Http\Requests\Api\V1\Admin\Booking\BookingShowDetailRequest;
 
 class BookingController extends Controller
 {
@@ -50,23 +51,27 @@ class BookingController extends Controller
             ]);
     }
 
-    public function show(Request $request, string $id)
+    public function show(BookingShowDetailRequest $request)
     {
+        $ids = $request->validated('id');
+
         $roomDetailData = BookingRecord::query()
+            ->whereIn('id', $ids)
             ->select('id', 'room_id', 'user_id', 'move_in', 'move_out', 'rental_duration', 'status', 'total', 'created_at')
             ->with([
                 'room' => fn ($q) => $q->select('id', 'name', 'room_type_id', 'price', 'floor'),
                 'room.roomType' => fn ($q) => $q->select('id', 'name'),
                 'room.facilities' => fn ($q) => $q->select('facilities.id', 'facilities.name', 'facilities.icon_name'),
                 'room.utilities' => fn ($q) => $q->select('utilities.id', 'utilities.name', 'utilities.icon_name'),
+                'room.imagePaths' => fn ($q) => $q->select('id', 'room_id', 'image_path', 'sort_order'),
                 'contact' => fn ($q) => $q->select('id', 'booking_record_id', 'name', 'phone_number', 'email'),
                 'bookingCancellation' => fn ($q) => $q->select('id', 'booking_record_id', 'reason'),
                 'roomBill' => fn ($q) => $q->select('id', 'booking_record_id', 'last_payment_id', 'status', 'next_due_date'),
                 'roomBill.paymentRecord' => fn ($q) => $q->select('id', 'booking_record_id', 'amount', 'created_at')
             ])
-            ->findOrFail($id);
-
-        return (new BookingShowResource($roomDetailData));
+            ->get();
+        
+        return BookingShowResource::collection($roomDetailData);
     }
 
     public function reject(BookingRejectRequest $request)
