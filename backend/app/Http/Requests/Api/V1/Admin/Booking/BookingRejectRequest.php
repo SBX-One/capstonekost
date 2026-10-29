@@ -24,7 +24,9 @@ class BookingRejectRequest extends FormRequest
     {
         return [
             'id' => ['required', 'array'],
-            'id.*' => ['int', 'exists:booking_records,id']
+            'id.*' => ['int', 'exists:booking_records,id'],
+            'reason' => ['required', 'array'],
+            'reason.*' => ['string', 'min:1', 'max:255']
         ];
     }
 

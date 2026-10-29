@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api\V1\Admin\Booking;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 // Model Imports
 use App\Models\BookingRecord;
+use App\Models\BookingReject;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Admin\Booking\BookingIndexResource;
@@ -69,29 +71,41 @@ class BookingController extends Controller
 
     public function reject(BookingRejectRequest $request)
     {
-        $id = $request->validated('id');
+        $result = DB::transaction(function () use ($request) {
+            $ids = $request->validated('id');
+            $reasons = $request->validated('reason');
 
-        $bookings = BookingRecord::whereIn('id', $id)->get();
+            $bookings = BookingRecord::whereIn('id', $ids)->get();
 
-        foreach ($bookings as $booking) {
-            if ($booking->status === 'rejected') {
-                throw new \Exception(
-                    "Booking ID {$booking->id} is already rejected."
-                );
-            } elseif ($booking->status !== 'pending') {
-                throw new \Exception(
-                    "Booking ID {$booking->id} cannot be rejected because its status is '{$booking->status}'. Only pending status bookings can be cancelled."
-                );
+            foreach ($bookings as $booking) {
+                if ($booking->status === 'rejected') {
+                    throw new \Exception(
+                        "Booking ID {$booking->id} is already rejected."
+                    );
+                } elseif ($booking->status !== 'pending') {
+                    throw new \Exception(
+                        "Booking ID {$booking->id} cannot be rejected because its status is '{$booking->status}'. Only pending status bookings can be rejected."
+                    );
+                }
             }
-        }
 
-        $bookings = BookingRecord::whereIn('id', $id)->update([
-            'status' => 'rejected'
-        ]);
+            BookingRecord::whereIn('id', $ids)->update([
+                'status' => 'rejected',
+            ]);
 
-        return (new BookingRejectResource($bookings))
-                ->response()
-                ->setStatusCode(200);
+            foreach ($ids as $id) {
+                BookingReject::create([
+                    'booking_record_id' => $id,
+                    'reason' => $reasons[$id],
+                ]);
+            }
+
+            return BookingRecord::whereIn('id', $ids)->get();
+        });
+
+        return BookingRejectResource::collection($result)
+            ->response()
+            ->setStatusCode(200);
     }
 
     public function approve(BookingApproveRequest $request) 
