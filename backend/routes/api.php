@@ -46,7 +46,7 @@ Route::middleware('auth:api')->group(function () {
             Route::prefix('/bookings')
                 ->name('bookings.')->group(function () {
                     Route::get('/', [AdminBookingController::class, 'index'])->name('index');
-                    Route::get('/show', [AdminBookingController::class, 'show'])->name('show');
+                    Route::get('/detail', [AdminBookingController::class, 'show'])->name('show');
                 });
     });
 
