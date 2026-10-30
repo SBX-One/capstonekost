@@ -8,17 +8,8 @@ const metaData = ref({
     roomTypes: [],
     facilities: [],
     utilities: [],
-    statuses: [
-        { label: 'Available', value: 'available' },
-        { label: 'Occupied', value: 'occupied' }
-    ],
-    bookingStatuses: [
-        { label: 'Pending', value: 'pending' },
-        { label: 'Canceled', value: 'cancelled' },
-        { label: 'Active', value: 'active' },
-        { label: 'Rejected', value: 'rejected' },
-        { label: 'Completed', value: 'complete' }
-    ]
+    statuses: [],
+    bookingStatuses: []
 });
 
 const isMetaFetching = ref(false);
@@ -64,6 +55,20 @@ export function useRoomMeta() {
 
             if (data.facilities) metaData.value.facilities = data.facilities;
             if (data.utilities) metaData.value.utilities = data.utilities;
+
+            if (data.room_statuses) {
+                metaData.value.statuses = data.room_statuses.map(status => ({
+                    label: status.name,
+                    value: status.id
+                }));
+            }
+
+            if (data.booking_statuses) {
+                metaData.value.bookingStatuses = data.booking_statuses.map(status => ({
+                    label: status.name,
+                    value: status.id
+                }));
+            }
 
             hasFetchedMeta.value = true;
         } catch (err) {
