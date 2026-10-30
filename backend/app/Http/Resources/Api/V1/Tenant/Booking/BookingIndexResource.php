@@ -54,7 +54,7 @@ class BookingIndexResource extends JsonResource
                 ])
             ],
             'booking_contacts' => [
-                'name' => $this->resource->contact['id'],
+                'name' => $this->resource->contact['name'],
                 'email' => $this->resource->contact['email'],
                 'phone' => $this->resource->contact['phone_number'],
             ] 
