@@ -81,6 +81,50 @@ class RoomsMetaResource extends JsonResource
                     'name' => 'Completed'
                 ]
             ],
+            'tenant_cancel_reasons' => [
+                [
+                    'id' => 1,
+                    'value' => 'Change of Plans'
+                ],
+                [
+                    'id' => 2,
+                    'value' => 'Found Another Room' 
+                ],
+                [
+                    'id' => 3,
+                    'value' => 'Price Concerns'
+                ],
+                [
+                    'id' => 4, 
+                    'value' => 'Incorrect Booking Details'
+                ],
+                [
+                    'id' => 5, 
+                    'value' => 'Others'
+                ]
+            ],
+            'admin_reject_reasons' => [
+                [
+                    'id' => 1,
+                    'value' => 'Booking Requirements Not Met'
+                ],
+                [
+                    'id' => 2,
+                    'value' => 'Invalid or Incomplete Information' 
+                ],
+                [
+                    'id' => 3,
+                    'value' => 'Unable to Verify Tenant Information'
+                ],
+                [
+                    'id' => 4, 
+                    'value' => 'Rental Terms not Accepted'
+                ],
+                [
+                    'id' => 5, 
+                    'value' => 'Others'
+                ]
+            ],
             'room_types' => $this->resource['roomTypes'],
             'facilities' => $this->resource['facilities'],
             'utilities' => $this->resource['utilities']
