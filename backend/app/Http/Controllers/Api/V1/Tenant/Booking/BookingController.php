@@ -108,8 +108,8 @@ class BookingController extends Controller
             $existingBookings = BookingRecord::query()
                 ->where('room_id', $id)
                 ->whereIn('status', ['pending', 'active'])
-                ->where('move_in', '<', $booking['move_out'])
-                ->where('move_out', '>', $booking['move_in'])
+                ->where('move_in', '<=', $booking['move_out'])
+                ->where('move_out', '>=', $booking['move_in'])
                 ->exists();
 
             if ($existingBookings) {
