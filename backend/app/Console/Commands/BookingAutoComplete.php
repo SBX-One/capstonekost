@@ -18,14 +18,14 @@ class BookingAutoComplete extends Command
      */
     public function handle()
     {
-        $booking = BookingRecord::query()
+        BookingRecord::query()
             ->where('status', 'active')
-            ->whereDate('move_out', '<', today())
+            ->where('move_out', '<', today())
             ->update([
                 'status' => 'complete',
             ]);
 
-        $this->info("Successfully set booking status to complete for Booking ID : {$booking->id}.");
+        $this->info("Successfully set expired active booking dates status to complete");
 
         return self::SUCCESS;
     }
