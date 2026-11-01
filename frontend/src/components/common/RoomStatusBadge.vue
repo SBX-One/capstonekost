@@ -6,7 +6,7 @@ const props = defineProps({
         type: String,
         required: true,
         validator: value => {
-            const validStatuses = ['available', 'occupied', 'pending', 'active', 'completed', 'rejected', 'canceled'];
+            const validStatuses = ['available', 'occupied', 'pending', 'active', 'completed', 'complete', 'rejected', 'canceled', 'cancelled', 'approved'];
             return validStatuses.includes(value.toLowerCase().trim());
         },
     },
@@ -15,11 +15,14 @@ const props = defineProps({
 const statusClassMap = {
     available: 'bg-status-success-bg text-status-success',
     active: 'bg-status-success-bg text-status-success',
+    approved: 'bg-status-success-bg text-status-success',
     pending: 'bg-status-pending-bg text-status-pending',
     occupied: 'bg-neutral-200 text-text-secondary',
     completed: 'bg-neutral-200 text-text-secondary',
+    complete: 'bg-neutral-200 text-text-secondary',
     rejected: 'bg-status-error-bg text-status-error',
     canceled: 'bg-status-error-bg text-status-error',
+    cancelled: 'bg-status-error-bg text-status-error',
 };
 
 const badgeClasses = computed(() => {

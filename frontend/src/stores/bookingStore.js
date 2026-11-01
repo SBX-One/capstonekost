@@ -271,7 +271,10 @@ export const useBookingStore = defineStore('booking', () => {
         error.value = null
         validationErrors.value = {}
 
-        const reasonArray = Array(validNumericIds.length).fill(rejectReason)
+        const reasonMap = validNumericIds.reduce((acc, id) => {
+            acc[id] = rejectReason;
+            return acc;
+        }, {});
 
         const backupBookings = []
         const backupDetails = []
@@ -307,7 +310,7 @@ export const useBookingStore = defineStore('booking', () => {
         try {
             await apiClient.post('/admin/rooms/bookings/reject', {
                 id: validNumericIds,
-                reason: reasonArray
+                reason: reasonMap
             })
             return true
         } catch (err) {

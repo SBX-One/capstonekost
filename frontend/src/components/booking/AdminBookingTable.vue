@@ -58,7 +58,7 @@ const toggleSelectAll = event => {
                         <th class="py-3.5 px-4 font-medium">Room</th>
                         <th class="py-3.5 px-4 font-medium">Name</th>
                         <th class="py-3.5 px-4 font-medium">Email</th>
-                        <th class="py-3.5 px-4 font-medium">Phone Number</th>
+                        <th class="py-3.5 px-4 font-medium whitespace-nowrap">Phone Number</th>
                         <th class="py-3.5 px-4 font-medium whitespace-nowrap">Move-in</th>
                         <th class="py-3.5 px-4 font-medium whitespace-nowrap">Move-out</th>
                         <th class="py-3.5 px-4 font-medium">Duration</th>

@@ -17,10 +17,11 @@ defineEmits(['view']);
 
 const { formatRupiah } = useTenantRoom();
 
-const roomName = computed(() => props.booking.booked_room?.name || '-');
+const roomName = computed(() => props.booking.booking_records?.room_name || '-');
 const tenantName = computed(() => props.booking.booking_contacts?.name || '-');
 const tenantEmail = computed(() => props.booking.booking_contacts?.email || '-');
 const tenantPhone = computed(() => props.booking.booking_contacts?.phone || '-');
+
 const moveIn = computed(() => (props.booking.booking_records?.move_in ? dayjs(props.booking.booking_records.move_in).format('DD MMM YYYY') : '-'));
 const moveOut = computed(() => (props.booking.booking_records?.move_out ? dayjs(props.booking.booking_records.move_out).format('DD MMM YYYY') : '-'));
 const duration = computed(() => (props.booking.booking_records?.rental_duration ? `${props.booking.booking_records.rental_duration} Months` : '-'));
@@ -38,7 +39,7 @@ const status = computed(() => props.booking.booking_records?.status || 'pending'
             />
         </td>
 
-        <td class="py-4 px-4 align-middle text-body-md text-text-primary font-medium">{{ roomName }}</td>
+        <td class="py-4 px-4 align-middle text-body-md text-text-primary font-medium whitespace-nowrap">{{ roomName }}</td>
         <td class="py-4 px-4 align-middle text-body-md text-text-primary max-w-37.5 truncate" :title="tenantName">{{ tenantName }}</td>
         <td class="py-4 px-4 align-middle text-body-md text-text-secondary max-w-[200px] truncate" :title="tenantEmail">{{ tenantEmail }}</td>
         <td class="py-4 px-4 align-middle text-body-md text-text-secondary whitespace-nowrap">{{ tenantPhone }}</td>
