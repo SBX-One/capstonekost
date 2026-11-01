@@ -9,8 +9,8 @@ import BaseButton from '@/components/common/BaseButton.vue';
 import AppPagination from '@/components/common/AppPagination.vue';
 import AdminBookingFilterBar from '@/components/booking/AdminBookingFilterBar.vue';
 import AdminBookingTable from '@/components/booking/AdminBookingTable.vue';
-import AppConfirmModal from '@/components/common/AppConfirmModal.vue';
-import AppSuccessModal from '@/components/common/AppSuccessModal.vue';
+import ActionBookingModal from '@/components/booking/ActionBookingModal.vue';
+import BookingSuccessModal from '@/components/booking/BookingSuccessModal.vue';
 
 function scrollToTop() {
     const scrollContainer = document.querySelector('main') || document.querySelector('.overflow-y-auto') || document.documentElement;
@@ -20,7 +20,7 @@ function scrollToTop() {
     });
 }
 
-const { bookings, isFetching, error, totalCount, fetchBookings, navigateToDetail } = useAdminBooking();
+const { bookings, isFetching, isMutating, error, totalCount, fetchBookings, fetchBookingDetails, approveBookings, rejectBookings, navigateToDetail, clearError } = useAdminBooking();
 const { bookingStatuses, fetchRoomMeta } = useRoomMeta();
 
 const { currentPage, perPage, resetPage } = usePagination(10, newPage => {
@@ -35,19 +35,16 @@ const { search, status, getCleanParams } = useBookingFilter(() => {
     loadBookings(1);
 });
 
-const totalPages = computed(() => {
-    return Math.ceil(totalCount.value / perPage.value) || 1;
-});
-
+const totalPages = computed(() => Math.ceil(totalCount.value / perPage.value) || 1);
 const selectedBookingIds = ref([]);
 const hasSelection = computed(() => selectedBookingIds.value.length > 0);
-
-const isConfirmModalOpen = ref(false);
-const confirmActionType = ref('');
-
+const isFetchingDetails = ref(false);
+const isActionModalOpen = ref(false);
 const isSuccessModalOpen = ref(false);
-const successModalTitle = ref('Success!');
-const successModalMessage = ref('');
+const currentActionType = ref('');
+const selectedDetailsCache = ref([]);
+
+const localUiError = ref('');
 
 async function loadBookings(page = currentPage.value) {
     const params = {
@@ -66,22 +63,57 @@ function handleExport() {
     console.log('Exporting data...');
 }
 
-function handleBulkActionClick(action) {
-    confirmActionType.value = action;
-    isConfirmModalOpen.value = true;
+async function handleAction(actionType, targetIds = selectedBookingIds.value) {
+    localUiError.value = '';
+    clearError();
+
+    if (!targetIds.length) return;
+
+    const validPendingIds = targetIds.filter(id => {
+        const bookingItem = bookings.value.find(b => b.id === id);
+        return bookingItem && bookingItem.booking_records?.status === 'pending';
+    });
+
+    if (validPendingIds.length === 0) {
+        localUiError.value = 'Only bookings with "Pending" status can be approved or rejected.';
+        selectedBookingIds.value = [];
+        return;
+    }
+
+    currentActionType.value = actionType;
+    isFetchingDetails.value = true;
+
+    const details = await fetchBookingDetails(validPendingIds);
+    selectedDetailsCache.value = details;
+    isFetchingDetails.value = false;
+
+    if (actionType === 'reject') {
+        isActionModalOpen.value = true;
+    } else if (actionType === 'approve') {
+        executeAction(actionType);
+    }
 }
 
-async function confirmBulkAction() {
-    const actionText = confirmActionType.value === 'approve' ? 'approved' : 'rejected';
-    const count = selectedBookingIds.value.length;
+async function executeAction(actionType, rejectReason = '') {
+    const targetIds = selectedDetailsCache.value.map(item => item.booking_record?.id || item.id);
+    let isSuccess = false;
 
-    isConfirmModalOpen.value = false;
+    if (actionType === 'reject') {
+        isSuccess = await rejectBookings(targetIds, rejectReason);
+    } else if (actionType === 'approve') {
+        isSuccess = await approveBookings(targetIds);
+    }
 
-    successModalTitle.value = 'Success!';
-    successModalMessage.value = `${count} selected bookings have been ${actionText} successfully.`;
-    isSuccessModalOpen.value = true;
+    if (isSuccess) {
+        selectedBookingIds.value = [];
+        isActionModalOpen.value = false;
+        isSuccessModalOpen.value = true;
+    }
+}
 
-    selectedBookingIds.value = [];
+function closeSuccessModal() {
+    isSuccessModalOpen.value = false;
+    selectedDetailsCache.value = [];
 }
 
 onMounted(async () => {
@@ -115,17 +147,38 @@ onMounted(async () => {
                 <div class="text-body-lg font-semibold text-text-primary">{{ selectedBookingIds.length }} Selected</div>
 
                 <div class="flex items-center gap-2">
-                    <BaseButton variant="success" size="md" @click="handleBulkActionClick('approve')"> Approved Booking </BaseButton>
-                    <BaseButton variant="destructive" size="md" @click="handleBulkActionClick('reject')"> Reject Booking </BaseButton>
+                    <BaseButton variant="success" size="md" @click="handleAction('approve')" :disabled="isFetchingDetails || isMutating">
+                        <span v-if="isFetchingDetails && currentActionType === 'approve'" class="flex items-center gap-2">
+                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Loading...
+                        </span>
+                        <span v-else>Approve Booking</span>
+                    </BaseButton>
+
+                    <BaseButton variant="destructive" size="md" @click="handleAction('reject')" :disabled="isFetchingDetails || isMutating">
+                        <span v-if="isFetchingDetails && currentActionType === 'reject'" class="flex items-center gap-2">
+                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Loading...
+                        </span>
+                        <span v-else>Reject Booking</span>
+                    </BaseButton>
+
                     <BaseButton variant="secondary" size="md" @click="handleExport"> Export Data </BaseButton>
                 </div>
             </div>
             <AdminBookingFilterBar v-else v-model:search="search" v-model:status="status" :status-options="bookingStatuses" class="animate-fade-in w-full" />
         </div>
 
-        <div v-if="error" class="mb-6 p-4 rounded-default bg-status-error-bg border border-status-error text-status-error flex items-center justify-between">
-            <span class="text-body-md">{{ error }}</span>
-            <button @click="loadBookings()" class="text-sm font-semibold cursor-pointer hover:underline">Retry</button>
+        <div v-if="error || localUiError" class="mb-6 p-4 rounded-default bg-status-error-bg border border-status-error text-status-error flex items-center justify-between">
+            <span class="text-body-md">{{ error || localUiError }}</span>
+            <button v-if="error" @click="loadBookings()" class="text-sm font-semibold cursor-pointer">Retry</button>
+            <button v-if="localUiError" @click="localUiError = ''" class="text-sm font-semibold cursor-pointer">Dismiss</button>
         </div>
 
         <div class="mb-8">
@@ -143,17 +196,24 @@ onMounted(async () => {
             <AppPagination v-model="currentPage" :total-pages="totalPages" />
         </div>
 
-        <AppConfirmModal
-            :is-open="isConfirmModalOpen"
-            :title="confirmActionType === 'approve' ? 'Approve Bookings?' : 'Reject Bookings?'"
-            :message="`Are you sure you want to ${confirmActionType} ${selectedBookingIds.length} selected bookings? This action cannot be undone.`"
-            :confirm-text="confirmActionType === 'approve' ? 'Approve' : 'Reject'"
-            cancel-text="Cancel"
-            @close="isConfirmModalOpen = false"
-            @confirm="confirmBulkAction"
+        <ActionBookingModal
+            :is-open="isActionModalOpen"
+            role="admin"
+            :type="selectedDetailsCache.length > 1 ? 'bulk' : 'single'"
+            :selected-bookings="selectedDetailsCache"
+            :is-submitting="isMutating"
+            @close="isActionModalOpen = false"
+            @confirm="reason => executeAction('reject', reason)"
         />
 
-        <AppSuccessModal :is-open="isSuccessModalOpen" :title="successModalTitle" :message="successModalMessage" @close="isSuccessModalOpen = false" />
+        <BookingSuccessModal
+            :is-open="isSuccessModalOpen"
+            :action-type="currentActionType === 'approve' ? 'approved' : 'rejected'"
+            role="admin"
+            :type="selectedDetailsCache.length > 1 ? 'bulk' : 'single'"
+            :selected-bookings="selectedDetailsCache"
+            @close="closeSuccessModal"
+        />
     </div>
 </template>
 
