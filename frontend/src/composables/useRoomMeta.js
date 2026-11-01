@@ -9,7 +9,9 @@ const metaData = ref({
     facilities: [],
     utilities: [],
     statuses: [],
-    bookingStatuses: []
+    bookingStatuses: [],
+    cancelReasons: [],
+    rejectReasons: []
 });
 
 const isMetaFetching = ref(false);
@@ -70,6 +72,20 @@ export function useRoomMeta() {
                 }));
             }
 
+            if (data.tenant_cancel_reasons) {
+                metaData.value.cancelReasons = data.tenant_cancel_reasons.map(reason => ({
+                    label: reason.value,
+                    value: reason.value
+                }));
+            }
+
+            if (data.admin_reject_reasons) {
+                metaData.value.rejectReasons = data.admin_reject_reasons.map(reason => ({
+                    label: reason.value,
+                    value: reason.value
+                }));
+            }
+
             hasFetchedMeta.value = true;
         } catch (err) {
             console.error('Failed to fetch room metadata:', err);
@@ -88,6 +104,8 @@ export function useRoomMeta() {
         utilities: computed(() => metaData.value.utilities),
         statuses: computed(() => metaData.value.statuses),
         bookingStatuses: computed(() => metaData.value.bookingStatuses),
+        cancelReasons: computed(() => metaData.value.cancelReasons),
+        rejectReasons: computed(() => metaData.value.rejectReasons),
 
         isMetaFetching,
         metaError,
