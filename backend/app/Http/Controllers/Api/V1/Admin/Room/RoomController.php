@@ -13,6 +13,7 @@ use App\Http\Resources\Api\V1\Admin\Room\RoomIndexResource;
 use App\Http\Resources\Api\V1\Admin\Room\RoomShowResource;
 use App\Http\Resources\Api\V1\Admin\Room\RoomUpdateResource;
 use App\Http\Resources\Api\V1\Admin\Room\RoomDeleteResource;
+use App\Http\Resources\Api\V1\Admin\Room\RoomShowDetailResource;
 
 // Request Imports
 use App\Http\Requests\Api\V1\Admin\Room\RoomCreateRequest;
@@ -239,5 +240,26 @@ class RoomController extends Controller
             ]))
             ->response()
             ->setStatusCode(200);
+    }
+
+    public function detail (Request $request, string $id)
+    {
+        $room = Room::query()
+            ->select('id', 'name', 'room_type_id', 'price', 'floor', 'status', 'overview', 'description', 'rules')
+            ->with([
+                'facilities' => fn ($q) => $q->select('facilities.id', 'facilities.name', 'facilities.icon_name'),
+                'utilities' => fn ($q) => $q->select('utilities.id', 'utilities.name', 'utilities.icon_name'),
+                'roomType' => fn ($q) => $q->select('id', 'name'),
+                'imagePaths' => fn ($q) => $q->select('id', 'room_id', 'image_path', 'sort_order'),
+                'bookingRecords' => fn ($q) => $q
+                    ->select('id', 'room_id', 'user_id', 'move_in', 'move_out', 'rental_duration', 'status', 'total')
+                    ->whereDate('move_in', '<=', today())
+                    ->whereDate('move_out', '>=', today()),
+                'bookingRecords.roomBill' => fn ($q) => $q->select('id', 'booking_record_id', 'last_payment_id', 'status', 'next_due_date'),
+                'bookingRecords.contact' => fn ($q) => $q->select('id', 'booking_record_id', 'user_id', 'name', 'phone_number','email') 
+            ])
+            ->findOrFail($id);
+
+        return (new RoomShowDetailResource($room));
     }
 }

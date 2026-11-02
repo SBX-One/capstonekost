@@ -38,6 +38,7 @@ Route::middleware('auth:api')->group(function () {
             Route::prefix('/rooms')
                 ->name('rooms.')->group(function () {
                     Route::get('/', [AdminRoomController::class, 'index'])->name('index');
+                    Route::geT('/detail/{id}', [AdminRoomController::class, 'detail'])->name('detail');
                     Route::get('/{id}', [AdminRoomController::class, 'show'])->name('show');
                     Route::post('/bookings/reject', [AdminBookingController::class, 'reject'])->name('reject');
                     Route::post('/bookings/approve', [AdminBookingController::class, 'approve'])->name('approve');
