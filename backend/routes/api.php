@@ -49,6 +49,8 @@ Route::middleware('auth:api')->group(function () {
                     Route::get('/', [AdminBookingController::class, 'index'])->name('index');
                     Route::get('/detail', [AdminBookingController::class, 'show'])->name('show');
                 });
+            
+            Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     });
 
     Route::prefix('/tenant')
@@ -59,5 +61,6 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/rooms/book/{id}', [TenantBookingController::class, 'show'])->name('show');
             Route::post('/rooms/book/{id}', [TenantBookingController::class, 'book'])->name('book');
             Route::post('/rooms/book/cancel/{id}', [TenantBookingController::class, 'cancel'])->name('cancel');
+            Route::get('/dashboard', [TenantDashboardController::class, 'index'])->name('dashboard');
         });
-});
+}); 
