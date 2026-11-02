@@ -10,28 +10,43 @@ const props = defineProps({
         required: true,
         default: () => ({}),
     },
+    variant: {
+        type: String,
+        default: 'management',
+        validator: val => ['management', 'dashboard'].includes(val),
+    },
 });
 
 const isSelected = defineModel({ default: false });
 defineEmits(['view']);
 
 const { formatRupiah } = useTenantRoom();
+const isDashboard = computed(() => props.variant === 'dashboard');
 
 const roomName = computed(() => props.booking.booking_records?.room_name || '-');
 const tenantName = computed(() => props.booking.booking_contacts?.name || '-');
 const tenantEmail = computed(() => props.booking.booking_contacts?.email || '-');
 const tenantPhone = computed(() => props.booking.booking_contacts?.phone || '-');
 
-const moveIn = computed(() => (props.booking.booking_records?.move_in ? dayjs(props.booking.booking_records.move_in).format('DD MMM YYYY') : '-'));
-const moveOut = computed(() => (props.booking.booking_records?.move_out ? dayjs(props.booking.booking_records.move_out).format('DD MMM YYYY') : '-'));
+const rawMoveIn = computed(() => props.booking.booking_records?.move_in);
+const rawMoveOut = computed(() => props.booking.booking_records?.move_out);
+
+const moveIn = computed(() => (rawMoveIn.value ? dayjs(rawMoveIn.value).format('DD MMM YYYY') : '-'));
+const moveOut = computed(() => (rawMoveOut.value ? dayjs(rawMoveOut.value).format('DD MMM YYYY') : '-'));
+
+const bookingPeriod = computed(() => {
+    if (!rawMoveIn.value || !rawMoveOut.value) return '-';
+    return `${dayjs(rawMoveIn.value).format('D MMM YYYY')} - ${dayjs(rawMoveOut.value).format('D MMM YYYY')}`;
+});
+
 const duration = computed(() => (props.booking.booking_records?.rental_duration ? `${props.booking.booking_records.rental_duration} Months` : '-'));
 const priceTotal = computed(() => formatRupiah(props.booking.booking_records?.total || 0));
 const status = computed(() => props.booking.booking_records?.status || 'pending');
 </script>
 
 <template>
-    <tr class="hover:bg-neutral-50/80 transition-colors border-b border-border-default last:border-none">
-        <td class="py-4 px-4 align-middle w-10">
+    <tr class="border-b border-border-default last:border-none transition-colors" :class="isDashboard ? '' : 'hover:bg-neutral-50/80'">
+        <td v-if="!isDashboard" class="py-4 px-4 align-middle w-10">
             <input
                 type="checkbox"
                 v-model="isSelected"
@@ -42,9 +57,10 @@ const status = computed(() => props.booking.booking_records?.status || 'pending'
         <td class="py-4 px-4 align-middle text-body-md text-text-primary font-medium whitespace-nowrap">{{ roomName }}</td>
         <td class="py-4 px-4 align-middle text-body-md text-text-primary max-w-37.5 truncate" :title="tenantName">{{ tenantName }}</td>
         <td class="py-4 px-4 align-middle text-body-md text-text-secondary max-w-[200px] truncate" :title="tenantEmail">{{ tenantEmail }}</td>
-        <td class="py-4 px-4 align-middle text-body-md text-text-secondary whitespace-nowrap">{{ tenantPhone }}</td>
-        <td class="py-4 px-4 align-middle text-body-md text-text-secondary whitespace-nowrap">{{ moveIn }}</td>
-        <td class="py-4 px-4 align-middle text-body-md text-text-secondary whitespace-nowrap">{{ moveOut }}</td>
+        <td v-if="!isDashboard" class="py-4 px-4 align-middle text-body-md text-text-secondary whitespace-nowrap">{{ tenantPhone }}</td>
+        <td v-if="isDashboard" class="py-4 px-4 align-middle text-body-md text-text-secondary whitespace-nowrap">{{ bookingPeriod }}</td>
+        <td v-if="!isDashboard" class="py-4 px-4 align-middle text-body-md text-text-secondary whitespace-nowrap">{{ moveIn }}</td>
+        <td v-if="!isDashboard" class="py-4 px-4 align-middle text-body-md text-text-secondary whitespace-nowrap">{{ moveOut }}</td>
         <td class="py-4 px-4 align-middle text-body-md text-text-secondary whitespace-nowrap">{{ duration }}</td>
         <td class="py-4 px-4 align-middle text-body-md text-text-primary whitespace-nowrap">{{ priceTotal }}</td>
         <td class="py-4 px-4 align-middle whitespace-nowrap">
