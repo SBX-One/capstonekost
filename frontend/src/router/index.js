@@ -81,10 +81,9 @@ const routes = [
                 component: () => import('@/views/admin/BookingManagementView.vue')
             },
             {
-                path: 'bookings/:id',
-                name: 'admin-booking-detail',
-                // component: () => import('@/views/admin/BookingDetailView.vue'),
-                props: true
+                path: 'payments',
+                name: 'admin-payments',
+                // component: () => import('@/views/admin/PaymentManagementView.vue')
             }
         ]
     },
