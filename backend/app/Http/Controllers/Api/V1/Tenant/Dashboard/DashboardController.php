@@ -12,6 +12,9 @@ use App\Models\BookingRecord;
 use App\Models\PaymentRecord;
 use App\Models\RoomBill;
 
+// Resource Imports
+use App\Http\Resources\Api\V1\Tenant\Dashboard\DashboardIndexResource;
+
 class DashboardController extends Controller
 {
     public function index(Request $request) 
@@ -52,8 +55,18 @@ class DashboardController extends Controller
             ])
             ->get();
 
-        $paymentHistory['total_amount_paid'] = $paymentHistory->sum(
+        $totalAmountPaid = $paymentHistory->sum(
             fn ($booking) => $booking->paymentRecord->sum('amount')
         );
+
+        return (new DashboardIndexResource([
+            'booking_status' => $bookingStatus,
+            'this_month_bill' => $thisMonthBill,
+            'booking_history' => $bookingHistory,
+            'payment_history' => $paymentHistory,
+            'total_amount_paid' => $totalAmountPaid
+        ]))->additional([
+            'message' => 'Data successfully retrieved.'
+        ]);
     }
 }
