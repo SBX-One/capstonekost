@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 
@@ -57,5 +58,10 @@ class BookingRecord extends Model
     public function bookingReject(): HasOne
     {
         return $this->hasOne(BookingReject::class, 'booking_record_id');
+    }
+
+    public function paymentRecord(): HasMany
+    {
+        return $this->hasMany(PaymentRecord::class, 'booking_record_id');
     }
 }

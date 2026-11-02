@@ -22,7 +22,7 @@ class DashboardController extends Controller
                 COUNT(*) AS total,
                 SUM(status = 'available') AS available,
                 SUM(status = 'occupied') AS occupied
-                ")
+            ")
             ->first();
 
         $bookingStatusOverview = BookingRecord::query()

@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\Meta\RoomsMetaController;
 use App\Http\Controllers\Api\V1\Tenant\Booking\BookingController as TenantBookingController;
 use App\Http\Controllers\Api\V1\Admin\Booking\BookingController as AdminBookingController;
 use App\Http\Controllers\Api\V1\Admin\Dashboard\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Api\V1\Tenant\Dashboard\DashboardController as TenantDashboardController;
 
 
 Route::post('/register', [AuthController::class, 'register'])->name('register');
