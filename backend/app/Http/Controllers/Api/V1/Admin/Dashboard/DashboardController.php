@@ -10,6 +10,9 @@ use App\Models\Room;
 use App\Models\BookingRecord;
 use App\Models\PaymentRecord;
 
+// Resource Imports
+use App\Http\Resources\Api\V1\Admin\Dashboard\DashboardIndexResource;
+
 class DashboardController extends Controller
 {
     public function index(Request $request) 
@@ -47,6 +50,15 @@ class DashboardController extends Controller
             ->select('id', 'amount')
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
-            ->get();
+            ->sum('amount');
+
+        return (new DashboardIndexResource([
+            'room_overview' => $roomOverview,
+            'booking_status' => $bookingStatusOverview,
+            'recent_bookings' => $recentBookings,
+            'payment_this_month' => $paymentThisMonth
+        ]))->additional([
+            'message' => 'Dashboard data retrieved successfully'
+        ]);
     } 
 }
