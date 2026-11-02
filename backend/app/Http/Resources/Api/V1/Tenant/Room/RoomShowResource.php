@@ -44,7 +44,10 @@ class RoomShowResource extends JsonResource
                     'path' => $image->image_path,
                     'sort_order' => $image->sort_order
                 ]),
-                'available_date' => $this->resource['available_date']
+                'booking_records' => $this->resource->bookingRecords->map(fn ($record) => [
+                    'move_in' => $record->move_in,
+                    'move_out' => $record->move_out 
+                ])
             ]
         ];
     }

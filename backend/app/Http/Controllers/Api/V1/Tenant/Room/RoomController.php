@@ -76,11 +76,17 @@ class RoomController extends Controller
 
     public function show (RoomShowRequest $request, string $id)
     {
-        $room = Room::findOrFail($id);
-        $room->load('roomType');
-        $room->load('facilities');
-        $room->load('utilities');
-        $room->load('imagePaths');
+        $room = Room::query()
+            ->with([
+                'roomType',
+                'facilities',
+                'utilities',
+                'imagePaths',
+                'bookingRecords' => function ($query) {
+                    $query->whereIn('status', ['pending', 'approved', 'active']);
+                }
+            ])
+            ->findOrFail($id);
 
         return (new RoomShowResource($room))
                 ->response()
