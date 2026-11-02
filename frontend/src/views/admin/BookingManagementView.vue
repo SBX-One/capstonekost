@@ -11,6 +11,7 @@ import AdminBookingFilterBar from '@/components/booking/AdminBookingFilterBar.vu
 import AdminBookingTable from '@/components/booking/AdminBookingTable.vue';
 import ActionBookingModal from '@/components/booking/ActionBookingModal.vue';
 import BookingSuccessModal from '@/components/booking/BookingSuccessModal.vue';
+import BookingDetailDrawer from '@/components/booking/BookingDetailDrawer.vue';
 
 function scrollToTop() {
     const scrollContainer = document.querySelector('main') || document.querySelector('.overflow-y-auto') || document.documentElement;
@@ -20,7 +21,7 @@ function scrollToTop() {
     });
 }
 
-const { bookings, isFetching, isMutating, error, totalCount, fetchBookings, fetchBookingDetails, approveBookings, rejectBookings, navigateToDetail, clearError } = useAdminBooking();
+const { bookings, isFetching, isMutating, error, totalCount, fetchBookings, fetchBookingDetails, approveBookings, rejectBookings, clearError } = useAdminBooking();
 const { bookingStatuses, fetchRoomMeta } = useRoomMeta();
 
 const { currentPage, perPage, resetPage } = usePagination(10, newPage => {
@@ -39,10 +40,14 @@ const totalPages = computed(() => Math.ceil(totalCount.value / perPage.value) ||
 const selectedBookingIds = ref([]);
 const hasSelection = computed(() => selectedBookingIds.value.length > 0);
 const isFetchingDetails = ref(false);
+
 const isActionModalOpen = ref(false);
 const isSuccessModalOpen = ref(false);
+const isDrawerOpen = ref(false);
+
 const currentActionType = ref('');
 const selectedDetailsCache = ref([]);
+const selectedBookingForDrawer = ref({});
 
 const localUiError = ref('');
 
@@ -55,8 +60,26 @@ async function loadBookings(page = currentPage.value) {
     await fetchBookings(page, params);
 }
 
-function handleView(booking) {
-    navigateToDetail(booking.id);
+async function handleView(booking) {
+    localUiError.value = '';
+    clearError();
+    isFetchingDetails.value = true;
+
+    try {
+        const details = await fetchBookingDetails([booking.id]);
+
+        if (details && details.length > 0) {
+            selectedBookingForDrawer.value = details[0];
+            isDrawerOpen.value = true;
+        } else {
+            localUiError.value = 'Failed to load booking details.';
+        }
+    } catch (err) {
+        console.error('Error fetching details for drawer:', err);
+        localUiError.value = err?.response?.data?.message || err.message || 'An unexpected error occurred.';
+    } finally {
+        isFetchingDetails.value = false;
+    }
 }
 
 function handleExport() {
@@ -90,12 +113,12 @@ async function handleAction(actionType, targetIds = selectedBookingIds.value) {
     if (actionType === 'reject') {
         isActionModalOpen.value = true;
     } else if (actionType === 'approve') {
-        executeAction(actionType);
+        executeAction(actionType, '', false);
     }
 }
 
-async function executeAction(actionType, rejectReason = '') {
-    const targetIds = selectedDetailsCache.value.map(item => item.booking_record?.id || item.id);
+async function executeAction(actionType, rejectReason = '', isFromDrawer = false) {
+    const targetIds = isFromDrawer ? [selectedBookingForDrawer.value.booking_record?.id] : selectedDetailsCache.value.map(item => item.booking_record?.id || item.id);
     let isSuccess = false;
 
     if (actionType === 'reject') {
@@ -107,8 +130,27 @@ async function executeAction(actionType, rejectReason = '') {
     if (isSuccess) {
         selectedBookingIds.value = [];
         isActionModalOpen.value = false;
+        isDrawerOpen.value = false;
+
+        if (isFromDrawer) {
+            selectedDetailsCache.value = [selectedBookingForDrawer.value];
+            currentActionType.value = actionType;
+        }
+
         isSuccessModalOpen.value = true;
     }
+}
+
+function handleDrawerApprove() {
+    executeAction('approve', '', true);
+}
+
+function handleDrawerReject() {
+    selectedDetailsCache.value = [selectedBookingForDrawer.value];
+    currentActionType.value = 'reject';
+    isActionModalOpen.value = true;
+
+    isDrawerOpen.value = false;
 }
 
 function closeSuccessModal() {
@@ -204,6 +246,16 @@ onMounted(async () => {
             :is-submitting="isMutating"
             @close="isActionModalOpen = false"
             @confirm="reason => executeAction('reject', reason)"
+        />
+
+        <BookingDetailDrawer
+            :is-open="isDrawerOpen"
+            role="admin"
+            :booking="selectedBookingForDrawer"
+            :is-submitting="isMutating"
+            @close="isDrawerOpen = false"
+            @approve="handleDrawerApprove"
+            @reject="handleDrawerReject"
         />
 
         <BookingSuccessModal
