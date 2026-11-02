@@ -62,6 +62,13 @@ class BookingShowResource extends JsonResource
                     'reason' => $cancellation->reason,
                 ]
             ),
+            'reject_reason' => $this->whenLoaded(
+                'bookingReject',
+                fn ($rejection) => [
+                    'id' => $rejection->id,
+                    'reason' => $rejection->reason
+                ]
+            ),
             'payment_overview' => $this->whenLoaded(
                 'roomBill',
                 fn ($bill) => [

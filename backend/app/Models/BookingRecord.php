@@ -53,4 +53,9 @@ class BookingRecord extends Model
     {
         return $this->hasOne(RoomBill::class, 'booking_record_id');
     }
+
+    public function bookingReject(): HasOne
+    {
+        return $this->hasOne(BookingReject::class, 'booking_record_id');
+    }
 }

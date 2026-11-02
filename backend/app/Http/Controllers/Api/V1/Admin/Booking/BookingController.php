@@ -66,6 +66,7 @@ class BookingController extends Controller
                 'room.imagePaths' => fn ($q) => $q->select('id', 'room_id', 'image_path', 'sort_order'),
                 'contact' => fn ($q) => $q->select('id', 'booking_record_id', 'name', 'phone_number', 'email'),
                 'bookingCancellation' => fn ($q) => $q->select('id', 'booking_record_id', 'reason'),
+                'bookingReject' => fn ($q) => $q->select('id', 'booking_record_id', 'reason'),
                 'roomBill' => fn ($q) => $q->select('id', 'booking_record_id', 'last_payment_id', 'status', 'next_due_date'),
                 'roomBill.paymentRecord' => fn ($q) => $q->select('id', 'booking_record_id', 'amount', 'created_at')
             ])
