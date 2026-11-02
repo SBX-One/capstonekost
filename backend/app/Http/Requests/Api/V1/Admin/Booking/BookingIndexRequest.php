@@ -23,7 +23,7 @@ class BookingIndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['nullable', 'string', 'in:pending,cancelled,rejected,active,complete'],
+            'status' => ['nullable', 'string', 'in:pending,cancelled,rejected,active,completed,approved'],
             'search' => ['string', 'nullable']
         ];
     }
