@@ -37,7 +37,10 @@ class BookingShowResource extends JsonResource
                 'name' => $utility['name'],
                 'icon_name' => $utility['icon_name']
             ]),
-            'available_date' => $this->resource['available_date']
+            'booking_records' => $this->resource->bookingRecords->map(fn ($record) => [
+                'move_in' => $record->move_in,
+                'move_out' => $record->move_out 
+            ])
         ];
     }
 }

@@ -63,6 +63,7 @@ class BookingController extends Controller
                 'roomType' => fn ($q) => $q->select('id', 'name'),
                 'facilities' => fn ($q) => $q->select('facilities.id', 'facilities.name', 'facilities.icon_name'),
                 'utilities' => fn ($q) => $q->select('utilities.id', 'utilities.name', 'utilities.icon_name'),
+                'bookingRecords' => fn ($q) => $q->whereIn('status', ['pending', 'approved', 'active'])
             ])
             ->findOrFail($id);
 
