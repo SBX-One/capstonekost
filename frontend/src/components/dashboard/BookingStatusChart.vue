@@ -7,11 +7,19 @@ const props = defineProps({
         type: Number,
         default: 0,
     },
+    approved: {
+        type: Number,
+        default: 0,
+    },
     active: {
         type: Number,
         default: 0,
     },
     completed: {
+        type: Number,
+        default: 0,
+    },
+    cancelled: {
         type: Number,
         default: 0,
     },
@@ -23,13 +31,15 @@ const props = defineProps({
 
 const animatedValues = ref({
     pending: 0,
+    approved: 0,
     active: 0,
     completed: 0,
+    cancelled: 0,
     rejected: 0,
 });
 
 const maxStatusValue = computed(() => {
-    const actualMax = Math.max(props.pending, props.active, props.completed, props.rejected);
+    const actualMax = Math.max(props.pending, props.approved, props.active, props.completed, props.cancelled, props.rejected);
     return Math.max(actualMax, 5);
 });
 
@@ -39,8 +49,10 @@ const getBarWidth = value => {
 
 const statusItems = computed(() => [
     { key: 'pending', label: 'Pending', rawValue: props.pending },
+    { key: 'approved', label: 'Approved', rawValue: props.approved },
     { key: 'active', label: 'Active', rawValue: props.active },
     { key: 'completed', label: 'Completed', rawValue: props.completed },
+    { key: 'cancelled', label: 'Cancelled', rawValue: props.cancelled },
     { key: 'rejected', label: 'Rejected', rawValue: props.rejected },
 ]);
 
@@ -48,8 +60,10 @@ const triggerAnimation = () => {
     setTimeout(() => {
         animatedValues.value = {
             pending: props.pending,
+            approved: props.approved,
             active: props.active,
             completed: props.completed,
+            cancelled: props.cancelled,
             rejected: props.rejected,
         };
     }, 100);
@@ -60,7 +74,7 @@ onMounted(() => {
 });
 
 watch(
-    () => [props.pending, props.active, props.completed, props.rejected],
+    () => [props.pending, props.approved, props.active, props.completed, props.cancelled, props.rejected],
     () => {
         triggerAnimation();
     }
@@ -69,7 +83,7 @@ watch(
 
 <template>
     <DashboardBaseCard title="Booking Status Overview" subtitle="Number of booking by status">
-        <ul class="grid grid-cols-[max-content_1fr_max-content] gap-y-6 gap-x-4 h-full m-0 p-0 list-none">
+        <ul class="grid grid-cols-[max-content_1fr_max-content] gap-y-4 gap-x-4 h-full m-0 p-0 list-none">
             <li v-for="item in statusItems" :key="item.key" class="contents">
                 <span class="text-body-md text-text-primary font-medium">
                     {{ item.label }}
