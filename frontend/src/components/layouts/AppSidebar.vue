@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import AdminSidebarItem from '@/components/layouts/AdminSidebarItem.vue';
 import { useAuthStore } from '@/stores/authStore';
@@ -7,20 +7,33 @@ import { useAuthStore } from '@/stores/authStore';
 const route = useRoute();
 const isCollapsed = ref(false);
 const authStore = useAuthStore();
+
 const toggleCollapse = () => {
     isCollapsed.value = !isCollapsed.value;
 };
 
-const menuItems = [
-    { label: 'Dashboard', routeName: 'admin-dashboard', iconName: 'dashboard' },
-    { label: 'Room', routeName: 'admin-rooms', iconName: 'room' },
-    { label: 'Booking', routeName: 'admin-bookings', iconName: 'booking' },
-    { label: 'Payment', routeName: '', iconName: 'payment' },
-];
+const menuItems = computed(() => {
+    if (authStore.userRole === 'admin') {
+        return [
+            { label: 'Dashboard', routeName: 'admin-dashboard', iconName: 'dashboard' },
+            { label: 'Room', routeName: 'admin-rooms', iconName: 'room' },
+            { label: 'Booking', routeName: 'admin-bookings', iconName: 'booking' },
+            { label: 'Payment', routeName: 'admin-payments', iconName: 'payment' },
+        ];
+    }
+
+    return [
+        { label: 'Dashboard', routeName: 'tenant-dashboard', iconName: 'dashboard' },
+        { label: 'Search Rooms', routeName: 'public-rooms', iconName: 'room' },
+        { label: 'My Room', routeName: 'tenant-my-room', iconName: 'booking' },
+        { label: 'Payment', routeName: 'tenant-payments', iconName: 'payment' },
+        { label: 'Complaints', routeName: 'tenant-complaints', iconName: 'clipboard' },
+    ];
+});
 
 const generalItems = [
-    { label: 'Log Out', onclick: authStore.logout, iconName: 'logout' },
     { label: 'Profile', routeName: '', iconName: 'profile' },
+    { label: 'Log Out', onclick: authStore.logout, iconName: 'logout' },
 ];
 </script>
 
@@ -52,7 +65,7 @@ const generalItems = [
                         v-for="item in menuItems"
                         :key="item.routeName"
                         :label="item.label"
-                        :to="{ name: item.routeName }"
+                        :to="item.routeName ? { name: item.routeName } : null"
                         :icon-name="item.iconName"
                         :is-active="route.name === item.routeName"
                         :is-collapsed="isCollapsed"
@@ -65,9 +78,9 @@ const generalItems = [
                 <nav class="space-y-1">
                     <AdminSidebarItem
                         v-for="item in generalItems"
-                        :key="item.routeName"
+                        :key="item.label"
                         :label="item.label"
-                        :to="{ name: item.routeName }"
+                        :to="item.routeName ? { name: item.routeName } : null"
                         :icon-name="item.iconName"
                         :is-active="route.name === item.routeName"
                         :is-collapsed="isCollapsed"

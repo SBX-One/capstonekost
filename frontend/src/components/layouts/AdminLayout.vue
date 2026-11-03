@@ -1,11 +1,11 @@
 <script setup>
-import AdminSidebar from '@/components/layouts/AdminSidebar.vue';
+import AppSidebar from '@/components/layouts/AppSidebar.vue';
 import AppHeader from '@/components/layouts/AppHeader.vue';
 </script>
 
 <template>
     <div class="min-h-screen bg-bg-default flex overflow-hidden">
-        <AdminSidebar />
+        <AppSidebar />
 
         <div class="flex-1 flex flex-col h-screen overflow-hidden">
             <AppHeader />
