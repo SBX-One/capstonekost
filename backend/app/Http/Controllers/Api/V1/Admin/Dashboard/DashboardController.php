@@ -40,7 +40,8 @@ class DashboardController extends Controller
             ->select('id', 'room_id', 'user_id', 'move_in', 'move_out', 'rental_duration', 'total', 'status')
             ->with([
                 'room' => fn ($q) => $q->select('id', 'name'),
-                'user' => fn ($q) => $q->select('id', 'name')
+                'user' => fn ($q) => $q->select('id', 'name', 'email'),
+                'contact' => fn ($q) => $q->select('id', 'booking_record_id', 'name', 'email', 'phone_number')
             ])
             ->latest('created_at')
             ->limit(5)
