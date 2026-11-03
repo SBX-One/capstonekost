@@ -1,44 +1,71 @@
 <script setup>
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
-import { useRoomFilter } from '@/composables/useRoomFilter';
+import { computed, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { watchDebounced } from '@vueuse/core';
 import { useAuthStore } from '@/stores/authStore';
 
 const route = useRoute();
+const router = useRouter();
 const authStore = useAuthStore();
 
-const pageTitle = computed(() => {
-    return route.meta.title || 'Dashboard';
-});
+const pageTitle = computed(() => route.meta.title || 'Dashboard');
+const showSearch = computed(() => !!route.meta.showSearchInHeader);
 
-const showSearch = computed(() => {
-    return route.name === 'admin-rooms';
-});
+const searchQuery = ref(route.query.search || '');
 
-const { search } = useRoomFilter();
-const adminName = computed(() => authStore.user?.name || 'Super Admin');
-const adminRole = computed(() => {
+watchDebounced(
+    searchQuery,
+    async newVal => {
+        const freshQuery = router.currentRoute.value.query;
+        if (newVal === (freshQuery.search || '')) return;
+
+        const query = { ...freshQuery };
+        if (newVal.trim()) {
+            query.search = newVal.trim();
+        } else {
+            delete query.search;
+        }
+        delete query.page;
+
+        await router.replace({ query }).catch(() => {});
+    },
+    { debounce: 400 }
+);
+
+watch(
+    () => route.query.search,
+    newSearch => {
+        const safeSearch = newSearch || '';
+        if (searchQuery.value !== safeSearch) {
+            searchQuery.value = safeSearch;
+        }
+    }
+);
+
+const userName = computed(() => authStore.user?.name || 'Guest');
+const userRoleDisplay = computed(() => {
     const role = authStore.user?.role || authStore.userRole;
-    return role ? role.charAt(0).toUpperCase() + role.slice(1) : 'Admin';
+    return role ? role.charAt(0).toUpperCase() + role.slice(1) : 'User';
 });
 
-const adminInitials = computed(() => {
-    const name = adminName.value;
-    const parts = name.split(' ');
+const userInitials = computed(() => {
+    const name = userName.value;
+    if (name === 'Guest') return 'GU';
+    const parts = name.trim().split(/\s+/);
     if (parts.length >= 2) {
         return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
 });
 
-const adminAvatar = computed(() => authStore.user?.avatar || null);
+const userAvatar = computed(() => authStore.user?.avatar || null);
 </script>
 
 <template>
     <header class="h-1000 bg-neutral-50 border-b border-border-default px-600 flex items-center justify-between sticky top-0 z-20">
         <div>
             <h2 class="text-h3 text-text-primary tracking-tight">{{ pageTitle }}</h2>
-            <p class="text-body-sm text-text-secondary">Welcome back to Kosanmu admin panel.</p>
+            <p class="text-body-sm text-text-secondary">Welcome back to Kosanmu web app.</p>
         </div>
 
         <div class="flex items-center gap-400">
@@ -52,9 +79,9 @@ const adminAvatar = computed(() => authStore.user?.avatar || null);
                     </svg>
                 </span>
                 <input
-                    v-model="search"
+                    v-model="searchQuery"
                     type="text"
-                    placeholder="Search rooms..."
+                    placeholder="Search..."
                     class="w-full pl-10 pr-4 py-2 bg-neutral-100 border border-border-default rounded-default text-body-md focus:outline-none focus:border-border-focus transition-colors"
                 />
             </div>
@@ -63,12 +90,12 @@ const adminAvatar = computed(() => authStore.user?.avatar || null);
                 <div
                     class="w-10 h-10 rounded-full border border-border-default bg-action-primary text-text-inverse font-bold text-xs shadow-default flex items-center justify-center overflow-hidden shrink-0"
                 >
-                    <img v-if="adminAvatar" :src="adminAvatar" :alt="adminName" class="w-full h-full object-cover" />
-                    <span v-else class="leading-none text-center">{{ adminInitials }}</span>
+                    <img v-if="userAvatar" :src="userAvatar" :alt="userName" class="w-full h-full object-cover" />
+                    <span v-else class="leading-none text-center">{{ userInitials }}</span>
                 </div>
                 <div class="hidden lg:block text-left leading-tight">
-                    <p class="text-body-sm font-bold text-text-primary">{{ adminName }}</p>
-                    <p class="text-[11px] text-text-secondary">{{ adminRole }}</p>
+                    <p class="text-body-sm font-bold text-text-primary">{{ userName }}</p>
+                    <p class="text-[11px] text-text-secondary">{{ userRoleDisplay }}</p>
                 </div>
             </div>
         </div>

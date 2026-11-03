@@ -62,7 +62,8 @@ const routes = [
             {
                 path: 'rooms',
                 name: 'admin-rooms',
-                component: () => import('@/views/admin/RoomManagementView.vue')
+                component: () => import('@/views/admin/RoomManagementView.vue'),
+                meta: { showSearchInHeader: true }
             },
             {
                 path: 'rooms/add',
@@ -90,6 +91,7 @@ const routes = [
 
     {
         path: '/tenant',
+        component: () => import('@/components/layouts/TenantLayout.vue'),
         meta: { requiresAuth: true, role: 'tenant' },
         children: [
             {
@@ -110,7 +112,13 @@ const routes = [
             {
                 path: 'my-room',
                 name: 'tenant-my-room',
-                // component: () => import('@/views/tenant/MyRoomView.vue')
+                // component: () => import('@/views/tenant/MyRoomView.vue'),
+                meta: { showSearchInHeader: true }
+            },
+            {
+                path: 'booking',
+                name: 'tenant-bookings',
+                meta: { showSearchInHeader: true }
             },
             {
                 path: 'payments',
