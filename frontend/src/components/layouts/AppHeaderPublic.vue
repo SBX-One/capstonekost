@@ -1,26 +1,59 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { useRoomFilter } from '@/composables/useRoomFilter';
+import { ref, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { watchDebounced } from '@vueuse/core';
 import { useAuthStore } from '@/stores/authStore';
 import BaseButton from '@/components/common/BaseButton.vue';
 import TenantProfileDropdown from '@/components/layouts/TenantProfileDropdown.vue';
 
-const props = defineProps({
-    withSearch: {
-        type: Boolean,
-        default: false,
-    },
-});
-
+const route = useRoute();
+const router = useRouter();
 const authStore = useAuthStore();
-const { search } = useRoomFilter();
-
 const searchInput = ref(null);
-const isAuthenticated = computed(() => authStore.isAuthenticated);
-const user = computed(() => authStore.user);
+
+const showSearch = computed(() => !!route.meta.showSearchInNavbar);
+
+const searchQuery = ref(route.query.search || '');
+
+watchDebounced(
+    searchQuery,
+    async newVal => {
+        const freshQuery = router.currentRoute.value.query;
+        if (newVal === (freshQuery.search || '')) return;
+
+        const query = { ...freshQuery };
+        if (newVal.trim()) {
+            query.search = newVal.trim();
+        } else {
+            delete query.search;
+        }
+        delete query.page;
+
+        await router.replace({ query }).catch(() => {});
+    },
+    { debounce: 400 }
+);
+
+watch(
+    () => route.query.search,
+    newSearch => {
+        const safeSearch = newSearch || '';
+        if (searchQuery.value !== safeSearch) {
+            searchQuery.value = safeSearch;
+        }
+    }
+);
 
 const onSearchSubmit = () => {
     searchInput.value?.blur();
+};
+
+const isAuthenticated = computed(() => authStore.isAuthenticated);
+const user = computed(() => authStore.user);
+
+const clearSearch = () => {
+    searchQuery.value = '';
+    searchInput.value?.focus();
 };
 </script>
 
@@ -33,7 +66,7 @@ const onSearchSubmit = () => {
                 </router-link>
             </div>
 
-            <div v-if="withSearch" class="hidden md:flex flex-1 max-w-xl mx-8">
+            <div v-if="showSearch" class="hidden md:flex flex-1 max-w-xl mx-8">
                 <form @submit.prevent="onSearchSubmit" role="search" class="relative w-full">
                     <label for="room-search" class="sr-only">Search for your room</label>
 
@@ -50,16 +83,16 @@ const onSearchSubmit = () => {
                         id="room-search"
                         ref="searchInput"
                         type="search"
-                        v-model="search"
+                        v-model="searchQuery"
                         class="peer block w-full pl-9 pr-9 py-2.5 bg-neutral-200 border border-border-default rounded-xl text-body-md text-text-primary placeholder:text-neutral-600 focus:outline-none focus:bg-white focus:border-border-focus transition-all [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
                         placeholder="find your room!"
                         autocomplete="off"
                     />
 
                     <button
-                        v-if="search && search.length > 0"
+                        v-if="searchQuery && searchQuery.length > 0"
                         type="button"
-                        @click="search = ''"
+                        @click="clearSearch"
                         aria-label="Clear search input"
                         class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-secondary hover:text-text-primary focus:outline-none rounded-full"
                     >
