@@ -35,19 +35,25 @@ class DashboardIndexResource extends JsonResource
             ],
             'recent_bookings' => $this->resource['recent_bookings']->map(fn ($booking) => [
                 'id' => $booking->id,
-                'room' => [
-                    'id' => $booking->room->id,
-                    'name' => $booking->room->name,
-                ],
                 'user' => [
                     'id' => $booking->user->id,
                     'name' => $booking->user->name,
+                    'email' => $booking->user->email
                 ],
-                'move_in' => $booking->move_in,
-                'move_out' => $booking->move_out,
-                'rental_duration' => $booking->rental_duration,
-                'total' => $booking->total,
-                'status' => $booking->status,
+                'booking_records' => [
+                    'room_id' => $booking->room->id, 
+                    'room_name' => $booking->room->name,
+                    'move_in' => $booking->move_in,
+                    'move_out' => $booking->move_out,
+                    'rental_duration' => $booking->rental_duration,
+                    'status' => $booking->status,
+                    'total' => $booking->total,
+                ],
+                'booking_contacts' => [
+                    'name' => $booking->contact->name,
+                    'email' => $booking->contact->email,
+                    'phone' => $booking->contact->phone_number
+                ]
             ])
         ];
     }
