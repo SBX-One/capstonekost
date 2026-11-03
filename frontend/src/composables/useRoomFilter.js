@@ -59,17 +59,25 @@ export function useRoomFilter(onParamsChange) {
     )
 
     watch(
-        () => route.query,
-        (newQuery) => {
+        () => [
+            route.query.search,
+            route.query.room_type,
+            route.query.floor,
+            route.query.min_price,
+            route.query.max_price,
+            route.query.status,
+            route.query.facilities
+        ],
+        ([qSearch, qRoomType, qFloor, qMinPrice, qMaxPrice, qStatus, qFacilities]) => {
             isSyncing = true
 
-            state.search = newQuery.search || ''
-            state.roomType = newQuery.room_type || ''
-            state.floor = newQuery.floor || ''
-            state.minPrice = newQuery.min_price || ''
-            state.maxPrice = newQuery.max_price || ''
-            state.status = newQuery.status || ''
-            const newFac = parseFacilities(newQuery.facilities)
+            state.search = qSearch || ''
+            state.roomType = qRoomType || ''
+            state.floor = qFloor || ''
+            state.minPrice = qMinPrice || ''
+            state.maxPrice = qMaxPrice || ''
+            state.status = qStatus || ''
+            const newFac = parseFacilities(qFacilities)
             if (JSON.stringify(state.facilities) !== JSON.stringify(newFac)) {
                 state.facilities = newFac
             }

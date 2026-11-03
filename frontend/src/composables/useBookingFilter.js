@@ -45,12 +45,12 @@ export function useBookingFilter(onParamsChange) {
     )
 
     watch(
-        () => route.query,
-        (newQuery) => {
+        () => [route.query.search, route.query.status],
+        ([qSearch, qStatus]) => {
             isSyncing = true
 
-            state.search = newQuery.search || ''
-            state.status = newQuery.status || ''
+            state.search = qSearch || ''
+            state.status = qStatus || ''
 
             isSyncing = false
 
