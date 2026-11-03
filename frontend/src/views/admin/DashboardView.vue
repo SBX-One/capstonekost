@@ -1,6 +1,7 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAdminDashboard } from '@/composables/useAdminDashboard';
 import DashboardBaseCard from '@/components/dashboard/DashboardBaseCard.vue';
 import DashboardMetricCard from '@/components/dashboard/DashboardMetricCard.vue';
 import RoomOccupancyChart from '@/components/dashboard/RoomOccupancyChart.vue';
@@ -8,109 +9,7 @@ import BookingStatusChart from '@/components/dashboard/BookingStatusChart.vue';
 import AdminBookingTable from '@/components/booking/AdminBookingTable.vue';
 
 const router = useRouter();
-const isLoading = ref(true);
-const dashboardData = ref(null);
-const recentBookings = ref([]);
-
-const fetchDashboardData = async () => {
-    isLoading.value = true;
-
-    try {
-        await new Promise(resolve => setTimeout(resolve, 800));
-
-        const dummyResponse = {
-            metrics: {
-                total_rooms: 27,
-                active_bookings: 12,
-                payments_this_month: 12500000,
-            },
-            room_occupancy: {
-                total: 27,
-                occupied: 9,
-                available: 18,
-            },
-            booking_status_overview: {
-                pending: 4,
-                active: 12,
-                completed: 3,
-                rejected: 1,
-            },
-            recent_bookings: [
-                {
-                    id: 1,
-                    booking_records: {
-                        room_name: 'B-05',
-                        move_in: '2026-10-08T00:00:00.000000Z',
-                        move_out: '2026-12-08T00:00:00.000000Z',
-                        rental_duration: 2,
-                        total: 2400000,
-                        status: 'pending',
-                    },
-                    booking_contacts: {
-                        name: 'Stipen Steven',
-                        email: 'stipensteven@gmail.com',
-                        phone: '-',
-                    },
-                },
-                {
-                    id: 2,
-                    booking_records: {
-                        room_name: 'B-05',
-                        move_in: '2026-12-09T00:00:00.000000Z',
-                        move_out: '2027-02-09T00:00:00.000000Z',
-                        rental_duration: 3,
-                        total: 3600000,
-                        status: 'pending',
-                    },
-                    booking_contacts: {
-                        name: 'Albin',
-                        email: 'albin@gmail.com',
-                        phone: '-',
-                    },
-                },
-                {
-                    id: 3,
-                    booking_records: {
-                        room_name: 'C-02',
-                        move_in: '2026-11-03T00:00:00.000000Z',
-                        move_out: '2027-11-03T00:00:00.000000Z',
-                        rental_duration: 12,
-                        total: 17400000,
-                        status: 'cancelled',
-                    },
-                    booking_contacts: {
-                        name: 'Wisnu',
-                        email: 'wisnu@gmail.com',
-                        phone: '-',
-                    },
-                },
-                {
-                    id: 4,
-                    booking_records: {
-                        room_name: 'C-08',
-                        move_in: '2026-11-01T00:00:00.000000Z',
-                        move_out: '2027-04-01T00:00:00.000000Z',
-                        rental_duration: 5,
-                        total: 12250000,
-                        status: 'rejected',
-                    },
-                    booking_contacts: {
-                        name: 'Budi',
-                        email: 'budi@gmail.com',
-                        phone: '-',
-                    },
-                },
-            ],
-        };
-
-        dashboardData.value = dummyResponse;
-        recentBookings.value = dummyResponse.recent_bookings || [];
-    } catch (error) {
-        console.error('Failed to load dashboard data:', error);
-    } finally {
-        isLoading.value = false;
-    }
-};
+const { dashboardData, isLoading, error, fetchDashboardData } = useAdminDashboard();
 
 const formatRupiah = number => {
     return new Intl.NumberFormat('id-ID', {
@@ -155,7 +54,6 @@ onMounted(() => {
                         </clipPath>
                     </defs>
                 </svg>
-
                 October 2026
             </button>
         </header>
@@ -166,6 +64,11 @@ onMounted(() => {
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
             <p class="text-body-md text-text-secondary">Loading dashboard data...</p>
+        </div>
+
+        <div v-else-if="error" class="flex flex-col items-center justify-center py-20 gap-4">
+            <p class="text-body-lg text-danger-main font-medium">{{ error }}</p>
+            <button @click="fetchDashboardData" class="px-4 py-2 bg-neutral-900 text-white rounded-default hover:bg-neutral-800 transition-colors">Try Again</button>
         </div>
 
         <template v-else-if="dashboardData">
@@ -184,8 +87,10 @@ onMounted(() => {
                 <RoomOccupancyChart :total-rooms="dashboardData.room_occupancy.total" :occupied="dashboardData.room_occupancy.occupied" :available="dashboardData.room_occupancy.available" />
                 <BookingStatusChart
                     :pending="dashboardData.booking_status_overview.pending"
+                    :approved="dashboardData.booking_status_overview.approved"
                     :active="dashboardData.booking_status_overview.active"
                     :completed="dashboardData.booking_status_overview.completed"
+                    :cancelled="dashboardData.booking_status_overview.cancelled"
                     :rejected="dashboardData.booking_status_overview.rejected"
                 />
             </section>
@@ -204,19 +109,10 @@ onMounted(() => {
                         </button>
                     </template>
 
-                    <AdminBookingTable
-                        :bookings="recentBookings"
-                        variant="dashboard"
-                        :is-loading="false"
-                        @view="
-                            booking => {
-                                console.log('View detail:', booking.id);
-                            }
-                        "
-                    />
+                    <AdminBookingTable :bookings="dashboardData.recent_bookings" variant="dashboard" :is-loading="false" @view="booking => console.log('View detail:', booking.id)" />
 
                     <template #footer>
-                        <p class="text-body-md text-text-secondary">Showing {{ recentBookings.length }} of the latest bookings</p>
+                        <p class="text-body-md text-text-secondary">Showing {{ dashboardData.recent_bookings.length }} of the latest bookings</p>
                     </template>
                 </DashboardBaseCard>
             </section>
