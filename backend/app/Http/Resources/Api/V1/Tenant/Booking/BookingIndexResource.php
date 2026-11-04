@@ -5,6 +5,9 @@ namespace App\Http\Resources\Api\V1\Tenant\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+use App\Http\Resources\Api\V1\Tenant\Booking\BookingIndexRecentResource;
+use App\Http\Resources\Api\V1\Tenant\Booking\BookingIndexHistoryResource;
+
 class BookingIndexResource extends JsonResource
 {
     /**
@@ -15,49 +18,33 @@ class BookingIndexResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->resource['id'],
-            'user' => [
-                'id' => $this->resource->user['id'],
-                'name' => $this->resource->user['name'],
-                'email' => $this->resource->user['email']
-            ],
-            'booking_records' => [
-                'room_id' => $this->resource['room_id'],
-                'move_in' => $this->resource['move_in'],
-                'move_out' => $this->resource['move_out'],
-                'rental_duration' => $this->resource['rental_duration'],
-                'status' => $this->resource['status'],
-                'total' => $this->resource['total'],
-            ],
-            'booked_room' => [
-                'id' => $this->resource->room['id'],
-                'name' => $this->resource->room['name'],
-                'room_type' => [
-                    'id' => $this->resource->room['roomType']->id,
-                    'name' => $this->resource->room['roomType']->name
+            'recent_booking' => $this->resource['recent_booking']
+                ? new BookingIndexRecentResource($this->resource['recent_booking'])
+                : null,
+
+            'history_bookings' => [
+                'data' => BookingIndexHistoryResource::collection(
+                    $this->resource['history_bookings']
+                ),
+                'links' => [
+                    'first' => $this->resource['history_bookings']->url(1),
+                    'last' => $this->resource['history_bookings']->url(
+                        $this->resource['history_bookings']->lastPage()
+                    ),
+                    'prev' => $this->resource['history_bookings']->previousPageUrl(),
+                    'next' => $this->resource['history_bookings']->nextPageUrl(),
                 ],
-                'floor' => $this->resource->room['floor'],
-                'status' => $this->resource->room['status'],
-                'price' => $this->resource->room['price'],
-                'overview' => $this->resource->room['overview'],
-                'description' => $this->resource->room['description'],
-                'rules' => $this->resource->room['rules'],
-                'facilities' => $this->resource->room->facilities->map(fn ($facility) => [
-                    'id' => $facility['id'],
-                    'name' => $facility['name'],
-                    'icon_name' => $facility['icon_name']
-                ]),
-                'utilities' => $this->resource->room->utilities->map(fn ($utility) => [
-                    'id' => $utility['id'],
-                    'name' => $utility['name'],
-                    'icon_name' => $utility['icon_name']
-                ])
+                'meta' => [
+                    'current_page' => $this->resource['history_bookings']->currentPage(),
+                    'from' => $this->resource['history_bookings']->firstItem(),
+                    'last_page' => $this->resource['history_bookings']->lastPage(),
+                    'links' => $this->resource['history_bookings']->linkCollection()->toArray(),
+                    'path' =>  $this->resource['history_bookings']->path(),
+                    'per_page' => $this->resource['history_bookings']->perPage(),
+                    'to' => $this->resource['history_bookings']->lastItem(),
+                    'total' => $this->resource['history_bookings']->total(),
+                ],
             ],
-            'booking_contacts' => [
-                'name' => $this->resource->contact['name'],
-                'email' => $this->resource->contact['email'],
-                'phone' => $this->resource->contact['phone_number'],
-            ] 
         ];
     }
 }

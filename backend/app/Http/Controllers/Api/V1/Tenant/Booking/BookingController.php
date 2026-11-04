@@ -20,6 +20,7 @@ use App\Models\BookingCancellation;
 
 // Resource Imports 
 use App\Http\Resources\Api\V1\Tenant\Booking\BookingIndexResource;
+use App\Http\Resources\Api\V1\Tenant\Booking\BookingIndexRecentResource;
 use App\Http\Resources\Api\V1\Tenant\Booking\BookingShowResource;
 use App\Http\Resources\Api\V1\Tenant\Booking\BookingBookResource;
 use App\Http\Resources\Api\V1\Tenant\Booking\BookingDetailResource;
@@ -30,30 +31,62 @@ use App\Http\Requests\Api\V1\Tenant\Booking\BookingShowRequest;
 use App\Http\Requests\Api\V1\Tenant\Booking\BookingBookRequest;
 use App\Http\Requests\Api\V1\Tenant\Booking\BookingCancelRequest;
 use App\Http\Requests\Api\V1\Tenant\Booking\BookingShowDetailRequest;
+use App\Http\Requests\Api\V1\Tenant\Booking\BookingIndexRequest;
 
 class BookingController extends Controller
 {
-    public function index() 
+    public function index(BookingIndexRequest $request) 
     {
         $userId = Auth::id();
 
-        $bookingData = BookingRecord::query()
+        $search = $request->validated('search');
+
+        $bookings = BookingRecord::query()
             ->where('user_id', $userId)
+            ->when(request()->filled('search'), function ($q) use ($search) {
+                $q->where(function ($q) use ($search) {
+                    $q->whereHas('room', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
+                });
+            })
             ->select('id', 'room_id', 'user_id', 'move_in', 'move_out', 'rental_duration', 'status', 'total', 'created_at')
             ->with([
                 'room' => fn ($q) => $q->select('id', 'room_type_id', 'name', 'floor', 'price', 'status', 'overview', 'description', 'rules'),
                 'room.roomType' => fn ($q) => $q->select('id', 'name'),
                 'room.facilities' => fn ($q) => $q->select('facilities.id', 'facilities.name', 'facilities.icon_name'),
                 'room.utilities' => fn ($q) => $q->select('utilities.id', 'utilities.name', 'utilities.icon_name'),
+                'room.imagePaths' => fn ($q) => $q->select('id', 'room_id', 'image_path', 'sort_order'),
                 'contact' => fn ($q) => $q->select('id', 'booking_record_id', 'name', 'phone_number', 'email'),
-                'user' => fn ($q) => $q->select('id', 'name', 'email')
+                'user' => fn ($q) => $q->select('id', 'name', 'email'),
             ])
-            ->get();
+            ->paginate(3)
+            ->withQueryString();
+
+        $recentBooking = null;
+
+        if (!request()->filled('search')) {
+            $recentBooking = BookingRecord::query()
+                ->where('user_id', $userId)
+                ->whereIn('status', ['active', 'pending'])
+                ->latest('created_at')
+                ->select('id', 'room_id', 'user_id', 'move_in', 'move_out', 'rental_duration', 'status', 'total', 'created_at')
+                ->with([
+                    'room' => fn ($q) => $q->select('id', 'room_type_id', 'name', 'floor', 'price', 'status', 'overview', 'description', 'rules'),
+                    'room.roomType' => fn ($q) => $q->select('id', 'name'),
+                    'room.facilities' => fn ($q) => $q->select('facilities.id', 'facilities.name', 'facilities.icon_name'),
+                    'room.utilities' => fn ($q) => $q->select('utilities.id', 'utilities.name', 'utilities.icon_name'),
+                    'room.imagePaths' => fn ($q) => $q->select('id', 'room_id', 'image_path', 'sort_order'),
+                    'contact' => fn ($q) => $q->select('id', 'booking_record_id', 'name', 'phone_number', 'email'),
+                    'user' => fn ($q) => $q->select('id', 'name', 'email'),
+                ])
+                ->first();
+        }
         
-        return BookingIndexResource::collection($bookingData)
-            ->additional([
-                'message' => 'Booking records successfully retrieved'
-            ]);
+        return new BookingIndexResource([
+            'recent_booking' => $recentBooking,
+            'history_bookings' => $bookings,
+        ]);
     }
 
     public function show(BookingShowRequest $request, string $id)
