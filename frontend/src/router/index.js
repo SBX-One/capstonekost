@@ -110,14 +110,9 @@ const routes = [
                 props: true
             },
             {
-                path: 'my-room',
-                name: 'tenant-my-room',
-                // component: () => import('@/views/tenant/MyRoomView.vue'),
-                meta: { showSearchInHeader: true }
-            },
-            {
                 path: 'booking',
                 name: 'tenant-bookings',
+                component: () => import('@/views/tenant/TenantBookingView.vue'),
                 meta: { showSearchInHeader: true }
             },
             {

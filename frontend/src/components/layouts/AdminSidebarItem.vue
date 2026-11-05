@@ -27,7 +27,7 @@ defineProps({
 
 <template>
     <div :class="{ 'tooltip tooltip-right w-full': isCollapsed }" :data-tip="isCollapsed ? label : ''">
-        <router-link
+        <component
             :is="to ? 'router-link' : 'button'"
             :to="to"
             :type="to ? undefined : 'button'"
@@ -39,6 +39,6 @@ defineProps({
         >
             <AppIcon :name="iconName" :is-active="isActive" />
             <span v-if="!isCollapsed" class="flex-1 text-left truncate">{{ label }}</span>
-        </router-link>
+        </component>
     </div>
 </template>

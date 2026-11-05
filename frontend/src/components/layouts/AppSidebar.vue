@@ -25,7 +25,7 @@ const menuItems = computed(() => {
     return [
         { label: 'Dashboard', routeName: 'tenant-dashboard', iconName: 'dashboard' },
         { label: 'Search Rooms', routeName: 'public-rooms', iconName: 'room' },
-        { label: 'My Room', routeName: 'tenant-my-room', iconName: 'booking' },
+        { label: 'Booking', routeName: 'tenant-bookings', iconName: 'booking' },
         { label: 'Payment', routeName: 'tenant-payments', iconName: 'payment' },
         { label: 'Complaints', routeName: 'tenant-complaints', iconName: 'clipboard' },
     ];
@@ -65,7 +65,7 @@ const generalItems = [
                         v-for="item in menuItems"
                         :key="item.routeName"
                         :label="item.label"
-                        :to="item.routeName ? { name: item.routeName } : null"
+                        :to="item.routeName ? { name: item.routeName } : undefined"
                         :icon-name="item.iconName"
                         :is-active="route.name === item.routeName"
                         :is-collapsed="isCollapsed"
@@ -80,7 +80,7 @@ const generalItems = [
                         v-for="item in generalItems"
                         :key="item.label"
                         :label="item.label"
-                        :to="item.routeName ? { name: item.routeName } : null"
+                        :to="item.routeName ? { name: item.routeName } : undefined"
                         :icon-name="item.iconName"
                         :is-active="route.name === item.routeName"
                         :is-collapsed="isCollapsed"
