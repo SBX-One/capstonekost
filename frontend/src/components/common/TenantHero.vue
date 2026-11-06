@@ -3,6 +3,10 @@ import { useRouter } from 'vue-router';
 import BaseButton from '@/components/common/BaseButton.vue';
 
 const props = defineProps({
+    label: {
+        type: String,
+        default: 'My Booking',
+    },
     title: {
         type: String,
         default: 'Your Stay, All in One Place.',
@@ -40,7 +44,7 @@ const handleActionClick = () => {
         <div class="relative z-10 p-10 flex flex-col gap-6 w-full max-w-xl">
             <header class="flex flex-col gap-1">
                 <span class="text-body-sm uppercase font-semibold text-text-inverse tracking-widest">
-                    <slot name="label">My Booking</slot>
+                    <slot name="label">{{ label }}</slot>
                 </span>
                 <h1 class="text-h2 md:text-h1 font-bold text-text-inverse leading-tight text-balance">
                     {{ title }}
