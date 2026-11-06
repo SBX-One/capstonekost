@@ -101,7 +101,7 @@ const routes = [
             {
                 path: 'dashboard',
                 name: 'tenant-dashboard',
-                // component: () => import('@/views/tenant/DashboardView.vue')
+                component: () => import('@/views/tenant/DashboardView.vue')
             },
             {
                 path: 'booking/:id',
