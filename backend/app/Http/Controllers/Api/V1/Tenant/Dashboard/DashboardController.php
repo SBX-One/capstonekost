@@ -47,18 +47,19 @@ class DashboardController extends Controller
             ])
             ->get();
 
-        $paymentHistory = BookingRecord::query()
-            ->select('id', 'room_id')
-            ->where('user_id', $userId)
+        $paymentHistory = PaymentRecord::query()
+            ->select('id', 'booking_record_id', 'amount', 'created_at')
+            ->whereHas('bookingRecord', function ($q) use ($userId) {
+                $q->where('user_id', $userId)
+                ->whereIn('status', ['active', 'completed']);
+            })
             ->with([
-                'paymentRecord' => fn ($q) => $q->select('id', 'booking_record_id', 'amount', 'created_at'),
-                'room' => fn ($q) => $q->select('id', 'name')
+                'bookingRecord.room' => fn ($q) => $q->select('id', 'name')
             ])
+            ->latest()
             ->get();
 
-        $totalAmountPaid = $paymentHistory->sum(
-            fn ($booking) => $booking->paymentRecord->sum('amount')
-        );
+        $totalAmountPaid = $paymentHistory->sum('amount');
 
         return (new DashboardIndexResource([
             'booking_status' => $bookingStatus,
@@ -68,6 +69,11 @@ class DashboardController extends Controller
             'total_amount_paid' => $totalAmountPaid
         ]))->additional([
             'message' => 'Data successfully retrieved.'
+        ]);
+
+        return response()->json([
+            'data' => $paymentHistory
+            
         ]);
     }
 }

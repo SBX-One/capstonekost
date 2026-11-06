@@ -53,14 +53,14 @@ class DashboardIndexResource extends JsonResource
                 'payments' => $this->resource['payment_history']->map(fn ($payment) => [
                     'id' => $payment->id,
                     'room' => [
-                        'id' => $payment->room->id,
-                        'name' => $payment->room->name,
+                        'id' => $payment->bookingRecord->room->id,
+                        'name' => $payment->bookingRecord->room->name,
                     ],
-                    'payments' => $payment->paymentRecord->map(fn ($record) => [
-                        'id' => $record->id,
-                        'amount' => $record->amount,
-                        'created_at' => $record->created_at,
-                    ]),
+                    'payments' => [
+                        'id' => $payment->id,
+                        'amount' => $payment->amount,
+                        'created_at' => $payment->created_at,
+                    ],
                 ]),
             ],
         ];
