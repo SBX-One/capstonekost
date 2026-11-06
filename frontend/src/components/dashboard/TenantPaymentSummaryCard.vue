@@ -103,7 +103,7 @@ const flattenedPayments = computed(() => {
     </template>
 
     <template v-else>
-        <div class="bg-neutral-100 flex flex-col items-center justify-center gap-6 h-full px-8 py-16 rounded-default">
+        <div class="bg-neutral-100 flex flex-col items-center justify-center gap-6 px-8 py-16 rounded-default">
             <div class="w-20 h-20 rounded-full bg-bg-default flex items-center justify-center">
                 <svg class="w-10 h-10 text-text-secondary" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
