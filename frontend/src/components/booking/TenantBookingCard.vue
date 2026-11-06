@@ -9,6 +9,11 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    variant: {
+        type: String,
+        default: 'default',
+        validator: val => ['default', 'dashboard'].includes(val),
+    },
 });
 
 defineEmits(['cancel', 'view-details', 'rebook']);
@@ -33,6 +38,8 @@ const formatDate = dateString => {
     }).format(date);
 };
 
+const isDashboard = computed(() => props.variant === 'dashboard');
+
 const roomInfo = computed(() => props.booking.booked_room || props.booking.room || {});
 const bookingInfo = computed(() => props.booking.booking_records || props.booking || {});
 
@@ -44,7 +51,7 @@ const roomImage = computed(() => {
     return '';
 });
 
-const roomTitle = computed(() => roomInfo.value.room_type?.name + ' Room' || 'Room');
+const roomTitle = computed(() => (roomInfo.value.room_type?.name ? roomInfo.value.room_type.name + ' Room' : 'Room'));
 const roomSubtitle = computed(() => `Room ${roomInfo.value.name || '-'} • Floor ${roomInfo.value.floor || '-'}`);
 
 const moveIn = computed(() => formatDate(bookingInfo.value.move_in));
@@ -56,8 +63,11 @@ const status = computed(() => (bookingInfo.value.status || 'pending').toLowerCas
 </script>
 
 <template>
-    <article class="w-full bg-bg-default border border-border-default rounded-default p-4 md:p-8 flex flex-col md:flex-row gap-6 transition-all">
-        <div class="w-full md:w-64 shrink-0 aspect-video md:aspect-4/3 bg-neutral-200 rounded-default overflow-hidden">
+    <article
+        class="w-full bg-bg-default rounded-default flex flex-col md:flex-row transition-all"
+        :class="isDashboard ? 'bg-surface-default px-2 py-3 gap-8' : 'p-4 md:p-8 gap-6 border border-border-default'"
+    >
+        <div class="shrink-0 bg-neutral-200 rounded-default overflow-hidden aspect-video md:aspect-4/3" :class="isDashboard ? 'w-full md:w-48' : 'w-full md:w-64'">
             <img v-if="roomImage" :src="roomImage" :alt="`Image of ${roomTitle}`" class="w-full h-full object-cover" loading="lazy" />
             <div v-else class="w-full h-full flex items-center justify-center text-text-disabled">
                 <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -71,7 +81,7 @@ const status = computed(() => (bookingInfo.value.status || 'pending').toLowerCas
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col gap-8 justify-between">
+        <div class="flex-1 flex flex-col justify-between" :class="isDashboard ? 'gap-4' : 'gap-8'">
             <header class="flex justify-between items-start gap-4">
                 <div class="flex flex-col gap-1">
                     <h3 class="text-h4 text-text-primary tracking-tight">{{ roomTitle }}</h3>
@@ -80,26 +90,37 @@ const status = computed(() => (bookingInfo.value.status || 'pending').toLowerCas
                 <RoomStatusBadge :status="status" />
             </header>
 
-            <div class="w-full bg-surface-default rounded-default px-3 py-4 grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div class="flex flex-col gap-2">
-                    <span class="text-body-sm text-text-secondary">Move-in</span>
-                    <strong class="text-h5 text-text-primary font-semibold">{{ moveIn }}</strong>
+            <div
+                class="w-full rounded-default grid gap-4 md:gap-6 min-w-0"
+                :class="isDashboard ? 'grid-cols-2 md:grid-cols-5 p-2 bg-bg-default' : 'bg-surface-default px-3 py-4 grid-cols-2 md:grid-cols-4'"
+            >
+                <div class="flex flex-col gap-2 min-w-0">
+                    <span class="text-body-sm text-text-secondary truncate">Move-in</span>
+                    <strong class="text-body-md text-text-primary font-semibold truncate">{{ moveIn }}</strong>
                 </div>
-                <div class="flex flex-col gap-2">
-                    <span class="text-body-sm text-text-secondary">Move-out</span>
-                    <strong class="text-h5 text-text-primary font-semibold">{{ moveOut }}</strong>
+
+                <div class="flex flex-col gap-2 min-w-0">
+                    <span class="text-body-sm text-text-secondary truncate">Move-out</span>
+                    <strong class="text-body-md text-text-primary font-semibold truncate">{{ moveOut }}</strong>
                 </div>
-                <div class="flex flex-col gap-2">
-                    <span class="text-body-sm text-text-secondary">Rental Duration</span>
-                    <strong class="text-h5 text-text-primary font-semibold">{{ duration }}</strong>
+
+                <div class="flex flex-col gap-2 min-w-0">
+                    <span class="text-body-sm text-text-secondary truncate">Rental Duration</span>
+                    <strong class="text-body-md text-text-primary font-semibold truncate" :title="duration">{{ duration }}</strong>
                 </div>
-                <div class="flex flex-col gap-2">
-                    <span class="text-body-sm text-text-secondary">Monthly Rent</span>
-                    <strong class="text-h5 text-text-primary font-semibold">{{ monthlyRent }}</strong>
+
+                <div class="flex flex-col gap-2 min-w-0">
+                    <span class="text-body-sm text-text-secondary truncate">Monthly Rent</span>
+                    <strong class="text-body-md text-text-primary font-semibold truncate" :title="monthlyRent">{{ monthlyRent }}</strong>
+                </div>
+
+                <div v-if="isDashboard" class="flex flex-col gap-2 min-w-0">
+                    <span class="text-body-sm text-text-secondary truncate">Total Rent</span>
+                    <strong class="text-body-md text-text-primary font-semibold truncate" :title="totalRent">{{ totalRent }}</strong>
                 </div>
             </div>
 
-            <footer class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mt-auto">
+            <footer v-if="!isDashboard" class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mt-auto">
                 <div class="flex flex-col gap-2">
                     <span class="text-h5 text-text-secondary">Total</span>
                     <strong class="text-h3 text-text-primary tracking-tight">{{ totalRent }}</strong>
