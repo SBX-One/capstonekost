@@ -18,7 +18,7 @@ class DashboardIndexResource extends JsonResource
             'metrics' => [
                 'active_room' => $this->resource['booking_status']->active,
                 'pending_room' => $this->resource['booking_status']->pending,
-                'this_month_bill' => $this->resource['this_month_bill']->map(
+                'this_month_bill' => $this->resource['this_month_bill']->sum(
                     fn ($item) => $item->roomBill->current_month_bill
                 ),
             ],

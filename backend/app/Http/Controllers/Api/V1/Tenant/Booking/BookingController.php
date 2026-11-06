@@ -82,7 +82,7 @@ class BookingController extends Controller
                 ])
                 ->first();
         }
-        
+
         return new BookingIndexResource([
             'recent_booking' => $recentBooking,
             'history_bookings' => $bookings,

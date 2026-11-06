@@ -31,6 +31,7 @@ class DashboardController extends Controller
         $thisMonthBill = BookingRecord::query()
             ->select('id')
             ->where('user_id', $userId)
+            ->where('status', 'active')
             ->with([
                 'roomBill' => fn ($q) => $q->select('id', 'booking_record_id', 'current_month_bill')
             ])
