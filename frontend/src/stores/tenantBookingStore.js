@@ -44,6 +44,17 @@ export const useTenantBookingStore = defineStore('tenantBooking', () => {
         bookingDetails.value.clear();
     }
 
+    function formatBookingPayload(formData) {
+        return {
+            move_in: formData.move_in,
+            move_out: formData.move_out,
+            rental_duration: parseInt(formData.rental_duration, 10),
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone
+        };
+    }
+
     async function fetchBookings(page, params = {}) {
         const effectivePage = parseInt(page || params.page, 10) || 1;
         const limit = parseInt(params.limit, 10) || 5;
@@ -190,6 +201,39 @@ export const useTenantBookingStore = defineStore('tenantBooking', () => {
             .filter(Boolean);
     }
 
+    async function submitBooking(roomId, bookingData) {
+        if (!roomId) {
+            error.value = 'Room ID is required to create a booking.';
+            return false;
+        }
+
+        if (isMutating.value) return false;
+
+        isMutating.value = true;
+        error.value = null;
+        validationErrors.value = {};
+
+        try {
+            const formattedPayload = formatBookingPayload(bookingData);
+
+            await apiClient.post(`/tenant/rooms/book/${roomId}`, formattedPayload);
+
+            clearCache();
+            return true;
+        } catch (err) {
+            if (err.response?.status === 409) {
+                error.value = err.response?.data?.message || 'This room is already booked for the selected dates.';
+            } else {
+                error.value = err.response?.data?.message || 'Failed to submit booking request.';
+            }
+
+            validationErrors.value = extractValidationErrors(err);
+            return false;
+        } finally {
+            isMutating.value = false;
+        }
+    }
+
     async function cancelBooking(id, cancelReason) {
         const numericId = parseInt(id, 10);
         if (!numericId || numericId <= 0) {
@@ -272,6 +316,7 @@ export const useTenantBookingStore = defineStore('tenantBooking', () => {
 
         fetchBookings,
         fetchBookingDetails,
+        submitBooking,
         cancelBooking,
         clearError,
         clearValidationErrors,

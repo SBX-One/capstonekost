@@ -37,6 +37,7 @@ export function useTenantBooking() {
 
         fetchBookings: tenantBookingStore.fetchBookings,
         fetchBookingDetails: tenantBookingStore.fetchBookingDetails,
+        submitBooking: tenantBookingStore.submitBooking,
         cancelBooking: tenantBookingStore.cancelBooking,
         clearError: tenantBookingStore.clearError,
         clearValidationErrors: tenantBookingStore.clearValidationErrors,
