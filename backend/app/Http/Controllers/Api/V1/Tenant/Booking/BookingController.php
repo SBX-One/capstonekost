@@ -69,7 +69,6 @@ class BookingController extends Controller
         if (!request()->filled('search')) {
             $recentBooking = BookingRecord::query()
                 ->where('user_id', $userId)
-                ->whereIn('status', ['active', 'pending'])
                 ->latest('created_at')
                 ->select('id', 'room_id', 'user_id', 'move_in', 'move_out', 'rental_duration', 'status', 'total', 'created_at')
                 ->with([
