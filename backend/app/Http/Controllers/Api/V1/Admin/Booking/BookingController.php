@@ -43,6 +43,7 @@ class BookingController extends Controller
                 'contact' => fn ($q) => $q->select('id', 'booking_record_id', 'name', 'phone_number', 'email'),
                 'user' => fn ($q) => $q->select('id', 'name', 'email')
             ])
+            ->orderByDesc('created_at')
             ->paginate(10);
         
         return BookingIndexResource::collection($bookingData)

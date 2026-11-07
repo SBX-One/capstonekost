@@ -45,6 +45,7 @@ class DashboardController extends Controller
                 'room.roomType' => fn ($q) => $q->select('id', 'name'),
                 'room.imagePaths' => fn ($q) => $q->select('id', 'room_id', 'image_path', 'sort_order')
             ])
+            ->orderByDesc('created_at')
             ->get();
 
         $paymentHistory = PaymentRecord::query()
@@ -56,7 +57,6 @@ class DashboardController extends Controller
             ->with([
                 'bookingRecord.room' => fn ($q) => $q->select('id', 'name')
             ])
-            ->latest()
             ->get();
 
         $totalAmountPaid = $paymentHistory->sum('amount');
@@ -69,11 +69,6 @@ class DashboardController extends Controller
             'total_amount_paid' => $totalAmountPaid
         ]))->additional([
             'message' => 'Data successfully retrieved.'
-        ]);
-
-        return response()->json([
-            'data' => $paymentHistory
-            
         ]);
     }
 }
