@@ -71,4 +71,9 @@ class PaymentController extends Controller
                     'message' => 'Data fetched.'
                 ]);
     }
+
+    public function recordPayment(RecordPaymentRequest $request) 
+    {
+        
+    }
 }
