@@ -10,6 +10,9 @@ use App\Models\BookingRecord;
 use App\Models\RoomBill;
 use App\Models\PaymentRecord;
 
+// Resource Imports
+use App\Http\Resources\Api\V1\Admin\Payment\PaymentShowListResource;
+
 class PaymentController extends Controller
 {
     public function showList()
@@ -21,6 +24,8 @@ class PaymentController extends Controller
                 'bookingRecord.room' => fn ($q) => $q->select('id', 'name'),
                 'roomBill' => fn ($q) => $q->select('id', 'payment_plan')
             ])
-            ->get();
+            ->paginate(10);
+        
+        return PaymentShowListResource::collection($paymentRecords);
     }
 }
