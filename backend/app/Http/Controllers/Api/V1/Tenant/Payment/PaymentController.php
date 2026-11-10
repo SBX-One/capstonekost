@@ -13,6 +13,7 @@ use App\Models\BookingRecord;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Tenant\Payment\PaymentShowListResource;
+use App\Http\Resources\Api\V1\Tenant\Payment\PaymentShowDetailResource;
 
 class PaymentController extends Controller
 {
@@ -57,5 +58,7 @@ class PaymentController extends Controller
             ])
             ->where('user_id', $userId)
             ->findOrFail($id);
+
+        return (new PaymentShowDetailResource($detail));
     }
 }
