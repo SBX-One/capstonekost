@@ -13,6 +13,7 @@ use App\Models\PaymentRecord;
 // Resource Imports
 use App\Http\Resources\Api\V1\Admin\Payment\PaymentShowListResource;
 use App\Http\Resources\Api\V1\Admin\Payment\PaymentShowDetailResource;
+use App\Http\Resources\Api\V1\Admin\Payment\PaymentListBookingsResource;
 
 class PaymentController extends Controller
 {
@@ -27,7 +28,10 @@ class PaymentController extends Controller
             ])
             ->paginate(10);
         
-        return PaymentShowListResource::collection($paymentRecords);
+        return PaymentShowListResource::collection($paymentRecords)
+                ->additional([
+                    'message' => 'Data fetched.'
+                ]);
     }
 
     public function showDetail(Request $request)
@@ -45,7 +49,10 @@ class PaymentController extends Controller
             ->whereIn('id', $ids)
             ->get();
 
-        return PaymentShowDetailResource::collection($paymentDetail);
+        return PaymentShowDetailResource::collection($paymentDetail)
+                ->additional([
+                    'message' => 'Data fetched.'
+                ]);
     }
 
     public function listBookings()
@@ -58,5 +65,10 @@ class PaymentController extends Controller
             ])
             ->whereIn('status', ['approved', 'active'])
             ->get();
+
+        return PaymentListBookingsResource::collection($bookings)
+                ->additional([
+                    'message' => 'Data fetched.'
+                ]);
     }
 }
