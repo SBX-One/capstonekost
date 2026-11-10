@@ -17,7 +17,7 @@ class PaymentShowDetailResource extends JsonResource
         return [
             'booking_record' => [
                 'id' => $this->resource['id'],
-                'name' => $this->resource->room['id'],
+                'name' => $this->resource->room['name'],
                 'move_in' => $this->resource['move_in'],
                 'move_out' => $this->resource['move_out'],
                 'rental_duration' => $this->resource['rental_duration'],
