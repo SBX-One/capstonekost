@@ -11,6 +11,9 @@ use App\Models\RoomBill;
 use App\Models\PaymentRecord;
 use App\Models\BookingRecord;
 
+// Resource Imports
+use App\Http\Resources\Api\V1\Tenant\Payment\PaymentShowListResource;
+
 class PaymentController extends Controller
 {
     public function showList()
@@ -34,8 +37,11 @@ class PaymentController extends Controller
                     'id', 'booking_record_id', 'amount'
                 )
             ])
+            ->withSum('paymentRecord as total_paid', 'amount')
             ->where('user_id', $userId)
             ->whereIn('status', ['approved', 'active'])
             ->paginate(10);
+
+        return PaymentShowListResource::collection($roomBills);
     }
 }

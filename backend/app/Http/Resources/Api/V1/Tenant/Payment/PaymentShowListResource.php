@@ -30,10 +30,10 @@ class PaymentShowListResource extends JsonResource
                 'total' => $this->resource['total']
             ],
             'payment_record' => [
-                'due_date' => $this->resource->room_bill['next_due_date'],
-                'status' => $this->resource->room_bill['status'],
+                'due_date' => $this->resource->roomBill['next_due_date'],
+                'status' => $this->resource->roomBill['status'],
                 'total_paid' => $this->resource['total_paid'],
-                'amount_left' => $this->resource->room_bill['amount_left']
+                'amount_left' => $this->resource->roomBill['amount_left']
             ]
         ];
     }
