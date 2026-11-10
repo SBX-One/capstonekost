@@ -18,7 +18,7 @@ return new class extends Migration
             $table->dateTime('move_in')->nullable(false);
             $table->dateTime('move_out')->nullable(false);
             $table->integer('rental_duration')->nullable(false);
-            $table->enum('status', ['pending', 'cancelled', 'rejected', 'active', 'complete'])->nullable(false)->default('pending');
+            $table->enum('status', ['pending', 'cancelled', 'rejected', 'approved', 'active', 'complete'])->nullable(false)->default('pending');
             $table->integer('total')->nullable(false);
             $table->timestamps();
             $table->softDeletes();
@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('name')->nullable(false);
             $table->string('phone_number', 20)->nullable(false);
             $table->string('email')->nullable(false);
+            $table->timestamps();
         });
     }
 

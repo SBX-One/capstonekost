@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('room_bills', function (Blueprint $table) {
             $table->id();
             $table->foreignId('booking_record_id')->constrained('booking_records')->cascadeOnDelete();
-            $table->foreignId('last_payment_id')->constrained('payment_records');
+            $table->enum('payment_plan', ['monthly', 'full']);
             $table->integer('amount_left')->nullable(false);
             $table->integer('current_month_bill')->nullable(false);
-            $table->enum('status', ['paid this month', 'fully paid', 'overdue', 'unpaid this month']);
+            $table->enum('status', ['unpaid', 'partial', 'overdue', 'paid'])->nullable(false);
             $table->dateTime('next_due_date', precision: 0);
             $table->timestamps();
         });

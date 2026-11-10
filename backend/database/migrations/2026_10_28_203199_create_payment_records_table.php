@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('payment_records', function (Blueprint $table) {
             $table->id();
             $table->foreignId('booking_record_id')->constrained('booking_records')->cascadeOnDelete();
+            $table->foreignId('room_bill_id')->constrained('room_bills')->cascadeOnDelete();
             $table->integer('amount')->nullable(false);
-            $table->enum('method', ['bank transfer', 'cash']);
+            $table->enum('method', ['transfer', 'cash']);
+            $table->text('note');
+            $table->dateTime('next_due_date', precision: 0);
             $table->timestamps();
             $table->softDeletes();
         });
