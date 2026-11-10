@@ -45,7 +45,7 @@ class PaymentController extends Controller
         return PaymentShowListResource::collection($roomBills);
     }
 
-    public function showDetail(Request $request, string $id)
+    public function showDetail(string $id)
     {
         $userId = Auth::id();
 
@@ -56,7 +56,6 @@ class PaymentController extends Controller
                 'roomBill' => fn ($q) => $q->select('id', 'booking_record_id', 'payment_plan', 'status')
             ])
             ->where('user_id', $userId)
-            ->where('id', $id)
-            ->findOrFail();
+            ->findOrFail($id);
     }
 }
