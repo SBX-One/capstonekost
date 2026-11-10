@@ -20,6 +20,12 @@ class PaymentController extends Controller
         $roomBills = BookingRecord::query()
             ->select('id', 'room_id', 'user_id', 'move_in', 'move_out', 'total', 'status')
             ->with([
+                'room' => fn ($q) => $q->select(
+                    'id', 'name', 'room_type_id'
+                ),
+                'room.roomType' => fn ($q) => $q->select(
+                    'id', 'name'
+                ),
                 'roomBill' => fn ($q) => $q->select(
                     'id', 'booking_record_id', 'payment_plan', 
                     'amount_left', 'status', 'next_due_date'
