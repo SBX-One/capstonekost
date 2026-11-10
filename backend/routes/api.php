@@ -60,7 +60,8 @@ Route::middleware('auth:api')->group(function () {
                 ->name('payments.')->group(function () {
                     Route::get('/', [AdminPaymentController::class, 'showList'])->name('list');
                     Route::get('/detail', [AdminPaymentController::class, 'showDetail'])->name('list');
-                    Route::patch('/confirm', [AdminPaymentController::class, 'confirmPlan']);
+                    Route::get('/record', [TenantPaymentController::class, 'listBookings']);
+                    Route::post('/record', [TenantPaymentController::class, 'recordPayment']);
                 });
     });
 
@@ -79,8 +80,7 @@ Route::middleware('auth:api')->group(function () {
                 ->name('payments.')->group(function () {
                     Route::get('/', [TenantPaymentController::class, 'showList'])->name('list');
                     Route::get('/detail/{id}', [TenantPaymentController::class, 'showDetail'])->name('list');
-                    Route::get('/record', [TenantPaymentController::class, 'listBookings']);
-                    Route::post('/record', [TenantPaymentController::class, 'recordPayment']);
+                    Route::patch('/confirm', [AdminPaymentController::class, 'confirmPlan']);
                 });
         });
 }); 
