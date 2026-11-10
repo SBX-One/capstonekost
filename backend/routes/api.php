@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\Tenant\Booking\BookingController as TenantBookin
 use App\Http\Controllers\Api\V1\Admin\Booking\BookingController as AdminBookingController;
 use App\Http\Controllers\Api\V1\Admin\Dashboard\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Api\V1\Tenant\Dashboard\DashboardController as TenantDashboardController;
+use App\Http\Controllers\Api\V1\Tenant\Payment\PaymentController as TenantPaymentController;
 
 
 Route::post('/register', [AuthController::class, 'register'])->name('register');
