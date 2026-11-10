@@ -28,4 +28,22 @@ class PaymentController extends Controller
         
         return PaymentShowListResource::collection($paymentRecords);
     }
+
+    public function showDetail(Request $request)
+    {
+        $ids = $request->input('id');
+
+        $paymentDetail = PaymentRecord::query()
+            ->select('id', 'booking_record_id', 'room_bill_id', 'amount', 'method', 'payment_date', 'note')
+            ->with([
+                'bookingRecord' => fn ($q) => $q->select('id', 'room_id', 'move_in', 'move_out'),
+                'bookingRecord.room' => fn ($q) => $q->select('id', 'room_type_id', 'name'),
+                'bookingRecord.room.roomType' => fn ($q) => $q->select('id', 'name'),
+                'roomBill' => fn ($q) => $q->select('id', 'payment_plan')
+            ])
+            ->whereIn('id', $ids)
+            ->get();
+
+        
+    }
 }

@@ -59,7 +59,7 @@ Route::middleware('auth:api')->group(function () {
             Route::prefix('/payments')
                 ->name('payments.')->group(function () {
                     Route::get('/', [AdminPaymentController::class, 'showList'])->name('list');
-                    Route::get('/detail/{id}', [AdminPaymentController::class, 'showDetail'])->name('list');
+                    Route::get('/detail', [AdminPaymentController::class, 'showDetail'])->name('list');
                 });
     });
 
