@@ -64,5 +64,12 @@ Route::middleware('auth:api')->group(function () {
             Route::post('/rooms/book/{id}', [TenantBookingController::class, 'book'])->name('book');
             Route::post('/rooms/book/cancel/{id}', [TenantBookingController::class, 'cancel'])->name('cancel');
             Route::get('/dashboard', [TenantDashboardController::class, 'index'])->name('dashboard');
+
+            // =-=-=-=-=-=-=-=-= PAYMENTS =-=-=-=-=-=-=-=-=
+            Route::prefix('/payments')
+                ->name('payments.')->group(function () {
+                    Route::get('/', [TenantPaymentController::class, 'showList'])->name('list');
+                    Route::get('/detail/{id}', [TenantPaymentController::class, 'showDetail'])->name('list');
+                });
         });
 }); 
