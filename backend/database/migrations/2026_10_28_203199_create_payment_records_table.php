@@ -18,7 +18,6 @@ return new class extends Migration
             $table->integer('amount')->nullable(false);
             $table->enum('method', ['transfer', 'cash']);
             $table->text('note');
-            $table->dateTime('next_due_date', precision: 0);
             $table->timestamps();
             $table->softDeletes();
         });
