@@ -74,6 +74,6 @@ class PaymentController extends Controller
 
     public function recordPayment(RecordPaymentRequest $request) 
     {
-        
+
     }
 }
