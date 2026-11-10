@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 
-#[Fillable(['booking_record_id', 'room_bill_id', 'amount', 'method', 'note', 'next_due_date'])]
+#[Fillable(['booking_record_id', 'room_bill_id', 'amount', 'method', 'note'])]
 class PaymentRecord extends Model
 {
     public function bookingRecord(): BelongsTo
