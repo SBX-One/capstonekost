@@ -47,4 +47,16 @@ class PaymentController extends Controller
 
         return PaymentShowDetailResource::collection($paymentDetail);
     }
+
+    public function listBookings()
+    {
+        $bookings = BookingRecord::query()
+            ->select('id', 'room_id', 'status')
+            ->with([
+                'room' => fn ($q) => $q->select('id', 'name'),
+                'contact' => fn ($q) => $q->select('id', 'booking_record_id', 'name'),
+            ])
+            ->whereIn('status', ['approved', 'active'])
+            ->get();
+    }
 }
