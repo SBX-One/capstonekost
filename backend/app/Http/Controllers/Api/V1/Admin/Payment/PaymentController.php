@@ -12,6 +12,7 @@ use App\Models\PaymentRecord;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Admin\Payment\PaymentShowListResource;
+use App\Http\Resources\Api\V1\Admin\Payment\PaymentShowDetailResource;
 
 class PaymentController extends Controller
 {
@@ -44,6 +45,6 @@ class PaymentController extends Controller
             ->whereIn('id', $ids)
             ->get();
 
-        
+        return PaymentShowDetailResource::collection($paymentDetail);
     }
 }
