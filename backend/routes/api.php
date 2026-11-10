@@ -40,7 +40,7 @@ Route::middleware('auth:api')->group(function () {
             Route::prefix('/rooms')
                 ->name('rooms.')->group(function () {
                     Route::get('/', [AdminRoomController::class, 'index'])->name('index');
-                    Route::geT('/detail/{id}', [AdminRoomController::class, 'detail'])->name('detail');
+                    Route::get('/detail/{id}', [AdminRoomController::class, 'detail'])->name('detail');
                     Route::get('/{id}', [AdminRoomController::class, 'show'])->name('show');
                     Route::post('/bookings/reject', [AdminBookingController::class, 'reject'])->name('reject');
                     Route::post('/bookings/approve', [AdminBookingController::class, 'approve'])->name('approve');
@@ -53,6 +53,13 @@ Route::middleware('auth:api')->group(function () {
                 });
             
             Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+            // =-=-=-=-=-=-=-=-= PAYMENTS =-=-=-=-=-=-=-=-=
+            Route::prefix('/payments')
+                ->name('payments.')->group(function () {
+                    Route::get('/', [AdminPaymentController::class, 'showList'])->name('list');
+                    Route::get('/detail/{id}', [AdminPaymentController::class, 'showDetail'])->name('list');
+                });
     });
 
     Route::prefix('/tenant')
