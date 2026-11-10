@@ -44,4 +44,19 @@ class PaymentController extends Controller
 
         return PaymentShowListResource::collection($roomBills);
     }
+
+    public function showDetail(Request $request, string $id)
+    {
+        $userId = Auth::id();
+
+        $detail = BookingRecord::query()
+            ->select('id', 'room_id', 'user_id', 'move_in', 'move_out', 'rental_duration', 'status', 'total')
+            ->with([
+                'room' => fn ($q) => $q->select('id', 'name'),
+                'roomBill' => fn ($q) => $q->select('id', 'booking_record_id', 'payment_plan', 'status')
+            ])
+            ->where('user_id', $userId)
+            ->where('id', $id)
+            ->findOrFail();
+    }
 }
