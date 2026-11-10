@@ -18,7 +18,7 @@ class PaymentController extends Controller
     public function showList()
     {
         $paymentRecords = PaymentRecord::query()
-            ->select('id', 'booking_record_id', 'room_bill_id', 'amount', 'method')
+            ->select('id', 'booking_record_id', 'room_bill_id', 'amount', 'method', 'payment_date')
             ->with([
                 'bookingRecord' => fn ($q) => $q->select('id', 'room_id', 'move_in', 'move_out'),
                 'bookingRecord.room' => fn ($q) => $q->select('id', 'name'),
