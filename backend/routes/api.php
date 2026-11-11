@@ -73,7 +73,7 @@ Route::middleware('auth:api')->group(function () {
                     Route::get('/detail', [AdminPaymentController::class, 'showDetail'])->name('list');
                     Route::get('/record', [AdminPaymentController::class, 'listBookings']);
                     Route::post('/record', [AdminPaymentController::class, 'recordPayment']);
-                    Route::get('/export', [AdminPaymentController::class, 'export'])
+                    Route::get('/export', [AdminPaymentController::class, 'export']);
                 });
     });
 
