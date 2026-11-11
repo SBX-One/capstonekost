@@ -46,6 +46,7 @@ Route::middleware('auth:api')->group(function () {
                     Route::get('/', [AdminRoomController::class, 'index'])->name('index');
                     Route::get('/detail/{id}', [AdminRoomController::class, 'detail'])->name('detail');
                     Route::get('/{id}', [AdminRoomController::class, 'show'])->name('show');
+                    Route::get('/export', [AdminRoomController::class, 'export']);
 
                     // =-=-=-=-=-=-=-=-= BOOKINGS =-=-=-=-=-=-=-=-=
                     Route::post('/bookings/reject', [AdminBookingController::class, 'reject'])->name('reject');
@@ -60,6 +61,7 @@ Route::middleware('auth:api')->group(function () {
                     // =-=-=-=-=-=-=-=-= BOOKINGS =-=-=-=-=-=-=-=-=
                     Route::get('/', [AdminBookingController::class, 'index'])->name('index');
                     Route::get('/detail', [AdminBookingController::class, 'show'])->name('show');
+                    Route::get('/export', [AdminPaymentController::class, 'export']);
                 });
             
             Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -71,6 +73,7 @@ Route::middleware('auth:api')->group(function () {
                     Route::get('/detail', [AdminPaymentController::class, 'showDetail'])->name('list');
                     Route::get('/record', [AdminPaymentController::class, 'listBookings']);
                     Route::post('/record', [AdminPaymentController::class, 'recordPayment']);
+                    Route::get('/export', [AdminPaymentController::class, 'export'])
                 });
     });
 
@@ -91,5 +94,6 @@ Route::middleware('auth:api')->group(function () {
                     Route::get('/detail/{id}', [TenantPaymentController::class, 'showDetail'])->name('list');
                     Route::patch('/confirm', [TenantPaymentController::class, 'confirmPlan']);
                 });
+
         });
 }); 
