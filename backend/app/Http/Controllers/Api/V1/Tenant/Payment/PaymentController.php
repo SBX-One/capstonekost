@@ -15,6 +15,9 @@ use App\Models\BookingRecord;
 use App\Http\Resources\Api\V1\Tenant\Payment\PaymentShowListResource;
 use App\Http\Resources\Api\V1\Tenant\Payment\PaymentShowDetailResource;
 
+// Request Imports
+use App\Http\Requests\Api\V1\Tenant\Payment\PaymentConfirmPlanRequest;
+
 class PaymentController extends Controller
 {
     public function showList()
