@@ -61,7 +61,7 @@ Route::middleware('auth:api')->group(function () {
                     // =-=-=-=-=-=-=-=-= BOOKINGS =-=-=-=-=-=-=-=-=
                     Route::get('/', [AdminBookingController::class, 'index'])->name('index');
                     Route::get('/detail', [AdminBookingController::class, 'show'])->name('show');
-                    Route::get('/export', [AdminPaymentController::class, 'export']);
+                    Route::get('/export', [AdminBookingController::class, 'export']);
                 });
             
             Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
