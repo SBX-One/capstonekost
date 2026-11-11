@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 // Model Imports
 use App\Models\BookingRecord;
 use App\Models\BookingReject;
+use App\Models\RoomBill;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Admin\Booking\BookingIndexResource;
@@ -117,25 +118,43 @@ class BookingController extends Controller
 
     public function approve(BookingApproveRequest $request) 
     {
-        $id = $request->validated('id');
+        $ids = $request->validated('id');
 
-        $bookings = BookingRecord::whereIn('id', $id)->get();
+        $bookings = BookingRecord::query()
+            ->select('id', 'room_id', 'status', 'total')
+            ->with([
+                'room' => fn ($q) => $q->select('id', 'price')
+            ])
+            ->whereIn('id', $ids)
+            ->get();
 
         foreach ($bookings as $booking) {
             if ($booking->status === 'approved') {
                 throw new \Exception(
-                    "Booking ID {$booking->id} is already approved."
+                    "Booking ID {$booking->ids} is already approved."
                 );
             } elseif ($booking->status !== 'pending') {
                 throw new \Exception(
-                    "Booking ID {$booking->id} cannot be approved because its status is '{$booking->status}'. Only pending status bookings can be approved."
+                    "Booking ID {$booking->ids} cannot be approved because its status is '{$booking->status}'. Only pending status bookings can be approved."
                 );
             }
         }
 
-        $bookings = BookingRecord::whereIn('id', $id)->update([
-            'status' => 'approved'
-        ]);
+        DB::transaction(function () use ($bookings) {
+            foreach ($bookings as $booking) {
+                $booking->update([
+                    'status' => 'approved'
+                ]);
+
+                RoomBill::create([
+                    'booking_record_id' => $booking->id,
+                    'amount_left' => $booking->total,
+                    'current_month_bill' => $booking->room->price,
+                    'status' => 'unpaid',
+                    'next_due_date' => now()->addDay()->toDateString(),
+                ]);
+            }
+        });
 
         return (new BookingApproveResource($bookings))
                 ->response()
