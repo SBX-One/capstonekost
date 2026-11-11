@@ -36,6 +36,7 @@ Route::middleware('auth:api')->group(function () {
             // =-=-=-=-=-=-=-=-= ROOMS =-=-=-=-=-=-=-=-=
             Route::post('/create', [AdminRoomController::class, 'create'])->name('create');
             Route::get('/rooms', [AdminRoomController::class, 'index'])->name('index');
+            Route::get('/rooms/export', [AdminRoomController::class, 'export']);
             Route::get('/rooms/{id}', [AdminRoomController::class, 'show'])->name('show');
             Route::patch('/update/{id}', [AdminRoomController::class, 'update'])->name('update');
             Route::delete('/delete', [AdminRoomController::class, 'delete'])->name('delete');
@@ -46,7 +47,6 @@ Route::middleware('auth:api')->group(function () {
                     Route::get('/', [AdminRoomController::class, 'index'])->name('index');
                     Route::get('/detail/{id}', [AdminRoomController::class, 'detail'])->name('detail');
                     Route::get('/{id}', [AdminRoomController::class, 'show'])->name('show');
-                    Route::get('/export', [AdminRoomController::class, 'export']);
 
                     // =-=-=-=-=-=-=-=-= BOOKINGS =-=-=-=-=-=-=-=-=
                     Route::post('/bookings/reject', [AdminBookingController::class, 'reject'])->name('reject');

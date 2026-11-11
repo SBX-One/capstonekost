@@ -20,6 +20,7 @@ use App\Http\Requests\Api\V1\Admin\Room\RoomCreateRequest;
 use App\Http\Requests\Api\V1\Admin\Room\RoomIndexRequest;
 use App\Http\Requests\Api\V1\Admin\Room\RoomUpdateRequest;
 use App\Http\Requests\Api\V1\Admin\Room\RoomDeleteRequest;
+use App\Http\Requests\Api\V1\Admin\Room\RoomExportRequest;
 
 // Model Imports
 use App\Models\Room;
@@ -261,5 +262,80 @@ class RoomController extends Controller
             ->findOrFail($id);
 
         return (new RoomShowDetailResource($room));
+    }
+
+    public function export(RoomExportRequest $request)
+    {
+        $payload = $request->validated();
+
+        $rooms = Room::query()
+            ->select('id', 'name', 'room_type_id', 'price', 'floor', 'status', 'overview', 'description', 'rules')
+            ->with([
+                'facilities' => fn ($q) => $q->select('facilities.id', 'facilities.name', 'facilities.information'),
+                'utilities' => fn ($q) => $q->select('utilities.id', 'utilities.name', 'utilities.information'),
+                'roomType' => fn ($q) => $q->select('id', 'name')
+            ])
+            ->when(isset($payload['room_status']), function ($q) use ($payload) {
+                $q->where('status', $payload['room_status']);
+            })
+            ->when(isset($payload['room_type']), function ($q) use ($payload) {
+                $q->where('room_type_id', $payload['room_type']);
+            })
+            ->when(isset($payload['floors']), function ($q) use ($payload) {
+                $q->where('floor', $payload['floors']);
+            });
+
+        if (!$rooms->exists()) {
+            abort(404, 'No rooms found for the selected filters.');
+        }
+            
+        return response()->streamDownload(function () use ($rooms) {
+
+            $handle = fopen('php://output', 'w');
+
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, [
+                'ID',
+                'Name',
+                'Type',
+                'Floor',
+                'Price',
+                'Status',
+                'Overview',
+                'Description',
+                'Rules',
+                'Utilities',
+                'Facilities',
+            ]);
+
+            $rooms->chunkById(500, function ($records) use ($handle) {
+
+                foreach ($records as $room) {
+
+                    fputcsv($handle, [
+                        $room->id,
+                        $room->name,
+                        $room->roomType?->name,
+                        $room->floor,
+                        $room->price,
+                        $room->status,
+                        $room->overview,
+                        $room->description,
+                        $room->rules,
+
+                        $room->utilities->pluck('name')->implode(', '),
+                        $room->facilities->pluck('name')->implode(', '),
+                    ]);
+
+                }
+
+            });
+
+            fclose($handle);
+
+        }, 'rooms-export-' . now()->format('Y-m-d-H-i-s') . '.csv', [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 }
