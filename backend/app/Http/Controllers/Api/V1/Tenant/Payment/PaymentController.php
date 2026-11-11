@@ -67,6 +67,26 @@ class PaymentController extends Controller
 
     public function confirmPlan(PaymentConfirmPlanRequest $request)
     {
-        
+         $userId = Auth::id();
+         $payload = $request->validated();
+
+         $roomBill = RoomBill::query()
+            ->select('id', 'booking_record_id', 'payment_plan')
+            ->with([
+                'bookingRecord' => fn ($q) => $q->select('id', 'user_id')
+            ])
+            ->whereNull('payment_plan')
+            ->whereHas('bookingRecord', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
+            ->findOrFail($payload['billing_id']);
+
+        $roomBill->update([
+            'payment_plan' => $payload['plan'],
+        ]);
+
+        return response()->json([
+            'message' => 'Payment plan successfully updated.',
+        ]);
     }
 }

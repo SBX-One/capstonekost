@@ -23,7 +23,7 @@ class PaymentConfirmPlanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'payments_id' => [
+            'billing_id' => [
                 'required',
                 'integer',
                 'exists:room_bills,id',
@@ -39,9 +39,9 @@ class PaymentConfirmPlanRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'payments_id.required' => 'Payment ID is required.',
-            'payments_id.integer' => 'Payment ID must be an integer.',
-            'payments_id.exists' => 'The selected room bill record does not exist.',
+            'billing_id.required' => 'Payment ID is required.',
+            'billing_id.integer' => 'Payment ID must be an integer.',
+            'billing_id.exists' => 'The selected room bill record does not exist.',
 
             'plan.required' => 'Payment plan is required.',
             'plan.string' => 'Payment plan must be a string.',
