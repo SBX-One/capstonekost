@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 
-#[Fillable(['name', 'information'])]
+#[Fillable(['name', 'information', 'icon_name'])]
 class Facility extends Model
 {
     use HasFactory;
