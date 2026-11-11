@@ -12,7 +12,7 @@ class RecordPaymentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -26,7 +26,6 @@ public function rules(): array
         'bookings_id' => [
             'required',
             'integer',
-            'exists:booking_records,id',
         ],
         'payment_date' => [
             'required',
@@ -56,7 +55,6 @@ public function messages(): array
     return [
         'bookings_id.required' => 'Booking ID is required.',
         'bookings_id.integer' => 'Booking ID must be an integer.',
-        'bookings_id.exists' => 'The selected booking does not exist.',
 
         'payment_date.required' => 'Payment date is required.',
         'payment_date.date' => 'Payment date must be a valid date.',
