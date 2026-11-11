@@ -32,6 +32,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('/admin')
         ->middleware('role:admin')
         ->name('admin.')->group(function () {
+            // =-=-=-=-=-=-=-=-= ROOMS =-=-=-=-=-=-=-=-=
             Route::post('/create', [AdminRoomController::class, 'create'])->name('create');
             Route::get('/rooms', [AdminRoomController::class, 'index'])->name('index');
             Route::get('/rooms/{id}', [AdminRoomController::class, 'show'])->name('show');
@@ -40,15 +41,22 @@ Route::middleware('auth:api')->group(function () {
 
             Route::prefix('/rooms')
                 ->name('rooms.')->group(function () {
+                    // =-=-=-=-=-=-=-=-= ROOMS =-=-=-=-=-=-=-=-=
                     Route::get('/', [AdminRoomController::class, 'index'])->name('index');
                     Route::get('/detail/{id}', [AdminRoomController::class, 'detail'])->name('detail');
                     Route::get('/{id}', [AdminRoomController::class, 'show'])->name('show');
+
+                    // =-=-=-=-=-=-=-=-= BOOKINGS =-=-=-=-=-=-=-=-=
                     Route::post('/bookings/reject', [AdminBookingController::class, 'reject'])->name('reject');
                     Route::post('/bookings/approve', [AdminBookingController::class, 'approve'])->name('approve');
+
+                    // =-=-=-=-=-=-=-=-= FACILITY =-=-=-=-=-=-=-=-=
+                    Route::post('/facilities/add', [FacilityController::class, 'add']);
                 });
 
             Route::prefix('/bookings')
                 ->name('bookings.')->group(function () {
+                    // =-=-=-=-=-=-=-=-= BOOKINGS =-=-=-=-=-=-=-=-=
                     Route::get('/', [AdminBookingController::class, 'index'])->name('index');
                     Route::get('/detail', [AdminBookingController::class, 'show'])->name('show');
                 });
