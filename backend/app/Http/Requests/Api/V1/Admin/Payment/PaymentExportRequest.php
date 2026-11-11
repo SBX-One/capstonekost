@@ -26,7 +26,7 @@ class PaymentExportRequest extends FormRequest
             'start_date' => ['required', 'required_with:end_date', 'date', 'date_format:Y-m-d'],
             'end_date' => ['required', 'required_with:start_date', 'date', 'date_format:Y-m-d'],
             'status' => ['nullable', 'string', 'in:unpaid,partially paid,paid'],
-            'rooms' => ['nullable', 'integer', 'exists:rooms,id'],
+            'room_id' => ['nullable', 'integer', 'exists:rooms,id'],
         ];
     }
 
@@ -46,8 +46,8 @@ class PaymentExportRequest extends FormRequest
             'status.string' => 'Status must be a string.',
             'status.in' => 'Status must be unpaid, partially paid, or paid.',
 
-            'rooms.integer' => 'Room ID must be an integer.',
-            'rooms.exists' => 'The selected room does not exist.',
+            'room_id.integer' => 'Room ID must be an integer.',
+            'room_id.exists' => 'The selected room does not exist.',
         ];
     }
 }

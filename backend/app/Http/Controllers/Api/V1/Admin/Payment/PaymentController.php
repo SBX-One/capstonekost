@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\BookingRecord;
 use App\Models\RoomBill;
 use App\Models\PaymentRecord;
+use App\Models\Room;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Admin\Payment\PaymentShowListResource;
@@ -18,7 +19,8 @@ use App\Http\Resources\Api\V1\Admin\Payment\PaymentListBookingsResource;
 
 // Request Imports
 use App\Http\Requests\Api\V1\Admin\Payment\RecordPaymentRequest;
-use App\Models\Room;
+use App\Http\Requests\Api\V1\Admin\Payment\PaymentExportRequest;
+
 // Exception Imports
 use Illuminate\Validation\ValidationException;
 
@@ -164,6 +166,69 @@ class PaymentController extends Controller
 
         return response()->json([
             'message' => "Payment Record Created."
+        ]);
+    }
+
+    public function export(PaymentExportRequest $request)
+    {
+        $payload = $request->validated();
+
+        $payments = RoomBill::query()
+            ->select('id', 'booking_record_id', 'payment_plan', 'amount_left', 'current_month_bill', 'status', 'created_at')
+            ->with([
+                'bookingRecord' => fn ($q) => $q->select('id', 'room_id', 'total'),
+                'bookingRecord.room' => fn ($q) => $q->select('id', 'name'),
+                'latestPaymentRecord' => fn ($q) => $q->select('id', 'room_bill_id', 'amount', 'payment_date')
+            ])
+            ->withSum('paymentRecord as total_paid', 'amount')
+            ->whereDate('created_at', '>=', $payload['start_date'])
+            ->whereDate('created_at', '<=', $payload['end_date'])
+            ->when(isset($payload['status']), function ($q) use ($payload) {
+                $q->where('status', $payload['status']);
+            })
+            ->when(isset($payload['room_id']), function ($q) use ($payload) {
+                $q->whereRelation('bookingRecord', 'room_id', $payload['room_id']);
+            });
+
+        if (!$payments->exists()) {
+            abort(404, 'No bookings found for the selected filters.');
+        }
+
+        return response()->streamDownload(function () use ($payments) {
+
+            $handle = fopen('php://output', 'w');
+
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, [
+                'ID', 'Booking Record ID', 'Room', 'Amount Paid',
+                'Amount Left', 'Current Month Bill', 'Payment Plan',
+                'Status', 'Last Payment Date', 'Total Booking',
+            ]);
+
+            $payments->chunkById(500, function ($records) use ($handle) {
+
+                foreach ($records as $payment) {
+                    fputcsv($handle, [
+                        $payment->id,
+                        $payment->booking_record_id,
+                        $payment->bookingRecord?->room?->name,
+                        $payment->total_paid ?? 0,
+                        $payment->amount_left,
+                        $payment->current_month_bill,
+                        $payment->payment_plan,
+                        $payment->status,
+                        $payment->latestPaymentRecord?->payment_date,
+                        $payment->bookingRecord?->total,
+                    ]);
+                }
+
+            });
+
+            fclose($handle);
+
+        }, 'payments-export-' . now()->format('Y-m-d-H-i-s') . '.csv', [
+            'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
 }

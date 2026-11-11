@@ -19,4 +19,10 @@ class RoomBill extends Model
     {
         return $this->hasMany(PaymentRecord::class, 'room_bill_id');
     }
+
+    public function latestPaymentRecord()
+    {
+        return $this->hasOne(PaymentRecord::class)
+            ->orderByDesc('payment_date');
+    }
 }

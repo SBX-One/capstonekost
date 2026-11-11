@@ -195,10 +195,8 @@ class BookingController extends Controller
 
             $handle = fopen('php://output', 'w');
 
-            // UTF-8 BOM for Excel compatibility
             fwrite($handle, "\xEF\xBB\xBF");
 
-            // CSV headers
             fputcsv($handle, [
                 'Booking ID',
                 'Room',
@@ -212,7 +210,6 @@ class BookingController extends Controller
                 'Booking Phone',
             ]);
 
-            // Process bookings in chunks
             $bookings->chunkById(500, function ($records) use ($handle) {
 
                 foreach ($records as $booking) {
