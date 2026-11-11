@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\Admin\Dashboard\DashboardController as AdminDash
 use App\Http\Controllers\Api\V1\Tenant\Dashboard\DashboardController as TenantDashboardController;
 use App\Http\Controllers\Api\V1\Tenant\Payment\PaymentController as TenantPaymentController;
 use App\Http\Controllers\Api\V1\Admin\Payment\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Api\V1\Admin\Facility\FacilityController;
 
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
