@@ -21,6 +21,7 @@ use App\Http\Resources\Api\V1\Admin\Booking\BookingShowResource;
 use App\Http\Requests\Api\V1\Admin\Booking\BookingIndexRequest;
 use App\Http\Requests\Api\V1\Admin\Booking\BookingRejectRequest;
 use App\Http\Requests\Api\V1\Admin\Booking\BookingApproveRequest;
+use App\Http\Requests\Api\V1\Admin\Booking\BookingExportRequest;
 use App\Http\Requests\Api\V1\Admin\Booking\BookingShowDetailRequest;
 
 class BookingController extends Controller
@@ -159,5 +160,82 @@ class BookingController extends Controller
         return (new BookingApproveResource($bookings))
                 ->response()
                 ->setStatusCode(200);
+    }
+
+    public function export(BookingExportRequest $request) 
+    {
+        $payload = $request->validated();
+
+        $bookings = BookingRecord::query()
+            ->select(
+                'id', 'room_id', 'user_id', 'move_in', 
+                'move_out', 'rental_duration', 'status', 
+                'total', 'created_at'
+            )
+            ->with([
+                'room' => fn ($q) => $q->select('id', 'name'),
+                'user' => fn ($q) => $q->select('id', 'name'),
+                'contact' => fn ($q) => $q->select('id', 'booking_record_id', 'name', 'email', 'phone_number')
+            ])
+            ->whereDate('created_at', '>=', $payload['start_date'])
+            ->whereDate('created_at', '<=', $payload['end_date'])
+            ->when(isset($payload['status']), function ($q) use ($payload) {
+                $q->where('status', $payload['status']);
+            })
+            ->when(isset($payload['rooms']), function ($q) use ($payload) {
+                $q->where('room_id', $payload['rooms']);
+            })
+            ->orderBy('id');
+
+        if (!$bookings->exists()) {
+            abort(404, 'No bookings found for the selected filters.');
+        }
+
+        return response()->streamDownload(function () use ($bookings) {
+
+            $handle = fopen('php://output', 'w');
+
+            // UTF-8 BOM for Excel compatibility
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            // CSV headers
+            fputcsv($handle, [
+                'Booking ID',
+                'Room',
+                'User',
+                'Move In',
+                'Move Out',
+                'Total',
+                'Status',
+                'Booking Name',
+                'Booking Email',
+                'Booking Phone',
+            ]);
+
+            // Process bookings in chunks
+            $bookings->chunkById(500, function ($records) use ($handle) {
+
+                foreach ($records as $booking) {
+                    fputcsv($handle, [
+                        $booking->id,
+                        $booking->room?->name,
+                        $booking->user?->name,
+                        $booking->move_in,
+                        $booking->move_out,
+                        $booking->total,
+                        $booking->status,
+                        $booking->contact->name,
+                        $booking->contact->email,
+                        $booking->contact->phone
+                    ]);
+                }
+
+            });
+
+            fclose($handle);
+
+        }, 'bookings-export-' . now()->format('Y-m-d-H-i-s') . '.csv', [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 }
