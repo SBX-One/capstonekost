@@ -69,8 +69,12 @@ class PaymentController extends Controller
             ->with([
                 'room' => fn ($q) => $q->select('id', 'name'),
                 'contact' => fn ($q) => $q->select('id', 'booking_record_id', 'name'),
+                'roomBill' => fn ($q) => $q->select('id', 'booking_record_id', 'payment_plan')
             ])
             ->whereIn('status', ['approved', 'active'])
+            ->whereHas('roomBill', function ($q) {
+                $q->whereIn('payment_plan', ['monthly', 'full']);
+            })
             ->get();
 
         return PaymentListBookingsResource::collection($bookings)
