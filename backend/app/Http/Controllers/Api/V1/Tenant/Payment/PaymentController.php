@@ -61,4 +61,9 @@ class PaymentController extends Controller
 
         return (new PaymentShowDetailResource($detail));
     }
+
+    public function confirmPlan(PaymentConfirmPlanRequest $request)
+    {
+        
+    }
 }
