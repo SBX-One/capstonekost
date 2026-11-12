@@ -75,6 +75,15 @@ Route::middleware('auth:api')->group(function () {
                     Route::post('/record', [AdminPaymentController::class, 'recordPayment']);
                     Route::get('/export', [AdminPaymentController::class, 'export']);
                 });
+
+            // =-=-=-=-=-=-=-=-= ISSUES =-=-=-=-=-=-=-=-=
+            Route::prefix('/issues')
+                ->name('payments.')->group(function () {
+                    Route::get('/', [AdminIssueController::class, 'showList']);
+                    Route::get('/detail', [AdminIssueController::class, 'showDetail']);
+                    Route::post('/handle', [AdminIssueController::class, 'issueHandle']);
+                    Route::patch('/resolve', [AdminIssueController::class, 'issueResolve']);
+                });
     });
 
     Route::prefix('/tenant')
@@ -95,5 +104,13 @@ Route::middleware('auth:api')->group(function () {
                     Route::patch('/confirm', [TenantPaymentController::class, 'confirmPlan']);
                 });
 
+            // =-=-=-=-=-=-=-=-= ISSUES =-=-=-=-=-=-=-=-=
+            Route::prefix('/issues')
+                ->name('issues.')->group(function () {
+                    Route::get('/', [TenantIssueController::class, 'showList']);
+                    Route::get('/detail', [TenantIssueController::class, 'showDetail']);
+                    Route::get('/form', [TenantIssueController::class, 'fetchActiveRooms']);
+                    Route::post('/', [TenantIssueController::class, 'issueReport']);
+                });
         });
 }); 
