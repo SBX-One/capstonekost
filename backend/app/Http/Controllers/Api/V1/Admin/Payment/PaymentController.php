@@ -35,6 +35,7 @@ class PaymentController extends Controller
                 'bookingRecord.room' => fn ($q) => $q->select('id', 'name'),
                 'roomBill' => fn ($q) => $q->select('id', 'payment_plan')
             ])
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
         
         return PaymentShowListResource::collection($paymentRecords)

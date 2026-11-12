@@ -52,6 +52,7 @@ class PaymentController extends Controller
             })
             ->where('user_id', $userId)
             ->whereIn('status', ['approved', 'active'])
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
 
         return PaymentShowListResource::collection($roomBills);
