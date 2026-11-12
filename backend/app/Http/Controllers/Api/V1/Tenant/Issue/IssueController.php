@@ -28,4 +28,9 @@ class IssueController extends Controller
 
         return FetchActiveRoomsResource::collection($rooms);
     }
+
+    public function issueReport(IssueReportRequest $request) 
+    {
+        
+    }
 }
