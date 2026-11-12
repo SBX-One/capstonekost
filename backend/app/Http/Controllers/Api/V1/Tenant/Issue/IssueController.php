@@ -115,6 +115,28 @@ class IssueController extends Controller
 
     public function showDetail(IssueShowDetailRequest $request)
     {
+        $payload = $request->validated();
+        $userId = Auth::id();
 
+        $issues = Issue::query()
+            ->select('id', 'location_name', 'created_at', 'description', 'status')
+            ->with([
+                'imagePaths' => fn ($q) => $q->select('id', 'image_path', 'sort_order'),
+                'response' => fn ($q) => $q->select('id', 'issue_id', 'response'),
+                'response.imagePaths' => fn ($q) => $q->select('id', 'image_path', 'sort_order')
+            ])
+            ->where('user_id', $userId)
+            ->whereIn('id', $payload['id'])
+            ->get();
+
+        if ($issues->isEmpty()) {
+            return response()->json([
+                'message' => 'No matching issues found.'
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => $issues
+        ]);
     }
 }

@@ -25,8 +25,11 @@ class IssueShowDetailRequest extends FormRequest
         return [
             'id' => [
                 'required',
-                'int',
-                'exist:issues,id'
+                'array',
+                'exists:issues,id'
+            ],
+            'id.*' => [
+                'int'
             ]
         ];
     }
