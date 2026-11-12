@@ -127,7 +127,8 @@ class RoomsMetaResource extends JsonResource
             ],
             'room_types' => $this->resource['roomTypes'],
             'facilities' => $this->resource['facilities'],
-            'utilities' => $this->resource['utilities']
+            'utilities' => $this->resource['utilities'],
+            'rooms' => $this->resource['rooms']
         ];
     }
 }
