@@ -23,7 +23,7 @@ class IssueReportRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'location_id' => [
+            'room_id' => [
                 'nullable',
                 'integer',
                 'exists:rooms,id'

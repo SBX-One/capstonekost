@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('issues', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('users_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('room_id')->nullable()->constrained('rooms')->cascadeOnDelete();
             $table->string('location_name', 255)->nullable(false);
             $table->string('title', 255)->nullable(false);
             $table->text('description')->nullable(false);
-            $table->enum('status', ['open', 'progress', 'resolved']);
+            $table->enum('status', ['open', 'progress', 'resolved'])->default('open');
             $table->timestamps();
         });
     }
