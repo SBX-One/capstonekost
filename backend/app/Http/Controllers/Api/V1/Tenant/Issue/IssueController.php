@@ -111,4 +111,9 @@ class IssueController extends Controller
 
         return IssueShowListResource::collection($issues);
     }
+
+    public function showDetail(IssueShowDetailRequest $request)
+    {
+        
+    }
 }
