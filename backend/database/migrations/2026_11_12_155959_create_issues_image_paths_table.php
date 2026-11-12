@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('issue_id')->constrained('issues')->cascadeOnDelete();
             $table->string('image_path', 255)->nullable(false);
-            $table->string('image_path', 255)->nullable(false);
             $table->smallInteger('sort_order')->nullable();
             $table->timestamps();
         });
