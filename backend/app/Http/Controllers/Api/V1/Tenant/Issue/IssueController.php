@@ -19,6 +19,7 @@ use App\Http\Resources\Api\V1\Tenant\Issue\IssueShowListResource;
 // Request Imports
 use App\Http\Requests\Api\V1\Tenant\Issue\IssueReportRequest;
 use App\Http\Requests\Api\V1\Tenant\Issue\IssueShowListRequest;
+use App\Http\Requests\Api\V1\Tenant\Issue\IssueShowDetailRequest;
 
 class IssueController extends Controller
 {
@@ -114,6 +115,6 @@ class IssueController extends Controller
 
     public function showDetail(IssueShowDetailRequest $request)
     {
-        
+
     }
 }
