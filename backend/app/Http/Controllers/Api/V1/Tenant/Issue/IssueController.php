@@ -121,9 +121,9 @@ class IssueController extends Controller
         $issues = Issue::query()
             ->select('id', 'location_name', 'created_at', 'description', 'status')
             ->with([
-                'imagePaths' => fn ($q) => $q->select('id', 'image_path', 'sort_order'),
+                'imagePaths' => fn ($q) => $q->select('id', 'issue_id', 'image_path', 'sort_order'),
                 'response' => fn ($q) => $q->select('id', 'issue_id', 'response'),
-                'response.imagePaths' => fn ($q) => $q->select('id', 'image_path', 'sort_order')
+                'response.imagePaths' => fn ($q) => $q->select('id', 'response_id', 'image_path', 'sort_order')
             ])
             ->where('user_id', $userId)
             ->whereIn('id', $payload['id'])
