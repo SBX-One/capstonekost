@@ -14,6 +14,7 @@ use App\Models\Issue;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Tenant\Issue\FetchActiveRoomsResource;
+use App\Http\Resources\Api\V1\Tenant\Issue\IssueShowListResource;
 
 // Request Imports
 use App\Http\Requests\Api\V1\Tenant\Issue\IssueReportRequest;
@@ -99,7 +100,7 @@ class IssueController extends Controller
         $issues = Issue::query()
             ->select('id', 'user_id', 'title', 'description', 'location_name', 'status', 'created_at')
             ->with([
-                'imagePaths' => fn ($q) => $q->select('issue_id', 'image_path', 'sort_order')
+                'imagePaths' => fn ($q) => $q->select('id', 'issue_id', 'image_path', 'sort_order')
             ])
             ->where('user_id', $userId)
             ->when(isset($payload['filter']), function ($q) use ($payload) {
@@ -107,5 +108,7 @@ class IssueController extends Controller
             })
             ->orderBy('created_at', 'desc')
             ->paginate(10);
+
+        return IssueShowListResource::collection($issues);
     }
 }
