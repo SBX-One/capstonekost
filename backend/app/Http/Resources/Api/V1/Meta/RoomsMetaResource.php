@@ -125,6 +125,16 @@ class RoomsMetaResource extends JsonResource
                     'value' => 'Others'
                 ]
             ],
+            'payment_method' => [
+                [
+                    'id' => 'cash',
+                    'payment' => 'Cash'
+                ],
+                [
+                    'id' => 'transfer',
+                    'payment' => 'Bank Transfer'
+                ]
+            ],
             'room_types' => $this->resource['roomTypes'],
             'facilities' => $this->resource['facilities'],
             'utilities' => $this->resource['utilities'],
