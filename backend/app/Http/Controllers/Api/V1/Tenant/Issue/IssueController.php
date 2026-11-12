@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 
 // Model Imports
 use App\Models\BookingRecord;
+// Resource Imports
+use App\Http\Resources\Api\V1\Tenant\Issue\FetchActiveRoomsResource;
 
 class IssueController extends Controller
 {
@@ -24,6 +26,6 @@ class IssueController extends Controller
             ->where('status', 'active')
             ->get();
 
-        
+        return FetchActiveRoomsResource::collection($rooms);
     }
 }
