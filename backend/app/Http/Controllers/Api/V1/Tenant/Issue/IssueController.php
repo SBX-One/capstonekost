@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Tenant\Issue;
 
+use App\Exceptions\Api\V1\Tenant\Issue\IssueCreateFailException;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -81,12 +82,7 @@ class IssueController extends Controller
                 return $issue;
             });
             } catch (\Throwable $e) {
-                return response()->json([
-                    'message' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'trace' => $e->getTraceAsString()
-                ], 500);
+                throw new IssueCreateFailException($uploadedImages, $e);
             }
 
         return response()->json([
