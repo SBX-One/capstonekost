@@ -20,14 +20,13 @@ use App\Http\Resources\Api\V1\Admin\Payment\PaymentListBookingsResource;
 // Request Imports
 use App\Http\Requests\Api\V1\Admin\Payment\RecordPaymentRequest;
 use App\Http\Requests\Api\V1\Admin\Payment\PaymentExportRequest;
-use App\Http\Requests\Api\V1\Tenant\Payment\PaymentShowListRequest;
 
 // Exception Imports
 use Illuminate\Validation\ValidationException;
 
 class PaymentController extends Controller
 {
-    public function showList(PaymentShowListRequest $request)
+    public function showList()
     {
         $paymentRecords = PaymentRecord::query()
             ->select('id', 'booking_record_id', 'room_bill_id', 'amount', 'method', 'payment_date')

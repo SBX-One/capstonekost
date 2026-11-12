@@ -17,12 +17,15 @@ use App\Http\Resources\Api\V1\Tenant\Payment\PaymentShowDetailResource;
 
 // Request Imports
 use App\Http\Requests\Api\V1\Tenant\Payment\PaymentConfirmPlanRequest;
+use App\Http\Requests\Api\V1\Tenant\Payment\PaymentShowListRequest;
 
 class PaymentController extends Controller
 {
-    public function showList()
+    public function showList(PaymentShowListRequest $request)
     {
         $userId = Auth::id();
+        
+        $payload = $request->validated();
 
         $roomBills = BookingRecord::query()
             ->select('id', 'room_id', 'user_id', 'move_in', 'move_out', 'total', 'status')
@@ -42,6 +45,11 @@ class PaymentController extends Controller
                 )
             ])
             ->withSum('paymentRecord as total_paid', 'amount')
+            ->when(isset($payload['filter']), function ($q) use ($payload) {
+                $q->whereHas('roomBill', function ($query) use ($payload) {
+                    $query->where('status', $payload['filter']);
+                });
+            })
             ->where('user_id', $userId)
             ->whereIn('status', ['approved', 'active'])
             ->paginate(10);
