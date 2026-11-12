@@ -89,4 +89,9 @@ class IssueController extends Controller
             'message' => 'Issues created.'
         ]);
     }
+
+    public function showList(IssueShowListRequest $request) 
+    {
+        
+    }
 }
