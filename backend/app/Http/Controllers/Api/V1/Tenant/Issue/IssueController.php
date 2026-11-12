@@ -8,8 +8,12 @@ use Illuminate\Support\Facades\Auth;
 
 // Model Imports
 use App\Models\BookingRecord;
+
 // Resource Imports
 use App\Http\Resources\Api\V1\Tenant\Issue\FetchActiveRoomsResource;
+
+// Request Imports
+use App\Http\Requests\Api\V1\Tenant\Issue\IssueReportRequest;
 
 class IssueController extends Controller
 {
@@ -31,6 +35,6 @@ class IssueController extends Controller
 
     public function issueReport(IssueReportRequest $request) 
     {
-        
+
     }
 }
