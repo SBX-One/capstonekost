@@ -17,6 +17,7 @@ use App\Http\Resources\Api\V1\Tenant\Issue\FetchActiveRoomsResource;
 
 // Request Imports
 use App\Http\Requests\Api\V1\Tenant\Issue\IssueReportRequest;
+use App\Http\Requests\Api\V1\Tenant\Issue\IssueShowListRequest;
 
 class IssueController extends Controller
 {
@@ -92,6 +93,6 @@ class IssueController extends Controller
 
     public function showList(IssueShowListRequest $request) 
     {
-        
+
     }
 }
