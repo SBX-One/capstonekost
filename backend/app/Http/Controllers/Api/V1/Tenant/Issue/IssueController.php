@@ -93,6 +93,19 @@ class IssueController extends Controller
 
     public function showList(IssueShowListRequest $request) 
     {
+        $payload = $request->validated();
+        $userId = Auth::id();
 
+        $issues = Issue::query()
+            ->select('id', 'user_id', 'title', 'description', 'location_name', 'status', 'created_at')
+            ->with([
+                'imagePaths' => fn ($q) => $q->select('issue_id', 'image_path', 'sort_order')
+            ])
+            ->where('user_id', $userId)
+            ->when(isset($payload['filter']), function ($q) use ($payload) {
+                $q->where('status', $payload['filter']);
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
     }
 }
