@@ -20,6 +20,7 @@ use App\Http\Resources\Api\V1\Tenant\Issue\IssueShowListResource;
 use App\Http\Requests\Api\V1\Tenant\Issue\IssueReportRequest;
 use App\Http\Requests\Api\V1\Tenant\Issue\IssueShowListRequest;
 use App\Http\Requests\Api\V1\Tenant\Issue\IssueShowDetailRequest;
+use App\Http\Resources\Api\V1\Tenant\Issue\IssueShowDetailResource;
 
 class IssueController extends Controller
 {
@@ -135,8 +136,6 @@ class IssueController extends Controller
             ], 404);
         }
 
-        return response()->json([
-            'data' => $issues
-        ]);
+        return IssueShowDetailResource::collection($issues);
     }
 }
