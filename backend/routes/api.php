@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\V1\Tenant\Payment\PaymentController as TenantPaymen
 use App\Http\Controllers\Api\V1\Admin\Payment\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Api\V1\Admin\Facility\FacilityController;
 use App\Http\Controllers\Api\V1\Tenant\Issue\IssueController as TenantIssueController;
+use App\Http\Controllers\Api\V1\Admin\Issue\IssueController as AdminIssueController;
 
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
