@@ -7,5 +7,8 @@ use Illuminate\Http\Request;
 
 class IssueController extends Controller
 {
-    //
+    public function showList(IssueShowListRequest $request)
+    {
+        
+    }
 }
