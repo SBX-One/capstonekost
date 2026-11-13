@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin\Issue;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 // Model Imports
 use App\Models\Issue;
@@ -23,6 +24,7 @@ use App\Http\Resources\Api\V1\Admin\Issue\IssueShowDetailResource;
 // Exception Imports
 use Illuminate\Validation\ValidationException;
 use App\Exceptions\Api\V1\Admin\Issue\IssueHandlingFailException;
+use App\Exceptions\Api\V1\Admin\Issue\IssueResolveFailException;
 
 class IssueController extends Controller
 {
@@ -120,6 +122,103 @@ class IssueController extends Controller
 
     public function issueResolve(IssueResolveRequest $request) 
     {
-        
+        $payload = $request->validated();
+        $images = $request->file('images', []);
+
+        $uploadedImages = [];
+        $imagesToDelete = [];
+
+        $issue = Issue::query()
+            ->findOrFail($payload['issue_id']);
+
+        if ($issue->status != 'progress') {
+            throw ValidationException::withMessages([
+                'issue_id' => ['This issue status is not in progress.']
+            ]);
+        }
+
+        if ($issue->response->id != $payload['response_id']) {
+            throw ValidationException::withMessages([
+                'response_id' => ['This response id is not valid for the inputted issue id.']
+            ]);
+        }
+
+        if (isset($payload['deleted_images'])) {
+            $imageIds = $issue->response['imagePaths']->pluck('id');
+
+            foreach ($payload['deleted_images'] as $deletedId) {
+                if (!$imageIds->contains($deletedId)) {
+                    throw ValidationException::withMessages([
+                        'deleted_images' => ['One or more deleted image IDs do not belong to this response.']
+                    ]);
+                }
+            }
+        }
+
+        try {
+            $response = DB::transaction(function () use (
+                $payload,
+                $images,
+                $issue,
+                &$imagesToDelete, 
+                &$uploadedImages
+            ) {
+                $response = IssueResponse::query()
+                    ->findOrFail($payload['response_id']);
+                    
+                $response->update([
+                    'response' => $payload['description']
+                ]);
+                
+                $issue->update([
+                    'status' => 'resolved'
+                ]);
+
+                $imagesToDelete = $payload['deleted_images'] ?? [];
+                
+                $imagesToDelete = $response->imagePaths()->whereIn('id', $imagesToDelete)->get();
+
+                $imagesToDelete->each->delete();
+
+                $existingOrder = $response->imagePaths()->pluck('sort_order')->all();
+
+                foreach ($images as $key => $image) {
+                    if ($image === null) {
+                        continue;
+                    }
+
+                    $sortOrder = $key + 1;
+
+                    if (in_array($sortOrder, $existingOrder, true)) {
+                        throw ValidationException::withMessages([
+                            'images' => ["Can't fill image with the requested sorting order."],
+                        ]);
+                    }
+
+                    $image_path = $image->store('responses', 'public');
+
+                    $uploadedImages[] = $image_path;
+
+                    $response->imagePaths()->create([
+                        'image_path' => $image_path,
+                        'sort_order' => $sortOrder,
+                    ]);
+
+                    $existingOrder[] = $sortOrder;
+                }
+
+                return $response;
+            });
+        } catch (\Throwable $e) {
+            throw new IssueResolveFailException($uploadedImages, $e);
+        }
+
+        foreach ($imagesToDelete as $image) {
+            Storage::disk('public')->delete($image->image_path);
+        }
+
+        return response()->json([
+            'message' => 'Issues resolved.'
+        ]);
     }
 }

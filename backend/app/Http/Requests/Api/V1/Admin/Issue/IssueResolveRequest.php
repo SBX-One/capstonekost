@@ -23,28 +23,24 @@ class IssueResolveRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // Response ID
             'response_id' => [
                 'required',
                 'integer',
                 'exists:issue_responses,id',
             ],
 
-            // Issue ID
             'issue_id' => [
                 'required',
                 'integer',
                 'exists:issues,id',
             ],
 
-            // Description
             'description' => [
                 'required',
                 'string',
                 'max:255',
             ],
 
-            // Images
             'images' => [
                 'nullable',
                 'array',
@@ -58,7 +54,6 @@ class IssueResolveRequest extends FormRequest
                 'max:2048',
             ],
 
-            // Deleted images
             'deleted_images' => [
                 'nullable',
                 'array',
@@ -66,8 +61,36 @@ class IssueResolveRequest extends FormRequest
 
             'deleted_images.*' => [
                 'integer',
-                'exists:room_image_paths,id',
+                'exists:issue_response_image_paths,id',
             ],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'response_id.required' => 'The response ID is required.',
+            'response_id.integer' => 'The response ID must be an integer.',
+            'response_id.exists' => 'The selected response does not exist.',
+
+            'issue_id.required' => 'The issue ID is required.',
+            'issue_id.integer' => 'The issue ID must be an integer.',
+            'issue_id.exists' => 'The selected issue does not exist.',
+
+
+            'description.required' => 'The description is required.',
+            'description.string' => 'The description must be a string.',
+            'description.max' => 'The description must not exceed 255 characters.',
+
+            'images.array' => 'Images must be submitted as an array.',
+            'images.*.file' => 'Each image must be a valid uploaded file.',
+            'images.*.mimes' => 'Images must be JPG, JPEG, PNG, or WEBP files.',
+            'images.*.min' => 'Each image must be at least 1 KB.',
+            'images.*.max' => 'Each image must not exceed 2 MB.',
+
+            'deleted_images.array' => 'Deleted images must be submitted as an array.',
+            'deleted_images.*.integer' => 'Each deleted image ID must be an integer.',
+            'deleted_images.*.exists' => 'One or more selected image IDs do not exist.',
         ];
     }
 }
