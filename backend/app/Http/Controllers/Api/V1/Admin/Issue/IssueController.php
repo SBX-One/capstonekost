@@ -26,6 +26,9 @@ class IssueController extends Controller
                 'imagePaths' => fn ($q) => $q->select('id', 'issue_id', 'image_path', 'sort_order'),
                 'user' => fn ($q) => $q->select('id', 'name', 'email', 'phone')
             ])
+            ->when(isset($payload['filter']), function ($q) use ($payload) {
+                $q->where('status', $payload['filter']);
+            })
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
