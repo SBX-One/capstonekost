@@ -11,6 +11,9 @@ use App\Models\Issue;
 // Request Imports
 use App\Http\Requests\Api\V1\Admin\Issue\IssueShowListRequest;
 
+// Resource Imports
+use App\Http\Resources\Api\V1\Admin\Issue\IssueShowListResource;
+
 class IssueController extends Controller
 {
     public function showList(IssueShowListRequest $request)
@@ -26,6 +29,6 @@ class IssueController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        
+        return IssueShowListResource::collection($issues);
     }
 }
