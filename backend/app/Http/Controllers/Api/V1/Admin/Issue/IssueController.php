@@ -14,6 +14,7 @@ use App\Models\IssueResponse;
 use App\Http\Requests\Api\V1\Admin\Issue\IssueShowListRequest;
 use App\Http\Requests\Api\V1\Admin\Issue\IssueShowDetailRequest;
 use App\Http\Requests\Api\V1\Admin\Issue\IssueHandleRequest;
+use App\Http\Requests\Api\V1\Admin\Issue\IssueResolveRequest;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Admin\Issue\IssueShowListResource;
