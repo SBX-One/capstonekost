@@ -21,6 +21,7 @@ use App\Http\Resources\Api\V1\Admin\Issue\IssueShowDetailResource;
 
 // Exception Imports
 use Illuminate\Validation\ValidationException;
+use App\Exceptions\Api\V1\Admin\Issue\IssueHandlingFailException;
 
 class IssueController extends Controller
 {
@@ -108,7 +109,7 @@ class IssueController extends Controller
                 return $response;
             });
         } catch (\Throwable $e) {
-
+            throw new IssueHandlingFailException($uploadedImages, $e);
         }
 
         return response()->json([
