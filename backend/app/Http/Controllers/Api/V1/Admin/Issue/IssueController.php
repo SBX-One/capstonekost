@@ -14,6 +14,7 @@ use App\Http\Requests\Api\V1\Admin\Issue\IssueShowDetailRequest;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Admin\Issue\IssueShowListResource;
+use App\Http\Resources\Api\V1\Admin\Issue\IssueShowDetailResource;
 
 class IssueController extends Controller
 {
@@ -41,7 +42,7 @@ class IssueController extends Controller
         $payload = $request->validated();
 
         $issues = Issue::query()
-            ->select('id', 'location_name', 'created_at', 'description', 'status')
+            ->select('id', 'user_id', 'location_name', 'created_at', 'description', 'status')
             ->with([
                 'user' => fn ($q) => $q->select('id', 'name', 'email', 'phone'),
                 'imagePaths' => fn ($q) => $q->select('id', 'issue_id', 'image_path', 'sort_order'),
@@ -57,8 +58,6 @@ class IssueController extends Controller
             ], 404);
         }
 
-        return response()->json([
-            'data' => $issues
-        ]);
+        return IssueShowDetailResource::collection($issues);
     }
 }
