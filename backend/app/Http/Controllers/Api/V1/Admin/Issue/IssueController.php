@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api\V1\Admin\Issue;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 // Model Imports
 use App\Models\Issue;
+use App\Models\IssueResponse;
 
 // Request Imports
 use App\Http\Requests\Api\V1\Admin\Issue\IssueShowListRequest;
@@ -16,6 +18,9 @@ use App\Http\Requests\Api\V1\Admin\Issue\IssueHandleRequest;
 // Resource Imports
 use App\Http\Resources\Api\V1\Admin\Issue\IssueShowListResource;
 use App\Http\Resources\Api\V1\Admin\Issue\IssueShowDetailResource;
+
+// Exception Imports
+use Illuminate\Validation\ValidationException;
 
 class IssueController extends Controller
 {
@@ -64,6 +69,50 @@ class IssueController extends Controller
 
     public function issueHandle(IssueHandleRequest $request)  
     {
+        $payload = $request->validated();
+        $images = $request->file('images', []);
+
+        $uploadedImages = [];
+
+        $issue = Issue::query()
+            ->findOrFail($payload['issue_id']);
         
+        if ($issue->status !== 'open') {
+            throw ValidationException::withMessages([
+                'issue_id' => ['This issue is no longer open.']
+            ]);
+        }
+
+        try {
+            $response = DB::transaction(function () use ($payload, $images, $issue, &$uploadedImages) {
+                $response = IssueResponse::query()
+                    ->create([
+                        'issue_id' => $payload['issue_id'],
+                        'response' => $payload['description']
+                    ]);
+
+                foreach ($images as $key => $image) {
+                    $path = $image->store('responses', 'public');
+                    $uploadedImages[] = $path;
+
+                    $response->imagePaths()->create([
+                        'image_path' => $path,
+                        'sort_order' => ($key + 1)
+                    ]);
+                }
+
+                $issue->update([
+                    'status' => 'progress'
+                ]);
+
+                return $response;
+            });
+        } catch (\Throwable $e) {
+
+        }
+
+        return response()->json([
+            'message' => 'Handling response created.'
+        ]);
     }
 }

@@ -85,9 +85,9 @@ class IssueController extends Controller
 
                 return $issue;
             });
-            } catch (\Throwable $e) {
-                throw new IssueCreateFailException($uploadedImages, $e);
-            }
+        } catch (\Throwable $e) {
+            throw new IssueCreateFailException($uploadedImages, $e);
+        }
 
         return response()->json([
             'message' => 'Issues created.'

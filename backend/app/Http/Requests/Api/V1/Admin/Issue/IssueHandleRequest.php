@@ -23,7 +23,7 @@ class IssueHandleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'issues_id' => [
+            'issue_id' => [
                 'required',
                 'integer',
                 'exists:issues,id',
@@ -53,9 +53,9 @@ class IssueHandleRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'issues_id.required' => 'The issue ID is required.',
-            'issues_id.integer' => 'The issue ID must be an integer.',
-            'issues_id.exists' => 'The selected issue does not exist.',
+            'issue_id.required' => 'The issue ID is required.',
+            'issue_id.integer' => 'The issue ID must be an integer.',
+            'issue_id.exists' => 'The selected issue does not exist.',
 
             'description.required' => 'The description is required.',
             'description.string' => 'The description must be a string.',
