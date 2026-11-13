@@ -10,6 +10,7 @@ use App\Models\Issue;
 
 // Request Imports
 use App\Http\Requests\Api\V1\Admin\Issue\IssueShowListRequest;
+use App\Http\Requests\Api\V1\Admin\Issue\IssueShowDetailRequest;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Admin\Issue\IssueShowListResource;
@@ -37,6 +38,6 @@ class IssueController extends Controller
 
     public function showDetail(IssueShowDetailRequest $request) 
     {
-        
+
     }
 }
