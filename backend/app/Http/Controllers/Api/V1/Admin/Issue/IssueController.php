@@ -116,4 +116,9 @@ class IssueController extends Controller
             'message' => 'Handling response created.'
         ]);
     }
+
+    public function issueResolve(IssueResolveRequest $request) 
+    {
+        
+    }
 }
