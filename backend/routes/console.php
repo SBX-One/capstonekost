@@ -13,3 +13,6 @@ Schedule::command('app:booking-auto-complete')
 
 Schedule::command('app:initial-payment-check')
     ->everyMinute();
+
+Schedule::command('app:bill-check-overdue')
+    ->everyMinute();
