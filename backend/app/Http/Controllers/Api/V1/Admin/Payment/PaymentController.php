@@ -162,6 +162,10 @@ class PaymentController extends Controller
                 'status' => $newAmountLeft == 0 ? 'paid' : 'partial',
             ]);
 
+            $booking->update([
+                'status' => 'active'
+            ]);
+
             return $payment;
         });
 
