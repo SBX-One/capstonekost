@@ -152,7 +152,7 @@ class BookingController extends Controller
                     'amount_left' => $booking->total,
                     'current_month_bill' => $booking->room->price,
                     'status' => 'unpaid',
-                    'next_due_date' => now()->addDay()->toDateString(),
+                    'next_due_date' => now()->addDay(),
                 ]);
             }
         });
