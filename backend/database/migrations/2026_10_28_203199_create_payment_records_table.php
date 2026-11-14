@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('amount')->nullable(false);
             $table->enum('method', ['transfer', 'cash']);
             $table->text('note');
+            $table->dateTime('payment_date', precision: 0)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

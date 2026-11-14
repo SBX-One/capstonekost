@@ -17,7 +17,7 @@ return new class extends Migration
             $table->enum('payment_plan', ['monthly', 'full'])->nullable();
             $table->integer('amount_left')->nullable(false);
             $table->integer('current_month_bill')->nullable(false);
-            $table->enum('status', ['unpaid', 'partial', 'overdue', 'paid'])->nullable(false);
+            $table->enum('status', ['unpaid', 'partial', 'overdue', 'paid', 'cancelled'])->nullable(false);
             $table->dateTime('next_due_date', precision: 0);
             $table->timestamps();
         });
