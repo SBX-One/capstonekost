@@ -10,6 +10,13 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 #[Fillable(['booking_record_id', 'payment_plan', 'amount_left', 'current_month_bill', 'status', 'next_due_date'])]
 class RoomBill extends Model
 {
+   protected function casts(): array
+    {
+        return [
+            'next_due_date' => 'datetime',
+        ];
+    }
+    
     public function bookingRecord(): BelongsTo
     {
         return $this->belongsTo(BookingRecord::class, 'booking_record_id');

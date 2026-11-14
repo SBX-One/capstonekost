@@ -16,3 +16,6 @@ Schedule::command('app:initial-payment-check')
 
 Schedule::command('app:bill-check-overdue')
     ->everyMinute();
+
+Schedule::command('app:booking-auto-billing')
+    ->daily();
