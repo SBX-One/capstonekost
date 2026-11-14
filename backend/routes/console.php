@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 Schedule::command('app:booking-auto-complete')
     ->daily();
+
+Schedule::command('app:initial-payment-check')
+    ->everyMinute();
