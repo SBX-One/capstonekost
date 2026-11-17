@@ -10,24 +10,37 @@ use App\Models\RoomType;
 use App\Models\Facility;
 use App\Models\Utility;
 use App\Models\Room;
+use App\Models\Issue;
 
 // Resource Imports
 use App\Http\Resources\Api\V1\Meta\RoomsMetaResource;
+use App\Models\RoomBill;
 
 class RoomsMetaController extends Controller
 {
     public function meta() 
     {
-        $roomTypes  = RoomType::select('id', 'name')->get();
-        $facilities = Facility::select('id', 'name', 'information', 'icon_name')->get();
-        $utilities  = Utility::select('id', 'name', 'information', 'icon_name')->get();
-        $rooms      = Room::select('id', 'name')->get();
+        $roomTypes  = RoomType::query()
+                        ->select('id', 'name')
+                        ->get();
+
+        $facilities = Facility::query()
+                        ->select('id', 'name', 'information', 'icon_name')
+                        ->get();
+
+        $utilities  = Utility::query()
+                        ->select('id', 'name', 'information', 'icon_name')
+                        ->get();
+
+        $rooms      = Room::query()
+                        ->select('id', 'name')
+                        ->get();
 
         return (new RoomsMetaResource([
-            'roomTypes' => $roomTypes,
+            'roomTypes'  => $roomTypes,
             'facilities' => $facilities,
-            'utilities' => $utilities,
-            'rooms' => $rooms
+            'utilities'  => $utilities,
+            'rooms'      => $rooms,
         ]))->additional([
             'message' => 'Meta data successfully returned'
         ]);

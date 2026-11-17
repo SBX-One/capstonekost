@@ -125,7 +125,7 @@ class RoomsMetaResource extends JsonResource
                     'value' => 'Others'
                 ]
             ],
-            'payment_method' => [
+            'payment_methods' => [
                 [
                     'id' => 'cash',
                     'payment' => 'Cash'
@@ -133,6 +133,42 @@ class RoomsMetaResource extends JsonResource
                 [
                     'id' => 'transfer',
                     'payment' => 'Bank Transfer'
+                ]
+            ],
+            'issue_status_filters' => [
+                [
+                    'id'   => 'open',
+                    'name' => 'Open' 
+                ],
+                [
+                    'id'   => 'progress',
+                    'name' => 'In Progress'
+                ],
+                [
+                    'id'   => 'resolved', 
+                    'name' => 'Resolved'
+                ]
+            ],
+            'payment_status_filters' => [
+                [
+                    'id'   => 'unpaid',
+                    'name' => 'Unpaid'
+                ],
+                [
+                    'id'   => 'partial',
+                    'name' => 'Partially Paid'
+                ],
+                [
+                    'id'   => 'overdue',
+                    'name' => 'Overdue'
+                ],
+                [
+                    'id'   => 'paid',
+                    'name' => 'Paid'
+                ],
+                [
+                    'id'   => 'cancelled',
+                    'name' => 'Cancelled'
                 ]
             ],
             'room_types' => $this->resource['roomTypes'],
