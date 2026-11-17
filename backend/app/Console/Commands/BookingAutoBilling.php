@@ -6,6 +6,7 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 // Model Imports
 use App\Models\BookingRecord;
@@ -23,7 +24,7 @@ class BookingAutoBilling extends Command
             ->select('id', 'room_id')
             ->with([
                 'room' => fn ($q) => $q->select('id', 'price'),
-                'roomBill' => fn ($q) => $q->select('id', 'booking_record_id', 'amount_left')
+                'roomBill' => fn ($q) => $q->select('id', 'booking_record_id', 'amount_left', 'next_due_date')
             ])
             ->where('status', 'active')
             ->whereHas('roomBill', function ($q) {
@@ -43,7 +44,7 @@ class BookingAutoBilling extends Command
                 } 
 
                 $booking->RoomBill->update([
-                    'next_due_date' => now()->addDays(30)
+                    'next_due_date' => Carbon::parse($booking->roomBill->next_due_date)->addDays(30)->toDateString()
                 ]);
             });
         }
