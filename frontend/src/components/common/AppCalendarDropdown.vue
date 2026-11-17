@@ -1,6 +1,9 @@
 <script setup>
 import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue';
 import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+
+dayjs.extend(isBetween);
 
 const props = defineProps({
     id: {
@@ -10,6 +13,10 @@ const props = defineProps({
     placeholder: {
         type: String,
         default: 'Select date',
+    },
+    bookedDates: {
+        type: Array,
+        default: () => [],
     },
 });
 
@@ -43,6 +50,32 @@ const currentMonthYearLabel = computed(() => {
     return currentViewDate.value.format('MMMM YYYY');
 });
 
+const isDateDisabled = dateStr => {
+    if (!dateStr) return true;
+
+    const dateToCheck = dayjs(dateStr).startOf('day');
+    const today = dayjs().startOf('day');
+
+    if (dateToCheck.isBefore(today)) {
+        return true;
+    }
+
+    if (props.bookedDates && props.bookedDates.length > 0) {
+        for (const record of props.bookedDates) {
+            if (record.move_in && record.move_out) {
+                const moveInDate = dayjs(record.move_in).startOf('day');
+                const moveOutDate = dayjs(record.move_out).startOf('day');
+
+                if (dateToCheck.isBetween(moveInDate, moveOutDate, 'day', '[]')) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+};
+
 const calendarGrid = computed(() => {
     const days = [];
     const startOfMonth = currentViewDate.value.startOf('month');
@@ -53,20 +86,32 @@ const calendarGrid = computed(() => {
     const daysInPrevMonth = prevMonth.daysInMonth();
 
     for (let i = firstDay - 1; i >= 0; i--) {
-        days.push({ day: daysInPrevMonth - i, isCurrentMonth: false, dateStr: '' });
+        days.push({
+            day: daysInPrevMonth - i,
+            isCurrentMonth: false,
+            dateStr: '',
+            isDisabled: true,
+        });
     }
 
     for (let i = 1; i <= daysInMonth; i++) {
+        const dateStr = startOfMonth.date(i).format('YYYY-MM-DD');
         days.push({
             day: i,
             isCurrentMonth: true,
-            dateStr: startOfMonth.date(i).format('YYYY-MM-DD'),
+            dateStr: dateStr,
+            isDisabled: isDateDisabled(dateStr),
         });
     }
 
     const remaining = 42 - days.length;
     for (let i = 1; i <= remaining; i++) {
-        days.push({ day: i, isCurrentMonth: false, dateStr: '' });
+        days.push({
+            day: i,
+            isCurrentMonth: false,
+            dateStr: '',
+            isDisabled: true,
+        });
     }
 
     return days;
@@ -138,7 +183,7 @@ const toggleDropdown = async () => {
 };
 
 const selectDate = dateStr => {
-    if (!dateStr) return;
+    if (!dateStr || isDateDisabled(dateStr)) return;
     modelValue.value = dateStr;
     closeDropdown();
 };
@@ -255,7 +300,7 @@ onUnmounted(() => {
                     </button>
                 </div>
 
-                <div class="grid grid-cols-7 gap-2">
+                <div class="grid grid-cols-7 gap-2 mt-4">
                     <div v-for="(day, index) in daysOfWeek" :key="'header-' + index" class="text-center text-body-lg font-medium text-text-primary mb-2" aria-hidden="true">
                         {{ day }}
                     </div>
@@ -264,14 +309,14 @@ onUnmounted(() => {
                         v-for="(dateObj, index) in calendarGrid"
                         :key="'date-' + index"
                         type="button"
-                        :disabled="!dateObj.isCurrentMonth"
+                        :disabled="dateObj.isDisabled"
                         @click="selectDate(dateObj.dateStr)"
                         class="relative h-10 w-full flex items-center justify-center text-body-lg transition-colors rounded-default focus:outline-none"
-                        :class="[!dateObj.isCurrentMonth ? 'text-text-disabled cursor-not-allowed' : 'text-text-primary hover:bg-neutral-100 cursor-pointer']"
-                        :aria-label="dateObj.isCurrentMonth ? `Select ${dateObj.dateStr}` : ''"
+                        :class="[dateObj.isDisabled ? 'text-text-disabled cursor-not-allowed bg-neutral-50 line-through opacity-60' : 'text-text-primary hover:bg-neutral-100 cursor-pointer']"
+                        :aria-label="!dateObj.isDisabled ? `Select ${dateObj.dateStr}` : `Unavailable ${dateObj.dateStr}`"
                     >
                         <span>{{ dateObj.day }}</span>
-                        <span v-if="dateObj.isCurrentMonth && modelValue === dateObj.dateStr" class="absolute bottom-1 w-5 h-0.5 bg-neutral-900 rounded-full"></span>
+                        <span v-if="!dateObj.isDisabled && modelValue === dateObj.dateStr" class="absolute bottom-1 w-5 h-0.5 bg-neutral-900 rounded-full"></span>
                     </button>
                 </div>
             </div>

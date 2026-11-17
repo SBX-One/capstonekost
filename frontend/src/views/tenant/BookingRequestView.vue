@@ -32,11 +32,22 @@ const form = reactive({
     fullName: '',
     phoneNumber: '',
     email: '',
-    moveIn: route.query.moveIn || '',
+    moveIn: '',
     moveOut: '',
 });
 
 const { validateAll, validateField, errors, setFieldError, isValid } = useBookingValidation(form);
+
+watch(
+    () => route.query.moveIn,
+    newDateParams => {
+        if (newDateParams && dayjs(newDateParams).isValid()) {
+            form.moveIn = dayjs(newDateParams).format('YYYY-MM-DD');
+            validateField('moveIn', form.moveIn);
+        }
+    },
+    { immediate: true }
+);
 
 watch(
     () => authStore.user,
@@ -45,6 +56,10 @@ watch(
             form.fullName = newUser.name || '';
             form.phoneNumber = newUser.phone || '';
             form.email = newUser.email || '';
+
+            if (form.fullName) validateField('fullName', form.fullName);
+            if (form.phoneNumber) validateField('phoneNumber', form.phoneNumber);
+            if (form.email) validateField('email', form.email);
         }
     },
     { immediate: true }
@@ -199,6 +214,7 @@ const handleSubmit = async () => {
                     v-model:move-out="form.moveOut"
                     :duration-months="rentalDurationMonths"
                     :errors="errors"
+                    :booked-dates="roomDetail?.booking_records || []"
                     @clear="setFieldError"
                     @validate="validateField"
                 />

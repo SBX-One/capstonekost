@@ -14,6 +14,10 @@ const props = defineProps({
         type: Object,
         default: () => ({}),
     },
+    bookedDates: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const emit = defineEmits(['clear', 'validate']);
@@ -37,12 +41,12 @@ watch(moveOutDate, newVal => {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div class="space-y-4">
                 <label class="text-h4 text-text-primary block">Move-in Date</label>
-                <AppCalendarDropdown id="moveIn" placeholder="Select Move-in Date" v-model="moveInDate" @blur="$emit('validate', 'moveIn', moveInDate)" />
+                <AppCalendarDropdown id="moveIn" placeholder="Select Move-in Date" v-model="moveInDate" :booked-dates="bookedDates" @blur="$emit('validate', 'moveIn', moveInDate)" />
                 <p v-if="errors.moveIn" class="text-body-sm text-status-error">{{ errors.moveIn }}</p>
             </div>
             <div class="space-y-4">
                 <label class="text-h4 text-text-primary block">Move-out Date</label>
-                <AppCalendarDropdown id="moveOut" placeholder="Select Move-out Date" v-model="moveOutDate" @blur="$emit('validate', 'moveOut', moveOutDate)" />
+                <AppCalendarDropdown id="moveOut" placeholder="Select Move-out Date" v-model="moveOutDate" :booked-dates="bookedDates" @blur="$emit('validate', 'moveOut', moveOutDate)" />
                 <p v-if="errors.moveOut" class="text-body-sm text-status-error">{{ errors.moveOut }}</p>
             </div>
         </div>
