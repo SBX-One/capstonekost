@@ -59,11 +59,22 @@ const itemSizeClasses = computed(() => {
 const updatePosition = () => {
     if (triggerRef.value) {
         const rect = triggerRef.value.getBoundingClientRect();
-        dropdownStyle.value = {
-            top: `${rect.bottom + 6}px`,
-            left: `${rect.left}px`,
-            width: `${rect.width}px`,
-        };
+        const dropdownMaxHeight = 240;
+        const spaceBelow = window.innerHeight - rect.bottom;
+
+        if (spaceBelow < dropdownMaxHeight && rect.top > spaceBelow) {
+            dropdownStyle.value = {
+                top: `${rect.top - dropdownMaxHeight - 6}px`,
+                left: `${rect.left}px`,
+                width: `${rect.width}px`,
+            };
+        } else {
+            dropdownStyle.value = {
+                top: `${rect.bottom + 6}px`,
+                left: `${rect.left}px`,
+                width: `${rect.width}px`,
+            };
+        }
     }
 };
 
