@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin\Payment;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 // Model Imports
 use App\Models\BookingRecord;
@@ -70,11 +71,11 @@ class PaymentController extends Controller
         $bookings = BookingRecord::query()
             ->select('id', 'room_id', 'status')
             ->with([
-                'room' => fn ($q) => $q->select('id', 'name'),
+                'room' => fn ($q) => $q->select('id', 'name', 'price'),
                 'contact' => fn ($q) => $q->select('id', 'booking_record_id', 'name'),
                 'roomBill' => fn ($q) => $q->select('id', 'booking_record_id', 'payment_plan')
             ])
-            ->whereIn('status', ['approved', 'active'])
+            ->whereIn('status', ['approved', 'active', 'overdue'])
             ->whereHas('roomBill', function ($q) {
                 $q->whereIn('payment_plan', ['monthly', 'full']);
             })
@@ -86,29 +87,40 @@ class PaymentController extends Controller
                 ]);
     }
 
-    public function recordPayment(RecordPaymentRequest $request) 
+    public function recordPayment(RecordPaymentRequest $request)
     {
         $payload = $request->validated();
 
-        $payment = DB::transaction(function () use (
-            $payload
-        ) {
+        $payment = DB::transaction(function () use ($payload) {
+
             $booking = BookingRecord::query()
                 ->select('id', 'status', 'total')
                 ->with([
-                    'roomBill' => fn ($q) => $q->select('id', 'booking_record_id', 'amount_left', 'payment_plan')
+                    'roomBill' => fn ($q) => $q->select(
+                        'id',
+                        'booking_record_id',
+                        'amount_left',
+                        'payment_plan',
+                        'current_month_bill',
+                        'next_due_date'
+                    )
                 ])
                 ->findOrFail($payload['bookings_id']);
 
-            if (!in_array($booking->status, ['approved', 'active'])) {
+            $roomBill = RoomBill::query()
+                ->where('id', $booking->roomBill->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if (!in_array($booking->status, ['approved', 'active', 'overdue'])) {
                 throw ValidationException::withMessages([
                     'bookings_id' => [
-                        'Payment can only be made for bookings with approved or active status.',
+                        'Payment can only be made for bookings with approved, active, or overdue status.',
                     ],
                 ]);
             }
 
-            if (!in_array($booking->roomBill->payment_plan, ['monthly', 'full'])) {
+            if (!in_array($roomBill->payment_plan, ['monthly', 'full'])) {
                 throw ValidationException::withMessages([
                     'bookings_id' => [
                         'Payment can only be made for bookings with chosen payment plan.',
@@ -116,7 +128,7 @@ class PaymentController extends Controller
                 ]);
             }
 
-            if ($payload['amount'] > $booking['roomBill']->amount_left) {
+            if ($payload['amount'] > $roomBill->amount_left) {
                 throw ValidationException::withMessages([
                     'amount' => [
                         'Payment amount cannot exceed the remaining balance.',
@@ -125,8 +137,8 @@ class PaymentController extends Controller
             }
 
             if (
-                $booking->roomBill->payment_plan === 'full' &&
-                $payload['amount'] != $booking->roomBill->amount_left
+                $roomBill->payment_plan === 'full' &&
+                $payload['amount'] != $roomBill->amount_left
             ) {
                 throw ValidationException::withMessages([
                     'amount' => [
@@ -135,42 +147,62 @@ class PaymentController extends Controller
                 ]);
             }
 
+            $newAmountLeft = $roomBill->amount_left - $payload['amount'];
+
+            if ($booking->status === 'overdue') {
+
+                if ($payload['amount'] != $roomBill->current_month_bill) {
+                    throw ValidationException::withMessages([
+                        'amount' => [
+                            'Overdue payment must cover the entire outstanding monthly bill amount.',
+                        ],
+                    ]);
+                }
+
+                $roomBill->update([
+                    'amount_left' => $newAmountLeft,
+                    'current_month_bill' => 0,
+                    'status' => $newAmountLeft == 0 ? 'paid' : 'partial',
+                ]);
+
+            } else {
+
+                $newMonthlyBill = max(
+                    0,
+                    $roomBill->current_month_bill - $payload['amount']
+                );
+
+                $roomBill->update([
+                    'amount_left' => $newAmountLeft,
+                    'current_month_bill' => $newMonthlyBill,
+                    'status' => $newAmountLeft == 0 ? 'paid' : 'partial',
+                ]);
+            }
+
             $payment = PaymentRecord::query()
                 ->create([
                     'booking_record_id' => $booking->id,
-                    'room_bill_id' => $booking->roomBill->id,
+                    'room_bill_id' => $roomBill->id,
                     'amount' => $payload['amount'],
                     'method' => $payload['method'],
-                    'payment_date' => $payload['payment_date']
+                    'payment_date' => $payload['payment_date'],
                 ]);
 
-            $roomBill = RoomBill::query()
-                ->where('id', $booking->roomBill->id)
-                ->lockForUpdate()
-                ->firstOrFail();
-
-            $newAmountLeft = $roomBill->amount_left - $payload['amount'];
-
-            $newMonthlyBill = max(
-                0,
-                $roomBill->current_month_bill - $payload['amount']
-            );
-
-            $roomBill->update([
-                'amount_left' => $newAmountLeft,
-                'current_month_bill' => $newMonthlyBill,
-                'status' => $newAmountLeft == 0 ? 'paid' : 'partial',
-            ]);
-
-            $booking->update([
-                'status' => 'active'
-            ]);
+            if ($booking->status === 'overdue') {
+                $booking->update([
+                    'status' => 'active',
+                ]);
+            } elseif ($newAmountLeft == 0) {
+                $booking->update([
+                    'status' => 'completed',
+                ]);
+            }
 
             return $payment;
         });
 
         return response()->json([
-            'message' => "Payment Record Created."
+            'message' => 'Payment Record Created.',
         ]);
     }
 
