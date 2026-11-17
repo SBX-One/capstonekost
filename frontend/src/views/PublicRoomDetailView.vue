@@ -55,13 +55,15 @@ const handleAskClick = () => {
 
 const handleBookClick = payload => {
     if (authStore.isAuthenticated) {
+        const selectedDate = payload?.checkInDate || dayjs().format('YYYY-MM-DD');
+
         router.push({
             name: 'tenant-booking-request',
             params: { id: props.id },
-            query: { moveIn: payload?.checkInDate },
+            query: { moveIn: selectedDate },
         });
     } else {
-        console.log('User not logged in. Open Sign In Modal / Redirect for Booking Room ID:', props.id);
+        console.log('User not logged in. Redirecting to login...');
     }
 };
 </script>
