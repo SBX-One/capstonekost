@@ -151,7 +151,7 @@ class PaymentController extends Controller
 
             if ($booking->status === 'overdue') {
 
-                if ($payload['amount'] != $roomBill->current_month_bill) {
+                if ($payload['amount'] < $roomBill->current_month_bill) {
                     throw ValidationException::withMessages([
                         'amount' => [
                             'Overdue payment must cover the entire outstanding monthly bill amount.',
