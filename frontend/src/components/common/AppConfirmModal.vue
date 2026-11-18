@@ -31,7 +31,7 @@ defineEmits(['close', 'confirm']);
 
 <template>
     <AppModal :is-open="isOpen" @close="$emit('close')">
-        <div class="text-center flex flex-col items-center pt-2">
+        <div class="text-center flex flex-col items-center p-6 sm:p-8">
             <div class="w-15 h-15 rounded-default bg-red-50 text-action-destructive flex items-center justify-center mb-4 shrink-0">
                 <slot name="icon">
                     <svg class="w-7 h-7" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">

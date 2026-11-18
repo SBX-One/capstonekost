@@ -7,12 +7,30 @@ const props = defineProps({
         required: true,
         default: false,
     },
+    maxWidth: {
+        type: String,
+        default: 'max-w-md',
+    },
+    persistent: {
+        type: Boolean,
+        default: false,
+    },
+    hideCloseButton: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const emit = defineEmits(['close']);
 
 const handleKeydown = event => {
-    if (event.key === 'Escape' && props.isOpen) {
+    if (event.key === 'Escape' && props.isOpen && !props.persistent) {
+        emit('close');
+    }
+};
+
+const handleBackdropClick = () => {
+    if (!props.persistent) {
         emit('close');
     }
 };
@@ -47,41 +65,41 @@ onUnmounted(() => {
 
 <template>
     <Teleport to="body">
-        <Transition name="modal">
-            <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/50 backdrop-blur-xs select-none" @click.self="$emit('close')">
-                <div class="modal-container bg-bg-default rounded-default shadow-xl w-full max-w-md p-6 relative" role="dialog" aria-modal="true">
-                    <button type="button" @click="$emit('close')" class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-700 transition-colors cursor-pointer p-1" aria-label="Close Modal">
-                        <svg class="w-5 h-5" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0.613281 0.588867L12.6133 13.0889" stroke="currentColor" stroke-width="1.7" />
-                            <path d="M12.6133 0.588867L0.613281 13.0889" stroke="currentColor" stroke-width="1.7" />
-                        </svg>
-                    </button>
+        <transition
+            enter-active-class="transition-opacity duration-300 ease-out"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="transition-opacity duration-200 ease-in"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+        >
+            <div v-if="isOpen" class="fixed inset-0 z-100 flex items-center justify-center bg-neutral-900/50 backdrop-blur-[2px] p-4 sm:p-6" @click.self="handleBackdropClick">
+                <transition
+                    appear
+                    enter-active-class="transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                    enter-from-class="opacity-0 translate-y-8 scale-95"
+                    enter-to-class="opacity-100 translate-y-0 scale-100"
+                    leave-active-class="transition-all duration-200 ease-in"
+                    leave-from-class="opacity-100 translate-y-4 scale-[0.98]"
+                    leave-to-class="opacity-0 translate-y-8 scale-95"
+                >
+                    <div v-if="isOpen" role="dialog" aria-modal="true" :class="['bg-bg-default rounded-default w-full shadow-default relative flex flex-col max-h-[90vh] overflow-hidden', maxWidth]">
+                        <button
+                            v-if="!hideCloseButton"
+                            @click="$emit('close')"
+                            aria-label="Close modal"
+                            class="absolute top-5 right-5 z-20 flex items-center justify-center w-8 h-8 bg-neutral-100 hover:bg-neutral-200 text-text-secondary hover:text-text-primary rounded-full transition-colors cursor-pointer focus:outline-none"
+                        >
+                            <svg class="w-3 h-3" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M0.613281 0.588867L12.6133 13.0889" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                                <path d="M12.6133 0.588867L0.613281 13.0889" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                            </svg>
+                        </button>
 
-                    <slot />
-                </div>
+                        <slot />
+                    </div>
+                </transition>
             </div>
-        </Transition>
+        </transition>
     </Teleport>
 </template>
-
-<style scoped>
-.modal-enter-active,
-.modal-leave-active {
-    transition: opacity 0.25s ease;
-}
-.modal-enter-from,
-.modal-leave-to {
-    opacity: 0;
-}
-
-.modal-enter-active .modal-container,
-.modal-leave-active .modal-container {
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.modal-enter-from .modal-container,
-.modal-leave-to .modal-container {
-    opacity: 0;
-    transform: scale(0.95) translateY(8px);
-}
-</style>

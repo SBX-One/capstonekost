@@ -22,8 +22,8 @@ defineEmits(['close']);
 
 <template>
     <AppModal :is-open="isOpen" @close="$emit('close')">
-        <div class="text-center flex flex-col items-center pt-2 pb-2">
-            <svg class="w-15 h-15 text-status-success" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div class="text-center flex flex-col items-center p-6 sm:p-8">
+            <svg class="w-15 h-15 text-status-success mb-4" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                     fill-rule="evenodd"
                     clip-rule="evenodd"
