@@ -11,11 +11,11 @@ import BaseButton from '@/components/common/BaseButton.vue';
 import BaseInput from '@/components/common/BaseInput.vue';
 import FacilityChipGroup from '@/components/rooms/FacilityChipGroup.vue';
 import RoomImageUploader from '@/components/rooms/RoomImageUploader.vue';
+import AddFacilityModal from '@/components/rooms/AddFacilityModal.vue';
 
 const router = useRouter();
-const { createRoom, isMutating, formatRupiah } = useRoom();
+const { createRoom, addFacility, isMutating, formatRupiah } = useRoom();
 const { validateAll, validateField, errors, setFieldError } = useRoomValidation();
-
 const { roomTypes, floors, facilities, fetchRoomMeta } = useRoomMeta();
 
 onMounted(() => {
@@ -36,6 +36,7 @@ const form = reactive({
 
 const isFormDirty = ref(false);
 const displayPrice = ref('');
+const isFacilityModalOpen = ref(false);
 
 const isSubmitDisabled = computed(() => {
     return isMutating.value || !isFormDirty.value;
@@ -83,6 +84,26 @@ const adjustPrice = amount => {
         displayPrice.value = formatRupiah(newPrice).replace(/Rp\s?/g, '').trim();
     }
     validateField('price', form.price);
+};
+
+const handleFacilitySubmit = async facilityData => {
+    const success = await addFacility(facilityData);
+
+    if (success) {
+        isFacilityModalOpen.value = false;
+
+        await fetchRoomMeta();
+
+        const newFacilityName = facilityData.name.toLowerCase();
+        const newlyAddedFacility = facilities.value.find(f => f.name.toLowerCase() === newFacilityName);
+
+        if (newlyAddedFacility && !form.facilities.includes(newlyAddedFacility.id)) {
+            form.facilities.push(newlyAddedFacility.id);
+            validateField('facilities', form.facilities);
+        }
+    } else {
+        alert('Failed to add facility. Please try again.');
+    }
 };
 
 const submitForm = async () => {
@@ -167,10 +188,7 @@ const submitForm = async () => {
                                 @input="handlePriceInput"
                                 @blur="validateField('price', form.price)"
                             >
-                                <template #prefix>
-                                    <span>Rp</span>
-                                </template>
-
+                                <template #prefix><span>Rp</span></template>
                                 <template #icon-right>
                                     <div class="pointer-events-auto flex items-center bg-surface-default border border-border-default rounded overflow-hidden h-7 mr-1 select-none">
                                         <button
@@ -188,9 +206,7 @@ const submitForm = async () => {
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4" />
                                             </svg>
                                         </button>
-
                                         <div class="w-px h-3.5 bg-border-default"></div>
-
                                         <button
                                             type="button"
                                             @click.stop="adjustPrice(50000)"
@@ -208,7 +224,7 @@ const submitForm = async () => {
 
                     <div class="flex flex-col gap-200 w-full">
                         <label class="text-body-lg text-text-primary">Facilities</label>
-                        <FacilityChipGroup v-model="form.facilities" :options="facilities" @update:modelValue="validateField('facilities', form.facilities)" />
+                        <FacilityChipGroup v-model="form.facilities" :options="facilities" @update:modelValue="validateField('facilities', form.facilities)" @add-new="isFacilityModalOpen = true" />
                         <p v-if="errors.facilities" class="text-body-sm text-status-error">{{ errors.facilities }}</p>
                     </div>
 
@@ -223,7 +239,6 @@ const submitForm = async () => {
                         @update:modelValue="setFieldError('overview', '')"
                         @blur="validateField('overview', form.overview)"
                     />
-
                     <BaseInput
                         v-model="form.description"
                         type="textarea"
@@ -235,7 +250,6 @@ const submitForm = async () => {
                         @update:modelValue="setFieldError('description', '')"
                         @blur="validateField('description', form.description)"
                     />
-
                     <BaseInput
                         v-model="form.rules"
                         type="textarea"
@@ -261,5 +275,7 @@ const submitForm = async () => {
                 </BaseButton>
             </div>
         </form>
+
+        <AddFacilityModal :isOpen="isFacilityModalOpen" @close="isFacilityModalOpen = false" @submit="handleFacilitySubmit" />
     </div>
 </template>

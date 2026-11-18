@@ -9,6 +9,7 @@ export const useRoomStore = defineStore('room', () => {
     const roomMap = ref(new Map())
     const isFetching = ref(false)
     const isMutating = ref(false)
+    const isMutatingFacility = ref(false)
     const error = ref(null)
     const validationErrors = ref({})
     const totalCount = ref(0)
@@ -217,6 +218,25 @@ export const useRoomStore = defineStore('room', () => {
         }
     }
 
+    async function addFacility(facilityData) {
+        if (isMutatingFacility.value) return false
+        isMutatingFacility.value = true
+        error.value = null
+        validationErrors.value = {}
+
+        try {
+            await apiClient.post('/admin/rooms/facilities/add', facilityData)
+            clearCache()
+            return true
+        } catch (err) {
+            error.value = err.response?.data?.message || 'Failed to add facility'
+            validationErrors.value = extractValidationErrors(err)
+            return false
+        } finally {
+            isMutatingFacility.value = false
+        }
+    }
+
     async function deleteRoom(payloadIds) {
         const idArray = Array.isArray(payloadIds) ? payloadIds : [payloadIds];
 
@@ -288,6 +308,7 @@ export const useRoomStore = defineStore('room', () => {
         rooms,
         isFetching,
         isMutating,
+        isMutatingFacility,
         error,
         validationErrors,
         totalCount,
@@ -297,6 +318,7 @@ export const useRoomStore = defineStore('room', () => {
         fetchRoomById,
         createRoom,
         updateRoom,
+        addFacility,
         deleteRoom,
         clearError,
         clearValidationErrors,

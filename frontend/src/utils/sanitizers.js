@@ -70,3 +70,14 @@ export function sanitizeRoomPayload(data) {
         facilities: Array.isArray(data.facilities) ? data.facilities.map(id => sanitizeNumber(id)).filter(Boolean) : []
     }
 }
+
+export function sanitizeFacilityPayload(data) {
+    if (!data || typeof data !== 'object') return {}
+
+    return {
+        ...data,
+        name: data.name ? sanitizeText(data.name) : '',
+        information: data.information ? sanitizeText(data.information) : '',
+        icon_name: data.icon_name ? sanitizeText(data.icon_name) : 'Home'
+    }
+}
