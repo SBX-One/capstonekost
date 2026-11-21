@@ -118,7 +118,19 @@ const routes = [
             {
                 path: 'payments',
                 name: 'tenant-payments',
-                // component: () => import('@/views/tenant/PaymentHistoryView.vue')
+                component: () => import('@/views/tenant/PaymentOverviewView.vue')
+            },
+            {
+                path: 'payments/current/:id',
+                name: 'tenant-payment-current',
+                component: () => import('@/views/tenant/CurrentPaymentView.vue'),
+                props: true
+            },
+            {
+                path: 'payments/:id',
+                name: 'tenant-payment-detail',
+                component: () => import('@/views/tenant/PaymentDetailView.vue'),
+                props: true
             },
             {
                 path: 'complaints',
