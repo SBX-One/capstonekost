@@ -15,17 +15,21 @@ class PaymentShowDetailResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'booking_record' => [
+            'booking_information' => [
                 'id' => $this->resource['id'],
                 'name' => $this->resource->room['name'],
+                'room_type' => [
+                    'id' => $this->resource->room->roomType['id'],
+                    'name' => $this->resource->room->roomType['name']
+                ],
                 'move_in' => $this->resource['move_in'],
                 'move_out' => $this->resource['move_out'],
-                'rental_duration' => $this->resource['rental_duration'],
-                'status' => $this->resource['status'],
-                'total' => $this->resource['total']
             ],
             'payment_record' => [
                 'id' => $this->resource->roomBill['id'],
+                'total_paid' => $this->resource->roomBill['total_paid'],
+                'total_left' => $this->resource->roomBill['amount_left'],
+                'total' => $this->resource['total'],
                 'payment_plan' => $this->resource->roomBill['payment_plan'],
                 'status' => $this->resource->roomBill['status']
             ]

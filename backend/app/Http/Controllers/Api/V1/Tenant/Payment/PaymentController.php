@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 
 // Model Imports
 use App\Models\RoomBill;
-use App\Models\PaymentRecord;
 use App\Models\BookingRecord;
 
 // Resource Imports
@@ -17,7 +16,9 @@ use App\Http\Resources\Api\V1\Tenant\Payment\PaymentShowDetailResource;
 
 // Request Imports
 use App\Http\Requests\Api\V1\Tenant\Payment\PaymentConfirmPlanRequest;
+use App\Http\Requests\Api\V1\Tenant\Payment\PaymentShowDetailRequest;
 use App\Http\Requests\Api\V1\Tenant\Payment\PaymentShowListRequest;
+use App\Http\Resources\Api\V1\Tenant\Payment\PaymentCurrentResource;
 
 class PaymentController extends Controller
 {
@@ -71,7 +72,7 @@ class PaymentController extends Controller
             ->where('user_id', $userId)
             ->findOrFail($id);
 
-        return (new PaymentShowDetailResource($detail));
+        return (new PaymentCurrentResource($detail));
     }
 
     public function confirmPlan(PaymentConfirmPlanRequest $request)
@@ -97,5 +98,27 @@ class PaymentController extends Controller
         return response()->json([
             'message' => 'Payment plan successfully updated.',
         ]);
+    }
+
+    public function showDetail(PaymentShowDetailRequest $request)
+    {
+        $userId = Auth::id();
+        $ids = $request->validated('id');
+
+        $paymentDetail = BookingRecord::query()
+            ->select('id', 'room_id', 'user_id', 'move_in', 'move_out', 'rental_duration', 'status', 'total')
+            ->with([
+                'room' => fn ($q) => $q->select('id', 'name', 'room_type_id'),
+                'room.roomType' => fn ($q) => $q->select('id', 'name'),
+                'roomBill' => fn ($q) => $q
+                    ->select('id', 'booking_record_id', 'payment_plan', 'status', 'amount_left')
+                    ->withSum('paymentRecord as total_paid', 'amount')
+            ])
+            ->where('user_id', $userId)
+            ->whereIn('id', $ids)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return PaymentShowDetailResource::collection($paymentDetail);
     }
 }
