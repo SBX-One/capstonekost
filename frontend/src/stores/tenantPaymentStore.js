@@ -5,14 +5,14 @@ import { immutableSet } from '@/utils/mapUtils';
 
 export const useTenantPaymentStore = defineStore('tenantPayment', () => {
     let listController = null;
-    let detailController = null;
+    let currentController = null;
 
     const paymentsMap = ref(new Map());
-    const paymentDetails = ref(new Map());
+    const currentPayments = ref(new Map());
     const listCache = new Map();
 
     const isFetching = ref(false);
-    const isFetchingDetail = ref(false);
+    const isFetchingCurrent = ref(false);
     const isMutating = ref(false);
     const error = ref(null);
     const validationErrors = ref({});
@@ -43,7 +43,7 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
 
     function clearCache() {
         listCache.clear();
-        paymentDetails.value.clear();
+        currentPayments.value.clear();
     }
 
     function clearError() {
@@ -81,8 +81,8 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
         }
 
         listController?.abort();
-        const currentController = new AbortController();
-        listController = currentController;
+        const activeListController = new AbortController();
+        listController = activeListController;
 
         isFetching.value = true;
         error.value = null;
@@ -100,7 +100,7 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
 
             const response = await apiClient.get('/tenant/payments', {
                 params: cleanParams,
-                signal: currentController.signal,
+                signal: activeListController.signal,
             });
 
             const responseData = response.data;
@@ -139,63 +139,63 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
             }
             error.value = err.response?.data?.message || 'Failed to fetch payment records.';
         } finally {
-            if (listController === currentController) {
+            if (listController === activeListController) {
                 isFetching.value = false;
             }
         }
     }
 
-    async function fetchPaymentDetail(id, forceRefresh = false) {
+    async function fetchCurrentPayment(id, forceRefresh = false) {
         const numericId = getValidNumericId(id);
         if (!numericId) {
-            error.value = 'Invalid payment ID provided.';
+            error.value = 'Invalid booking ID provided.';
             return null;
         }
 
-        if (!forceRefresh && paymentDetails.value.has(numericId)) {
-            return paymentDetails.value.get(numericId);
+        if (!forceRefresh && currentPayments.value.has(numericId)) {
+            return currentPayments.value.get(numericId);
         }
 
-        detailController?.abort();
-        const currentController = new AbortController();
-        detailController = currentController;
+        currentController?.abort();
+        const activeCurrentController = new AbortController();
+        currentController = activeCurrentController;
 
-        isFetchingDetail.value = true;
+        isFetchingCurrent.value = true;
         error.value = null;
 
         try {
-            const response = await apiClient.get(`/tenant/payments/detail/${numericId}`, {
-                signal: currentController.signal,
+            const response = await apiClient.get(`/tenant/payments/current/${numericId}`, {
+                signal: activeCurrentController.signal,
             });
             const responseData = response.data;
-            const detailData = responseData.data || responseData;
+            const currentData = responseData.data || responseData;
 
-            if (detailData) {
-                if (paymentDetails.value.size >= 50 && !paymentDetails.value.has(numericId)) {
-                    const firstKey = paymentDetails.value.keys().next().value;
-                    const nextMap = new Map(paymentDetails.value);
+            if (currentData) {
+                if (currentPayments.value.size >= 50 && !currentPayments.value.has(numericId)) {
+                    const firstKey = currentPayments.value.keys().next().value;
+                    const nextMap = new Map(currentPayments.value);
                     nextMap.delete(firstKey);
-                    paymentDetails.value = nextMap;
+                    currentPayments.value = nextMap;
                 }
 
-                paymentDetails.value = immutableSet(paymentDetails.value, numericId, detailData);
+                currentPayments.value = immutableSet(currentPayments.value, numericId, currentData);
             }
 
-            return detailData;
+            return currentData;
         } catch (err) {
             if (apiClient.isCancel?.(err) || err.name === 'CanceledError') {
                 return null;
             }
-            error.value = err.response?.data?.message || 'Failed to fetch payment details.';
+            error.value = err.response?.data?.message || 'Failed to fetch current payment details.';
             return null;
         } finally {
-            if (detailController === currentController) {
-                isFetchingDetail.value = false;
+            if (currentController === activeCurrentController) {
+                isFetchingCurrent.value = false;
             }
         }
     }
 
-    async function confirmPaymentPlan(billingId, plan, paymentListId = null) {
+    async function confirmPaymentPlan(billingId, plan, currentBookingId = null) {
         const numericBillingId = getValidNumericId(billingId);
         if (!numericBillingId) {
             error.value = 'Invalid billing ID provided.';
@@ -213,18 +213,18 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
         error.value = null;
         validationErrors.value = {};
 
-        const numericListId = getValidNumericId(paymentListId);
-        const backupDetail = numericListId && paymentDetails.value.has(numericListId)
-            ? structuredClone(toRaw(paymentDetails.value.get(numericListId)))
+        const numericCurrentId = getValidNumericId(currentBookingId);
+        const backupCurrent = numericCurrentId && currentPayments.value.has(numericCurrentId)
+            ? structuredClone(toRaw(currentPayments.value.get(numericCurrentId)))
             : null;
-        const backupListItem = numericListId && paymentsMap.value.has(numericListId)
-            ? structuredClone(toRaw(paymentsMap.value.get(numericListId)))
+        const backupListItem = numericCurrentId && paymentsMap.value.has(numericCurrentId)
+            ? structuredClone(toRaw(paymentsMap.value.get(numericCurrentId)))
             : null;
 
-        if (backupDetail && backupDetail.payment_record) {
-            const optimisticDetail = structuredClone(backupDetail);
-            optimisticDetail.payment_record.payment_plan = normalizedPlan;
-            paymentDetails.value = immutableSet(paymentDetails.value, numericListId, optimisticDetail);
+        if (backupCurrent && backupCurrent.payment_record) {
+            const optimisticCurrent = structuredClone(backupCurrent);
+            optimisticCurrent.payment_record.payment_plan = normalizedPlan;
+            currentPayments.value = immutableSet(currentPayments.value, numericCurrentId, optimisticCurrent);
         }
 
         if (backupListItem) {
@@ -234,7 +234,7 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
             } else if (optimisticItem.booking_record) {
                 optimisticItem.booking_record.payment_plan = normalizedPlan;
             }
-            paymentsMap.value = immutableSet(paymentsMap.value, numericListId, optimisticItem);
+            paymentsMap.value = immutableSet(paymentsMap.value, numericCurrentId, optimisticItem);
         }
 
         try {
@@ -244,13 +244,16 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
             });
 
             listCache.clear();
+            if (numericCurrentId) {
+                await fetchCurrentPayment(numericCurrentId, true);
+            }
             return true;
         } catch (err) {
-            if (backupDetail && numericListId) {
-                paymentDetails.value = immutableSet(paymentDetails.value, numericListId, backupDetail);
+            if (backupCurrent && numericCurrentId) {
+                currentPayments.value = immutableSet(currentPayments.value, numericCurrentId, backupCurrent);
             }
-            if (backupListItem && numericListId) {
-                paymentsMap.value = immutableSet(paymentsMap.value, numericListId, backupListItem);
+            if (backupListItem && numericCurrentId) {
+                paymentsMap.value = immutableSet(paymentsMap.value, numericCurrentId, backupListItem);
             }
 
             error.value = err.response?.data?.message || 'Failed to confirm payment plan.';
@@ -264,9 +267,9 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
     return {
         paymentsMap,
         payments,
-        paymentDetails,
+        currentPayments,
         isFetching,
-        isFetchingDetail,
+        isFetchingCurrent,
         isMutating,
         error,
         validationErrors,
@@ -275,7 +278,7 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
         counts,
 
         fetchPayments,
-        fetchPaymentDetail,
+        fetchCurrentPayment,
         confirmPaymentPlan,
         clearError,
         clearValidationErrors,

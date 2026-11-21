@@ -2,11 +2,13 @@ import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useTenantPaymentStore } from '@/stores/tenantPaymentStore';
 import {
+    parseApiDate,
     formatRupiah,
     formatDate,
     formatDateTime,
     formatDateRange,
     formatPaymentPlan,
+    formatDuration,
 } from '@/utils/formatters';
 
 export const PAYMENT_FILTER_TABS = [
@@ -61,6 +63,19 @@ const STATUS_UI_MAP = {
     },
 };
 
+const VALID_BOOKING_STATUSES = [
+    'available',
+    'occupied',
+    'pending',
+    'active',
+    'completed',
+    'complete',
+    'rejected',
+    'canceled',
+    'cancelled',
+    'approved',
+];
+
 function resolveStatusKey(rawStatus, cancellationReason) {
     if (cancellationReason || rawStatus === 'cancelled' || rawStatus === 'canceled') return 'cancelled';
     if (['partial', 'partially paid', 'partially_paid'].includes(rawStatus)) return 'partial';
@@ -69,15 +84,87 @@ function resolveStatusKey(rawStatus, cancellationReason) {
     return 'unpaid';
 }
 
+function resolveBookingStatus(rawStatus) {
+    const normalized = String(rawStatus || '').toLowerCase().trim();
+    return VALID_BOOKING_STATUSES.includes(normalized) ? normalized : 'approved';
+}
+
+function normalizePlanKey(rawPlan) {
+    const normalized = String(rawPlan || '').toLowerCase().trim();
+    if (normalized === 'monthly' || normalized === 'monthly payment') return 'monthly';
+    if (normalized === 'full' || normalized === 'full payment') return 'full';
+    return '';
+}
+
+function resolveDurationMonths(booking) {
+    const rawDuration = Number(booking?.rental_duration);
+    if (Number.isFinite(rawDuration) && rawDuration > 0) return rawDuration;
+
+    if (booking?.move_in && booking?.move_out) {
+        const start = parseApiDate(booking.move_in);
+        const end = parseApiDate(booking.move_out);
+        if (start.isValid() && end.isValid() && end.isAfter(start)) {
+            return Math.max(1, Math.ceil(end.diff(start, 'month', true)));
+        }
+    }
+    return 1;
+}
+
+function lookupRecordById(collection, id) {
+    if (id === undefined || id === null || id === '' || !collection) return null;
+
+    if (collection instanceof Map) {
+        return (
+            collection.get(Number(id)) ||
+            collection.get(id) ||
+            collection.get(String(id)) ||
+            null
+        );
+    }
+
+    if (Array.isArray(collection)) {
+        return collection.find(item => String(item?.id) === String(id)) || null;
+    }
+
+    return collection[id] || collection[String(id)] || null;
+}
+
+function extractPaymentContext(item) {
+    const booking = item.booking_record || item;
+    const payment = item.payment_record || item;
+    const upcoming = item.upcoming_payment || null;
+    const room = booking.room || {};
+    const roomType = room.room_type || {};
+
+    const rawStatus = String(payment.payment_status || payment.status || '').toLowerCase().trim();
+    const cancellationReason = booking.cancellation_reason || null;
+    const statusKey = resolveStatusKey(rawStatus, cancellationReason);
+
+    return {
+        id: item.id ?? booking.id,
+        booking,
+        payment,
+        upcoming,
+        room,
+        roomType,
+        cancellationReason,
+        statusKey,
+        ui: STATUS_UI_MAP[statusKey],
+        rawPlan: payment.payment_plan || booking.payment_plan || '',
+        rentalPeriod: formatDateRange(booking.move_in, booking.move_out),
+        roomNumber: booking.name || room.name || room.room_number || '-',
+    };
+}
+
 export function useTenantPayment() {
     const tenantPaymentStore = useTenantPaymentStore();
 
     const {
         paymentsMap,
         payments,
-        paymentDetails,
+        currentPayments,
         isFetching,
-        isFetchingDetail,
+        isFetchingCurrent,
         isMutating,
         error,
         validationErrors,
@@ -86,24 +173,32 @@ export function useTenantPayment() {
         counts,
     } = storeToRefs(tenantPaymentStore);
 
+    function getRawCurrentPaymentById(id) {
+        return lookupRecordById(currentPayments.value, id);
+    }
+
     function normalizePaymentCard(item) {
         if (!item) return null;
 
-        const booking = item.booking_record || {};
-        const payment = item.payment_record || {};
-        const room = booking.room || {};
-        const roomType = room.room_type || {};
-
-        const rawStatus = String(payment.status || '').toLowerCase().trim();
-        const cancellationReason = booking.cancellation_reason || null;
-        const statusKey = resolveStatusKey(rawStatus, cancellationReason);
-        const ui = STATUS_UI_MAP[statusKey];
+        const {
+            id,
+            booking,
+            payment,
+            roomType,
+            cancellationReason,
+            statusKey,
+            ui,
+            rawPlan,
+            rentalPeriod,
+            roomNumber,
+        } = extractPaymentContext(item);
 
         const totalAmountRaw = Number(booking.total) || 0;
         const totalPaidRaw = Number(payment.total_paid) || 0;
-        const amountLeftRaw = payment.amount_left !== undefined && payment.amount_left !== null
-            ? Number(payment.amount_left)
-            : Math.max(0, totalAmountRaw - totalPaidRaw);
+        const amountLeftRaw =
+            payment.amount_left !== undefined && payment.amount_left !== null
+                ? Number(payment.amount_left)
+                : Math.max(0, totalAmountRaw - totalPaidRaw);
 
         const dateValueMap = {
             unpaid: formatDateTime(payment.due_date),
@@ -113,19 +208,20 @@ export function useTenantPayment() {
             cancelled: formatDate(booking.cancelled_at || booking.updated_at || payment.due_date),
         };
 
-        const footerValue = statusKey === 'cancelled'
-            ? (cancellationReason || 'Cancelled')
-            : formatRupiah(statusKey === 'paid' ? 0 : amountLeftRaw);
+        const footerValue =
+            statusKey === 'cancelled'
+                ? cancellationReason || 'Cancelled'
+                : formatRupiah(statusKey === 'paid' ? 0 : amountLeftRaw);
 
         return {
-            id: item.id,
+            id,
             statusKey,
             isCancelled: statusKey === 'cancelled',
-            title: `${roomType.name || 'Room'} • ${room.name || '-'}`,
+            title: `${roomType.name || 'Room'} • ${roomNumber}`,
             ...ui,
             dateValue: dateValueMap[statusKey],
-            paymentPlanLabel: formatPaymentPlan(payment.payment_plan || booking.payment_plan),
-            rentalPeriod: formatDateRange(booking.move_in, booking.move_out),
+            paymentPlanLabel: formatPaymentPlan(rawPlan),
+            rentalPeriod,
             totalAmount: formatRupiah(totalAmountRaw),
             totalPaid: formatRupiah(totalPaidRaw),
             footerValue,
@@ -133,15 +229,95 @@ export function useTenantPayment() {
         };
     }
 
-    const formattedPayments = computed(() => payments.value.map(normalizePaymentCard).filter(Boolean));
+    function normalizeCurrentPayment(item) {
+        if (!item) return null;
+
+        const {
+            id,
+            booking,
+            payment,
+            upcoming,
+            room,
+            statusKey,
+            ui,
+            rawPlan,
+            rentalPeriod,
+            roomNumber,
+        } = extractPaymentContext(item);
+
+        const durationMonths = resolveDurationMonths(booking);
+        const roomPrice = Number(room.price) || 0;
+        const rawTotal = Number(booking.total);
+        const totalCostRaw =
+            booking.total !== undefined && booking.total !== null && Number.isFinite(rawTotal)
+                ? rawTotal
+                : roomPrice * durationMonths;
+
+        const monthlyCostRaw =
+            roomPrice > 0
+                ? roomPrice
+                : durationMonths > 0
+                    ? Math.round(totalCostRaw / durationMonths)
+                    : totalCostRaw;
+
+        const confirmedPlan = normalizePlanKey(rawPlan);
+
+        const hasUpcomingAmount =
+            upcoming?.amount !== undefined &&
+            upcoming?.amount !== null &&
+            Number.isFinite(Number(upcoming.amount));
+
+        const upcomingAmountRaw = hasUpcomingAmount
+            ? Number(upcoming.amount)
+            : confirmedPlan === 'monthly'
+                ? monthlyCostRaw
+                : totalCostRaw;
+
+        return {
+            id,
+            billingId: payment.id ?? item.id ?? booking.id,
+            roomLabel: roomNumber,
+            rentalPeriod,
+            durationLabel: formatDuration(durationMonths),
+            bookingStatus: resolveBookingStatus(booking.status),
+            totalCostRaw,
+            monthlyCostRaw,
+            formattedTotalCost: formatRupiah(totalCostRaw),
+            formattedMonthlyCost: formatRupiah(monthlyCostRaw),
+            confirmedPlan,
+            summaryPlanLabel: confirmedPlan ? formatPaymentPlan(confirmedPlan) : '-',
+            statusKey,
+            statusLabel: ui.badgeLabel,
+            upcomingPayment: {
+                hasApiAmount: hasUpcomingAmount,
+                amountRaw: upcomingAmountRaw,
+                formattedAmount: formatRupiah(upcomingAmountRaw),
+                dueDateRaw: upcoming?.due_date || null,
+                dueDateLabel: 'Within 24 hours',
+            },
+            deadlineSource: {
+                payment_deadline: upcoming?.due_date || payment.due_date || payment.payment_deadline,
+                approved_at: booking.approved_at || booking.updated_at || booking.created_at,
+            },
+            raw: item,
+        };
+    }
+
+    function getCurrentPaymentById(id) {
+        return normalizeCurrentPayment(getRawCurrentPaymentById(id));
+    }
+
+    const formattedPayments = computed(() =>
+        payments.value.map(normalizePaymentCard).filter(Boolean)
+    );
 
     return {
         paymentsMap,
         payments,
         formattedPayments,
-        paymentDetails,
+        currentPayments,
         isFetching,
-        isFetchingDetail,
+        isFetchingCurrent,
         isMutating,
         error,
         validationErrors,
@@ -150,11 +326,14 @@ export function useTenantPayment() {
         counts,
 
         filterTabs: PAYMENT_FILTER_TABS,
+        getRawCurrentPaymentById,
+        getCurrentPaymentById,
         normalizePaymentCard,
+        normalizeCurrentPayment,
         formatRupiah,
 
         fetchPayments: tenantPaymentStore.fetchPayments,
-        fetchPaymentDetail: tenantPaymentStore.fetchPaymentDetail,
+        fetchCurrentPayment: tenantPaymentStore.fetchCurrentPayment,
         confirmPaymentPlan: tenantPaymentStore.confirmPaymentPlan,
         clearError: tenantPaymentStore.clearError,
         clearValidationErrors: tenantPaymentStore.clearValidationErrors,
