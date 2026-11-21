@@ -130,18 +130,18 @@ function lookupRecordById(collection, id) {
 }
 
 function extractPaymentContext(item) {
-    const booking = item.booking_record || item;
+    const booking = item.booking_information || item.booking_record || item;
     const payment = item.payment_record || item;
     const upcoming = item.upcoming_payment || null;
     const room = booking.room || {};
-    const roomType = room.room_type || {};
+    const roomType = booking.room_type || room.room_type || {};
 
     const rawStatus = String(payment.payment_status || payment.status || '').toLowerCase().trim();
     const cancellationReason = booking.cancellation_reason || null;
     const statusKey = resolveStatusKey(rawStatus, cancellationReason);
 
     return {
-        id: item.id ?? booking.id,
+        id: item.id ?? payment.id ?? booking.id,
         booking,
         payment,
         upcoming,
@@ -163,8 +163,10 @@ export function useTenantPayment() {
         paymentsMap,
         payments,
         currentPayments,
+        paymentDetails,
         isFetching,
         isFetchingCurrent,
+        isFetchingDetail,
         isMutating,
         error,
         validationErrors,
@@ -175,6 +177,10 @@ export function useTenantPayment() {
 
     function getRawCurrentPaymentById(id) {
         return lookupRecordById(currentPayments.value, id);
+    }
+
+    function getRawPaymentDetailById(id) {
+        return lookupRecordById(paymentDetails.value, id);
     }
 
     function normalizePaymentCard(item) {
@@ -193,11 +199,12 @@ export function useTenantPayment() {
             roomNumber,
         } = extractPaymentContext(item);
 
-        const totalAmountRaw = Number(booking.total) || 0;
+        const totalAmountRaw = Number(payment.total ?? booking.total) || 0;
         const totalPaidRaw = Number(payment.total_paid) || 0;
+        const rawRemaining = payment.total_left ?? payment.amount_left;
         const amountLeftRaw =
-            payment.amount_left !== undefined && payment.amount_left !== null
-                ? Number(payment.amount_left)
+            rawRemaining !== undefined && rawRemaining !== null
+                ? Number(rawRemaining)
                 : Math.max(0, totalAmountRaw - totalPaidRaw);
 
         const dateValueMap = {
@@ -247,9 +254,10 @@ export function useTenantPayment() {
 
         const durationMonths = resolveDurationMonths(booking);
         const roomPrice = Number(room.price) || 0;
-        const rawTotal = Number(booking.total);
+        const rawTotal = Number(booking.total ?? payment.total);
         const totalCostRaw =
-            booking.total !== undefined && booking.total !== null && Number.isFinite(rawTotal)
+            (booking.total !== undefined && booking.total !== null && Number.isFinite(rawTotal)) ||
+                (payment.total !== undefined && payment.total !== null && Number.isFinite(rawTotal))
                 ? rawTotal
                 : roomPrice * durationMonths;
 
@@ -303,8 +311,64 @@ export function useTenantPayment() {
         };
     }
 
+    function normalizePaymentDetail(item) {
+        if (!item) return null;
+
+        const {
+            id,
+            booking,
+            payment,
+            roomType,
+            cancellationReason,
+            statusKey,
+            ui,
+            rawPlan,
+            rentalPeriod,
+            roomNumber,
+        } = extractPaymentContext(item);
+
+        const totalAmountRaw = Number(payment.total ?? booking.total) || 0;
+        const totalPaidRaw = Number(payment.total_paid) || 0;
+        const rawRemaining = payment.total_left ?? payment.amount_left;
+        const totalLeftRaw =
+            rawRemaining !== undefined && rawRemaining !== null
+                ? Number(rawRemaining)
+                : Math.max(0, totalAmountRaw - totalPaidRaw);
+
+        const rawGraceDays = Number(payment.grace_days_remaining ?? item.grace_days_remaining);
+        const graceDaysRemaining = Number.isFinite(rawGraceDays) && rawGraceDays > 0 ? rawGraceDays : 14;
+
+        const rawCancelDate = booking.cancelled_at || payment.cancelled_at || booking.updated_at;
+        const cancellationDateLabel = rawCancelDate ? formatDate(rawCancelDate) : '22 Oct 2026';
+
+        return {
+            id: payment.id ?? id,
+            paymentId: payment.id ?? null,
+            bookingId: booking.id ?? null,
+            statusKey,
+            statusLabel: ui.badgeLabel,
+            isOverdue: statusKey === 'overdue',
+            isCancelled: statusKey === 'cancelled',
+            gracePeriodTitle: `${graceDaysRemaining} Days Remaining`,
+            gracePeriodDescription: 'Please settle your overdue payment within the grace period to avoid automatic booking cancellation.',
+            paymentPlanLabel: formatPaymentPlan(rawPlan) || 'Monthly Payment',
+            formattedTotalAmount: formatRupiah(totalAmountRaw),
+            formattedTotalPaid: formatRupiah(totalPaidRaw),
+            formattedRemainingBalance: formatRupiah(statusKey === 'paid' ? 0 : totalLeftRaw),
+            cancellationReason: cancellationReason || 'Overdue Grace Period Expired',
+            cancellationDateLabel,
+            roomLabel: `${roomType.name || 'Room'} ${roomNumber}`,
+            rentalPeriod,
+            raw: item,
+        };
+    }
+
     function getCurrentPaymentById(id) {
         return normalizeCurrentPayment(getRawCurrentPaymentById(id));
+    }
+
+    function getPaymentDetailById(id) {
+        return normalizePaymentDetail(getRawPaymentDetailById(id));
     }
 
     const formattedPayments = computed(() =>
@@ -316,8 +380,10 @@ export function useTenantPayment() {
         payments,
         formattedPayments,
         currentPayments,
+        paymentDetails,
         isFetching,
         isFetchingCurrent,
+        isFetchingDetail,
         isMutating,
         error,
         validationErrors,
@@ -328,12 +394,16 @@ export function useTenantPayment() {
         filterTabs: PAYMENT_FILTER_TABS,
         getRawCurrentPaymentById,
         getCurrentPaymentById,
+        getRawPaymentDetailById,
+        getPaymentDetailById,
         normalizePaymentCard,
         normalizeCurrentPayment,
+        normalizePaymentDetail,
         formatRupiah,
 
         fetchPayments: tenantPaymentStore.fetchPayments,
         fetchCurrentPayment: tenantPaymentStore.fetchCurrentPayment,
+        fetchPaymentDetails: tenantPaymentStore.fetchPaymentDetails,
         confirmPaymentPlan: tenantPaymentStore.confirmPaymentPlan,
         clearError: tenantPaymentStore.clearError,
         clearValidationErrors: tenantPaymentStore.clearValidationErrors,

@@ -5,13 +5,14 @@ import { useTenantPayment } from '@/composables/useTenantPayment';
 import { usePagination } from '@/composables/usePagination';
 
 import PaymentOverviewCard from '@/components/payment/PaymentOverviewCard.vue';
+import PaymentDetailModal from '@/components/payment/PaymentDetailModal.vue';
 import AppPagination from '@/components/common/AppPagination.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
 
 const route = useRoute();
 const router = useRouter();
 
-const { formattedPayments, isFetching, error, totalCount, filterTabs, fetchPayments, clearError } = useTenantPayment();
+const { formattedPayments, isFetching, isFetchingDetail, error, totalCount, filterTabs, getPaymentDetailById, fetchPayments, fetchPaymentDetails, clearError } = useTenantPayment();
 
 const validFilterValues = new Set(filterTabs.map(tab => tab.value));
 
@@ -26,6 +27,14 @@ const activeFilter = ref(parseFilterQuery(route.query.filter));
 const tabButtonRefs = ref([]);
 let latestRequestId = 0;
 let scrollTimeoutId = null;
+
+const isDetailModalOpen = ref(false);
+const selectedPaymentId = ref(null);
+
+const selectedPaymentDetail = computed(() => {
+    if (!selectedPaymentId.value) return null;
+    return getPaymentDetailById(selectedPaymentId.value);
+});
 
 function scrollToTop() {
     const scrollContainer = document.querySelector('main') || document.querySelector('.overflow-y-auto') || document.documentElement;
@@ -121,12 +130,23 @@ function handleTabKeydown(event, currentIndex) {
     }
 }
 
-function handleViewDetail(paymentId) {
+async function handleViewDetail(paymentId) {
     if (!paymentId) return;
-    router.push({
-        name: 'tenant-payment-detail',
-        params: { id: paymentId },
-    });
+    clearError();
+    selectedPaymentId.value = paymentId;
+    isDetailModalOpen.value = true;
+    await fetchPaymentDetails(paymentId);
+}
+
+function handleCloseDetailModal() {
+    isDetailModalOpen.value = false;
+    clearError();
+}
+
+async function handleRetryDetail() {
+    if (!selectedPaymentId.value) return;
+    clearError();
+    await fetchPaymentDetails(selectedPaymentId.value);
 }
 
 watch(
@@ -184,7 +204,11 @@ onUnmounted(() => {
             </button>
         </div>
 
-        <div v-if="error" role="alert" class="mb-6 p-4 rounded-default bg-status-error-bg border border-status-error text-status-error flex items-center justify-between gap-4 animate-fade-in">
+        <div
+            v-if="error && !isDetailModalOpen"
+            role="alert"
+            class="mb-6 p-4 rounded-default bg-status-error-bg border border-status-error text-status-error flex items-center justify-between gap-4 animate-fade-in"
+        >
             <span class="text-body-md">{{ error }}</span>
             <button type="button" @click="loadPayments()" class="text-label-btn-md cursor-pointer shrink-0 focus-visible:outline-none">Retry</button>
         </div>
@@ -283,6 +307,8 @@ onUnmounted(() => {
 
             <BaseButton v-if="isFiltered" variant="secondary" size="md" class="mt-2" @click="handleFilterSelect('all')"> Show All Payments </BaseButton>
         </section>
+
+        <PaymentDetailModal :is-open="isDetailModalOpen" :payment="selectedPaymentDetail" :is-loading="isFetchingDetail" :error="error" @close="handleCloseDetailModal" @retry="handleRetryDetail" />
     </div>
 </template>
 

@@ -9,10 +9,12 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
 
     const paymentsMap = ref(new Map());
     const currentPayments = ref(new Map());
+    const paymentDetails = ref(new Map());
     const listCache = new Map();
 
     const isFetching = ref(false);
     const isFetchingCurrent = ref(false);
+    const isFetchingDetail = ref(false);
     const isMutating = ref(false);
     const error = ref(null);
     const validationErrors = ref({});
@@ -32,6 +34,15 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
         return null;
     }
 
+    function getValidNumericIds(payloadIds) {
+        const idArray = Array.isArray(payloadIds) ? payloadIds : [payloadIds];
+        return idArray.reduce((acc, item) => {
+            const num = getValidNumericId(item);
+            if (num) acc.push(num);
+            return acc;
+        }, []);
+    }
+
     function extractValidationErrors(err) {
         const data = err.response?.data;
         if (!data || typeof data !== 'object') return {};
@@ -44,6 +55,7 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
     function clearCache() {
         listCache.clear();
         currentPayments.value.clear();
+        paymentDetails.value.clear();
     }
 
     function clearError() {
@@ -195,6 +207,61 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
         }
     }
 
+    async function fetchPaymentDetails(payloadIds) {
+        const validNumericIds = getValidNumericIds(payloadIds);
+
+        if (validNumericIds.length === 0) {
+            error.value = 'Invalid payment ID(s) provided.';
+            return [];
+        }
+
+        const missingIds = validNumericIds.filter(id => !paymentDetails.value.has(id));
+
+        if (missingIds.length > 0) {
+            isFetchingDetail.value = true;
+            error.value = null;
+
+            try {
+                const response = await apiClient.get('/tenant/payments/detail', {
+                    params: { id: missingIds },
+                });
+
+                const responseData = response.data;
+                const fetchedList = Array.isArray(responseData.data)
+                    ? responseData.data
+                    : (Array.isArray(responseData) ? responseData : []);
+
+                const nextDetailsMap = new Map(paymentDetails.value);
+
+                fetchedList.forEach(item => {
+                    const detailData = item.payment_record ? item : (item.data || item);
+                    const detailId = getValidNumericId(
+                        detailData?.payment_record?.id ?? detailData?.id ?? detailData?.booking_information?.id
+                    );
+
+                    if (detailId) {
+                        if (nextDetailsMap.size >= 50 && !nextDetailsMap.has(detailId)) {
+                            const firstKey = nextDetailsMap.keys().next().value;
+                            nextDetailsMap.delete(firstKey);
+                        }
+
+                        nextDetailsMap.set(detailId, structuredClone(toRaw(detailData)));
+                    }
+                });
+
+                paymentDetails.value = nextDetailsMap;
+            } catch (err) {
+                error.value = err.response?.data?.message || 'Failed to fetch payment details.';
+            } finally {
+                isFetchingDetail.value = false;
+            }
+        }
+
+        return validNumericIds
+            .map(id => paymentDetails.value.get(id))
+            .filter(Boolean);
+    }
+
     async function confirmPaymentPlan(billingId, plan, currentBookingId = null) {
         const numericBillingId = getValidNumericId(billingId);
         if (!numericBillingId) {
@@ -244,6 +311,8 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
             });
 
             listCache.clear();
+            paymentDetails.value.delete(numericBillingId);
+
             if (numericCurrentId) {
                 await fetchCurrentPayment(numericCurrentId, true);
             }
@@ -268,8 +337,10 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
         paymentsMap,
         payments,
         currentPayments,
+        paymentDetails,
         isFetching,
         isFetchingCurrent,
+        isFetchingDetail,
         isMutating,
         error,
         validationErrors,
@@ -279,6 +350,7 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
 
         fetchPayments,
         fetchCurrentPayment,
+        fetchPaymentDetails,
         confirmPaymentPlan,
         clearError,
         clearValidationErrors,

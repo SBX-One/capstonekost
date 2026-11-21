@@ -127,12 +127,6 @@ const routes = [
                 props: true
             },
             {
-                path: 'payments/:id',
-                name: 'tenant-payment-detail',
-                component: () => import('@/views/tenant/PaymentDetailView.vue'),
-                props: true
-            },
-            {
                 path: 'complaints',
                 name: 'tenant-complaints',
                 // component: () => import('@/views/tenant/ComplaintView.vue')
