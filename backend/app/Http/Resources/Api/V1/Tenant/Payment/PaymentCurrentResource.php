@@ -28,6 +28,10 @@ class PaymentCurrentResource extends JsonResource
                 'id' => $this->resource->roomBill['id'],
                 'payment_plan' => $this->resource->roomBill['payment_plan'],
                 'status' => $this->resource->roomBill['status']
+            ],
+            'upcoming_payment' => [
+                'amount' => $this->resource->roomBill['current_month_bill'],
+                'due_date' => $this->resource->roomBill['next_due_date']
             ]
         ];
     }
