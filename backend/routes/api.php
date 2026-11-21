@@ -102,6 +102,7 @@ Route::middleware('auth:api')->group(function () {
             Route::prefix('/payments')
                 ->name('payments.')->group(function () {
                     Route::get('/', [TenantPaymentController::class, 'showList'])->name('list');
+                    Route::get('/detail', [TenantPaymentController::class, 'showDetail']);
                     Route::get('/current/{id}', [TenantPaymentController::class, 'showCurrentPayment'])->name('list');
                     Route::patch('/confirm', [TenantPaymentController::class, 'confirmPlan']);
                 });
