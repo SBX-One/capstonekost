@@ -4,12 +4,13 @@ import { useRouter } from 'vue-router';
 
 import { useTenantPayment } from '@/composables/useTenantPayment';
 import { usePaymentCountdown } from '@/composables/usePaymentCountdown';
-import { formatPaymentPlan } from '@/utils/formatters';
+import { formatRupiah, formatPaymentPlan } from '@/utils/formatters';
 
 import RoomStatusBadge from '@/components/common/RoomStatusBadge.vue';
 import PaymentStatusBadge from '@/components/common/PaymentStatusBadge.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
 import PaymentCountdownSection from '@/components/payment/PaymentCountdownSection.vue';
+import UpcomingPaymentCard from '@/components/payment/UpcomingPaymentCard.vue';
 import PaymentPlanCard from '@/components/payment/PaymentPlanCard.vue';
 import ConfirmPaymentPlanModal from '@/components/payment/ConfirmPaymentPlanModal.vue';
 import PaymentInstructionsSection from '@/components/payment/PaymentInstructionsSection.vue';
@@ -23,17 +24,14 @@ const props = defineProps({
 
 const router = useRouter();
 
-const { isFetchingDetail, isMutating, error, getRawDetailById, normalizeCurrentPayment, fetchPaymentDetail, confirmPaymentPlan, clearError } = useTenantPayment();
+const { isFetchingCurrent, isMutating, error, getCurrentPaymentById, fetchCurrentPayment, confirmPaymentPlan, clearError } = useTenantPayment();
 
 const selectedPlan = ref('');
 const localConfirmedPlan = ref('');
 const isConfirmModalOpen = ref(false);
 const actionError = ref('');
 
-const currentPayment = computed(() => {
-    const raw = getRawDetailById(props.id);
-    return normalizeCurrentPayment(raw);
-});
+const currentPayment = computed(() => getCurrentPaymentById(props.id));
 
 const { formattedRemainingTime, formattedDeadline, isApproaching, isExpired } = usePaymentCountdown(() => currentPayment.value?.deadlineSource);
 
@@ -45,6 +43,16 @@ const isPlanConfirmed = computed(() => Boolean(activeConfirmedPlan.value));
 
 const summaryPlanLabel = computed(() => {
     return activeConfirmedPlan.value ? formatPaymentPlan(activeConfirmedPlan.value) : '-';
+});
+
+const upcomingAmountDueLabel = computed(() => {
+    const payment = currentPayment.value;
+    if (!payment) return 'Rp0';
+    if (payment.upcomingPayment?.hasApiAmount) {
+        return payment.upcomingPayment.formattedAmount;
+    }
+    const fallbackAmount = activeConfirmedPlan.value === 'monthly' ? payment.monthlyCostRaw : payment.totalCostRaw;
+    return formatRupiah(fallbackAmount);
 });
 
 const modalAmountLabel = computed(() => {
@@ -65,7 +73,7 @@ async function loadCurrentPayment() {
     }
     clearError();
     actionError.value = '';
-    await fetchPaymentDetail(props.id);
+    await fetchCurrentPayment(props.id);
 }
 
 function handleBack() {
@@ -92,7 +100,8 @@ async function handleConfirm() {
     if (!selectedPlan.value || isMutating.value) return;
     actionError.value = '';
 
-    const success = await confirmPaymentPlan(props.id, selectedPlan.value);
+    const billingId = currentPayment.value?.billingId || props.id;
+    const success = await confirmPaymentPlan(billingId, selectedPlan.value, props.id);
     if (success) {
         localConfirmedPlan.value = selectedPlan.value;
     } else {
@@ -118,7 +127,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="max-w-7xl mx-auto min-h-screen" :aria-busy="isFetchingDetail">
+    <div class="max-w-7xl mx-auto min-h-screen" :aria-busy="isFetchingCurrent">
         <div class="flex flex-col gap-6 mb-16">
             <button type="button" @click="handleBack" class="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors w-fit cursor-pointer focus-visible:outline-none">
                 <svg class="w-5 h-5 shrink-0" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -146,7 +155,7 @@ onMounted(() => {
             </div>
         </div>
 
-        <div v-if="isFetchingDetail && !currentPayment" class="flex flex-col gap-12 mb-8 animate-pulse" aria-busy="true" aria-label="Loading current payment details">
+        <div v-if="isFetchingCurrent && !currentPayment" class="flex flex-col gap-12 mb-8 animate-pulse" aria-busy="true" aria-label="Loading current payment details">
             <div class="flex flex-col gap-6">
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 rounded-full bg-neutral-200 shrink-0"></div>
@@ -188,7 +197,7 @@ onMounted(() => {
             </div>
         </div>
 
-        <template v-else-if="currentPayment" class="flex flex-col gap-12">
+        <div v-else-if="currentPayment" class="flex flex-col gap-12">
             <PaymentCountdownSection :remaining-time="formattedRemainingTime" :deadline-label="formattedDeadline" :is-approaching="isApproaching" :is-expired="isExpired" />
 
             <section aria-label="Booking and payment summary" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -256,7 +265,13 @@ onMounted(() => {
                 </article>
             </section>
 
-            <PaymentInstructionsSection v-if="isPlanConfirmed" />
+            <template v-if="isPlanConfirmed">
+                <section aria-label="Upcoming payment" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <UpcomingPaymentCard :amount-due="upcomingAmountDueLabel" :due-date-label="currentPayment.upcomingPayment.dueDateLabel" />
+                </section>
+
+                <PaymentInstructionsSection />
+            </template>
 
             <section v-else aria-labelledby="plan-selection-heading" class="flex flex-col gap-6">
                 <header class="flex flex-col gap-1">
@@ -289,7 +304,7 @@ onMounted(() => {
                         {{ planHelperText }}
                     </p>
 
-                    <BaseButton variant="primary" size="md" :disabled="!selectedPlan || isExpired || isSubmitting" @click="handleOpenModal"> Continue </BaseButton>
+                    <BaseButton variant="primary" size="md" :disabled="!selectedPlan || isExpired || isMutating" @click="handleOpenModal"> Continue </BaseButton>
                 </footer>
             </section>
 
@@ -302,7 +317,7 @@ onMounted(() => {
                 @close="isConfirmModalOpen = false"
                 @confirm="handleConfirm"
             />
-        </template>
+        </div>
     </div>
 </template>
 
