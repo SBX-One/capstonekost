@@ -58,7 +58,7 @@ class PaymentController extends Controller
         return PaymentShowListResource::collection($roomBills);
     }
 
-    public function showDetail(string $id)
+    public function showCurrentPayment(string $id)
     {
         $userId = Auth::id();
 
