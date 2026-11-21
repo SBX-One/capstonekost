@@ -1,5 +1,18 @@
 import dayjs from 'dayjs';
 
+export function parseApiDate(dateInput) {
+    if (!dateInput) return dayjs('');
+    if (typeof dateInput === 'string') {
+        const normalized = dateInput.replace(
+            /^(\d{4})-(\d{1,2})-(\d{1,2})(T.*)?$/,
+            (_, year, month, day, time = '') =>
+                `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}${time}`
+        );
+        return dayjs(normalized);
+    }
+    return dayjs(dateInput);
+}
+
 export function formatRupiah(amount) {
     const numericAmount = Number(amount);
     const safeAmount = Number.isFinite(numericAmount) && numericAmount !== 0 ? numericAmount : 0;
@@ -15,20 +28,20 @@ export function formatRupiah(amount) {
 
 export function formatDate(dateInput, format = 'D MMM YYYY') {
     if (!dateInput) return '-';
-    const parsed = dayjs(dateInput);
+    const parsed = parseApiDate(dateInput);
     return parsed.isValid() ? parsed.format(format) : '-';
 }
 
 export function formatDateTime(dateInput, format = 'D MMM YYYY, HH:mm') {
     if (!dateInput) return '-';
-    const parsed = dayjs(dateInput);
+    const parsed = parseApiDate(dateInput);
     return parsed.isValid() ? parsed.format(format) : '-';
 }
 
 export function formatDateRange(startDate, endDate, format = 'D MMM YYYY') {
     if (!startDate || !endDate) return '-';
-    const start = dayjs(startDate);
-    const end = dayjs(endDate);
+    const start = parseApiDate(startDate);
+    const end = parseApiDate(endDate);
 
     if (!start.isValid() || !end.isValid()) return '-';
     return `${start.format(format)} – ${end.format(format)}`;
@@ -46,4 +59,12 @@ export function formatPaymentPlan(plan) {
     }
 
     return plan;
+}
+
+export function formatDuration(months) {
+    const count = Number(months);
+    if (!Number.isFinite(count) || count <= 0) return '-';
+    if (count === 12) return '1 Year';
+    if (count % 12 === 0) return `${count / 12} Years`;
+    return `${count} ${count === 1 ? 'Month' : 'Months'}`;
 }
