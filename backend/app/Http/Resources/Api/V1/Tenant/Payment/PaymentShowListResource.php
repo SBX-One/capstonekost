@@ -27,12 +27,13 @@ class PaymentShowListResource extends JsonResource
                 ],
                 'move_in' => $this->resource['move_in'],
                 'move_out' => $this->resource['move_out'],
-                'total' => $this->resource['total']
+                'total' => $this->resource['total'],
+                'cancellation_reason' => $this->resource->bookingCancellation?->reason
             ],
             'payment_record' => [
                 'due_date' => $this->resource->roomBill['next_due_date'],
                 'status' => $this->resource->roomBill['status'],
-                'total_paid' => $this->resource['total_paid'],
+                'total_paid' => $this->resource->roomBill['total_paid'],
                 'amount_left' => $this->resource->roomBill['amount_left']
             ]
         ];

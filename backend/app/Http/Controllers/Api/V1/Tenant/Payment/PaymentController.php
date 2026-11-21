@@ -37,22 +37,23 @@ class PaymentController extends Controller
                 'room.roomType' => fn ($q) => $q->select(
                     'id', 'name'
                 ),
-                'roomBill' => fn ($q) => $q->select(
+                'roomBill' => fn ($q) => $q
+                ->select(
                     'id', 'booking_record_id', 'payment_plan', 
                     'amount_left', 'status', 'next_due_date'
-                ),
-                'paymentRecord' => fn ($q) => $q->select(
-                    'id', 'booking_record_id', 'amount'
+                )
+                ->withSum('paymentRecord as total_paid', 'amount'),
+                'bookingCancellation' => fn ($q) => $q->select(
+                    'id', 'booking_record_id', 'reason'
                 )
             ])
-            ->withSum('paymentRecord as total_paid', 'amount')
             ->when(isset($payload['filter']), function ($q) use ($payload) {
                 $q->whereHas('roomBill', function ($query) use ($payload) {
                     $query->where('status', $payload['filter']);
                 });
             })
             ->where('user_id', $userId)
-            ->whereIn('status', ['approved', 'active'])
+            ->whereHas('roomBill')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
