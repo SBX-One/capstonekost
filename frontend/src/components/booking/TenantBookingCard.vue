@@ -16,7 +16,7 @@ const props = defineProps({
     },
 });
 
-defineEmits(['cancel', 'view-details', 'rebook']);
+defineEmits(['cancel', 'view-details', 'rebook', 'pay-now']);
 
 const formatCurrency = amount => {
     if (amount === undefined || amount === null) return 'Rp 0';
@@ -128,6 +128,7 @@ const status = computed(() => (bookingInfo.value.status || 'pending').toLowerCas
 
                 <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0">
                     <BaseButton v-if="status === 'pending'" variant="destructive" size="sm" @click="$emit('cancel', booking.id)" class="flex-1 sm:flex-none"> Cancel Booking </BaseButton>
+                    <BaseButton v-if="status === 'approved'" variant="primary" size="sm" @click="$emit('pay-now', booking)" class="flex-1 sm:flex-none"> Pay Now </BaseButton>
                     <BaseButton v-if="status === 'completed'" variant="primary" size="sm" @click="$emit('rebook', roomInfo.id)" class="flex-1 sm:flex-none"> Rebook this room </BaseButton>
                     <BaseButton v-if="status !== 'pending'" variant="secondary" size="sm" @click="$emit('view-details', booking.id)" class="flex-1 sm:flex-none"> View Details </BaseButton>
                     <BaseButton v-if="status === 'pending'" variant="primary" size="sm" @click="$emit('view-details', booking.id)" class="flex-1 sm:flex-none"> View Details </BaseButton>

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useTenantBooking } from '@/composables/useTenantBooking';
 import { usePagination } from '@/composables/usePagination';
 import { useRoomMeta } from '@/composables/useRoomMeta';
@@ -21,6 +21,7 @@ function scrollToTop() {
 }
 
 const route = useRoute();
+const router = useRouter();
 
 const { recentBooking, historyBookings, isFetching, isMutating, error, totalCount, fetchBookings, fetchBookingDetails, cancelBooking, clearError, navigateToRoomDetail } = useTenantBooking();
 
@@ -87,6 +88,16 @@ async function handleView(bookingId) {
     } finally {
         isFetchingDetails.value = false;
     }
+}
+
+function handlePayNow(booking) {
+    const targetPaymentId = booking?.payment_record?.id || booking?.payment_id || booking?.id;
+    if (!targetPaymentId) return;
+
+    router.push({
+        name: 'tenant-payment-current',
+        params: { id: targetPaymentId },
+    });
 }
 
 async function handleCancelInitiation(bookingId, isFromDrawer = false) {
@@ -167,7 +178,7 @@ onMounted(async () => {
         <template v-else>
             <section v-if="recentBooking" class="mb-14">
                 <h2 class="text-h2 text-text-primary mb-6">Recent Booking</h2>
-                <TenantBookingCard :booking="recentBooking" @view-details="handleView" @cancel="handleCancelInitiation($event, false)" @rebook="handleRebook" />
+                <TenantBookingCard :booking="recentBooking" @view-details="handleView" @cancel="handleCancelInitiation($event, false)" @rebook="handleRebook" @pay-now="handlePayNow" />
             </section>
 
             <section v-if="historyBookings.length > 0" class="mb-8">
@@ -180,6 +191,7 @@ onMounted(async () => {
                         @view-details="handleView"
                         @cancel="handleCancelInitiation($event, false)"
                         @rebook="handleRebook"
+                        @pay-now="handlePayNow"
                     />
                 </div>
             </section>
