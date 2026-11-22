@@ -2,16 +2,42 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAdminPayment } from '@/composables/useAdminPayment';
+import { useExportPaymentValidation } from '@/composables/useExportPaymentValidation';
+import { useRoom } from '@/composables/useRoom';
 import { usePagination } from '@/composables/usePagination';
 
 import BaseButton from '@/components/common/BaseButton.vue';
 import AppPagination from '@/components/common/AppPagination.vue';
+import AppExportModal from '@/components/common/AppExportModal.vue';
 import AdminPaymentTable from '@/components/payment/AdminPaymentTable.vue';
 import PaymentDetailModal from '@/components/payment/PaymentDetailModal.vue';
 
+const PAYMENT_STATUS_OPTIONS = Object.freeze([
+    { label: 'All Status', value: '' },
+    { label: 'Unpaid', value: 'unpaid' },
+    { label: 'Partially Paid', value: 'partially paid' },
+    { label: 'Paid', value: 'paid' },
+]);
+
 const router = useRouter();
 
-const { formattedPayments, isFetching, isFetchingDetail, error, totalCount, getPaymentDetailById, fetchPayments, fetchPaymentDetails, clearError } = useAdminPayment();
+const {
+    formattedPayments,
+    isFetching,
+    isFetchingDetail,
+    isExporting,
+    error,
+    validationErrors,
+    totalCount,
+    getPaymentDetailById,
+    fetchPayments,
+    fetchPaymentDetails,
+    exportPayments,
+    clearError,
+    clearValidationErrors,
+} = useAdminPayment();
+
+const { rooms, isFetching: isFetchingRooms, fetchRooms } = useRoom();
 
 let latestRequestId = 0;
 let scrollTimeoutId = null;
@@ -24,6 +50,30 @@ const selectedPaymentDetail = computed(() => {
     if (!selectedPaymentId.value) return null;
     return getPaymentDetailById(selectedPaymentId.value);
 });
+
+const roomFilterOptions = computed(() => [
+    { label: 'All Rooms', value: '' },
+    ...rooms.value.map(room => ({
+        label: room.name || `Room #${room.id}`,
+        value: room.id,
+    })),
+]);
+
+const exportModalFilters = computed(() => [
+    {
+        key: 'status',
+        label: 'Payment Status',
+        placeholder: 'All Status',
+        options: PAYMENT_STATUS_OPTIONS,
+    },
+    {
+        key: 'room_id',
+        label: 'Rooms',
+        placeholder: isFetchingRooms.value ? 'Loading rooms...' : 'All Rooms',
+        options: roomFilterOptions.value,
+        disabled: isFetchingRooms.value,
+    },
+]);
 
 function scrollToTop() {
     const scrollContainer = document.querySelector('main') || document.querySelector('.overflow-y-auto') || document.documentElement;
@@ -92,7 +142,36 @@ async function handleRetryDetail() {
 
 function handleOpenExportModal() {
     clearError();
+    clearValidationErrors();
     isExportModalOpen.value = true;
+
+    if (rooms.value.length === 0) {
+        fetchRooms(1, { limit: 100 });
+    }
+}
+
+function handleCloseExportModal() {
+    isExportModalOpen.value = false;
+    clearError();
+    clearValidationErrors();
+}
+
+async function handleExportSubmit(filterParams) {
+    const result = await exportPayments(filterParams);
+    if (!result) return;
+
+    if (result.blob instanceof Blob) {
+        const blobUrl = URL.createObjectURL(result.blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = result.filename || 'payments.csv';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(blobUrl);
+    }
+
+    handleCloseExportModal();
 }
 
 function handleNavigateToRecord() {
@@ -176,6 +255,22 @@ onUnmounted(() => {
             :error="error"
             @close="handleCloseDetailModal"
             @retry="handleRetryDetail"
+        />
+
+        <AppExportModal
+            :is-open="isExportModalOpen"
+            title="Export Payment Report"
+            subtitle="Select the payment records you want to export."
+            date-section-label="Payment Date"
+            :disable-future-dates="true"
+            :filters="exportModalFilters"
+            :validator="useExportPaymentValidation"
+            :is-exporting="isExporting"
+            :error="error"
+            :validation-errors="validationErrors"
+            @close="handleCloseExportModal"
+            @submit="handleExportSubmit"
+            @clear-error="clearError"
         />
     </div>
 </template>
