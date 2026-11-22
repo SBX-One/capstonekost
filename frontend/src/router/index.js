@@ -84,7 +84,12 @@ const routes = [
             {
                 path: 'payments',
                 name: 'admin-payments',
-                // component: () => import('@/views/admin/PaymentManagementView.vue')
+                component: () => import('@/views/admin/PaymentManagementView.vue')
+            },
+            {
+                path: 'payments/record',
+                name: 'admin-payment-record',
+                component: () => import('@/views/admin/RecordPaymentView.vue')
             }
         ]
     },
