@@ -7,6 +7,7 @@ import { usePagination } from '@/composables/usePagination';
 import BaseButton from '@/components/common/BaseButton.vue';
 import AppPagination from '@/components/common/AppPagination.vue';
 import AdminPaymentTable from '@/components/payment/AdminPaymentTable.vue';
+import PaymentDetailModal from '@/components/payment/PaymentDetailModal.vue';
 
 const router = useRouter();
 
@@ -94,11 +95,6 @@ function handleOpenExportModal() {
     isExportModalOpen.value = true;
 }
 
-function handleCloseExportModal() {
-    isExportModalOpen.value = false;
-    clearError();
-}
-
 function handleNavigateToRecord() {
     router.push({ name: 'admin-payment-record' }).catch(() => {
         router.push('/admin/payments/record');
@@ -171,5 +167,15 @@ onUnmounted(() => {
                 <AppPagination v-model="currentPage" :total-pages="totalPages" />
             </div>
         </section>
+
+        <PaymentDetailModal
+            :is-open="isDetailModalOpen"
+            role="admin"
+            :payment="selectedPaymentDetail"
+            :is-loading="isFetchingDetail"
+            :error="error"
+            @close="handleCloseDetailModal"
+            @retry="handleRetryDetail"
+        />
     </div>
 </template>
