@@ -81,3 +81,34 @@ export function sanitizeFacilityPayload(data) {
         icon_name: data.icon_name ? sanitizeText(data.icon_name) : 'Home'
     }
 }
+
+export function sanitizeRecordPaymentPayload(data) {
+    if (!data || typeof data !== 'object') return {}
+
+    const rawMethod = typeof data.method === 'string' ? data.method.trim().toLowerCase() : ''
+    const cleanedNotes = typeof data.notes === 'string' ? sanitizeText(data.notes) : ''
+
+    return {
+        bookings_id: data.bookings_id ? sanitizeNumber(data.bookings_id, null) : null,
+        payment_date: data.payment_date ? trimString(String(data.payment_date)) : '',
+        amount: data.amount ? Math.trunc(sanitizeNumber(data.amount, 0)) : 0,
+        method: ['transfer', 'cash'].includes(rawMethod) ? rawMethod : '',
+        notes: cleanedNotes || null
+    }
+}
+
+export function sanitizeExportPaymentParams(data) {
+    if (!data || typeof data !== 'object') return {}
+
+    const rawStatus = typeof data.status === 'string' ? data.status.trim().toLowerCase() : ''
+    const normalizedStatus = rawStatus === 'partial' || rawStatus === 'partially_paid'
+        ? 'partially paid'
+        : rawStatus
+
+    return {
+        start_date: data.start_date ? trimString(String(data.start_date)) : '',
+        end_date: data.end_date ? trimString(String(data.end_date)) : '',
+        status: ['unpaid', 'partially paid', 'paid'].includes(normalizedStatus) ? normalizedStatus : undefined,
+        room_id: data.room_id ? sanitizeNumber(data.room_id, null) : undefined
+    }
+}

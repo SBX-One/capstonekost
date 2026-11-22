@@ -178,3 +178,71 @@ export function isAfterDate(value, compareDate, fieldName = 'Date', compareField
     }
     return { valid: true, message: '' }
 }
+
+export function isPositiveInteger(value, fieldName = 'This field') {
+    if (value === null || value === undefined || value === '') {
+        return { valid: true, message: '' }
+    }
+
+    const num = Number(value)
+    if (!Number.isInteger(num) || num <= 0) {
+        return {
+            valid: false,
+            message: `${fieldName} must be a valid positive integer.`
+        }
+    }
+    return { valid: true, message: '' }
+}
+
+export function isStrictIsoDate(value, fieldName = 'Date') {
+    if (!value) return { valid: true, message: '' }
+
+    const raw = String(value).trim()
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw)
+
+    if (!match) {
+        return {
+            valid: false,
+            message: `${fieldName} must be in YYYY-MM-DD format.`
+        }
+    }
+
+    const year = Number(match[1])
+    const month = Number(match[2])
+    const day = Number(match[3])
+    const parsed = dayjs(`${match[1]}-${match[2]}-${match[3]}`)
+
+    if (
+        !parsed.isValid() ||
+        parsed.year() !== year ||
+        parsed.month() + 1 !== month ||
+        parsed.date() !== day
+    ) {
+        return {
+            valid: false,
+            message: `${fieldName} is not a valid calendar date.`
+        }
+    }
+
+    return { valid: true, message: '' }
+}
+
+export function isSameOrAfterDate(value, compareDate, fieldName = 'End Date', compareFieldName = 'Start Date') {
+    if (!value || !compareDate) return { valid: true, message: '' }
+
+    const target = dayjs(String(value).trim()).startOf('day')
+    const baseline = dayjs(String(compareDate).trim()).startOf('day')
+
+    if (!target.isValid() || !baseline.isValid()) {
+        return { valid: true, message: '' }
+    }
+
+    if (target.isBefore(baseline)) {
+        return {
+            valid: false,
+            message: `${fieldName} must be on or after ${compareFieldName}.`
+        }
+    }
+
+    return { valid: true, message: '' }
+}
