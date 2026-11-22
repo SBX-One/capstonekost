@@ -19,6 +19,18 @@ const props = defineProps({
         default: 'md',
         validator: val => ['sm', 'md'].includes(val),
     },
+    divided: {
+        type: Boolean,
+        default: false,
+    },
+    hasError: {
+        type: Boolean,
+        default: false,
+    },
+    disabled: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const modelValue = defineModel({ default: '' });
@@ -35,17 +47,25 @@ const dropdownStyle = ref({
 });
 
 const isValueMatch = (optVal, currentVal) => {
-    if (currentVal === '') return false;
+    if (currentVal === '' || currentVal === null || currentVal === undefined) return false;
     return String(optVal) === String(currentVal);
 };
 
+const selectedOption = computed(() => {
+    if (modelValue.value === '' || modelValue.value === null || modelValue.value === undefined) {
+        return null;
+    }
+    return (
+        props.options.find(opt => {
+            const val = typeof opt === 'object' ? opt.value : opt;
+            return isValueMatch(val, modelValue.value);
+        }) ?? null
+    );
+});
+
 const selectedLabel = computed(() => {
-    const found = props.options.find(opt => {
-        const val = typeof opt === 'object' ? opt.value : opt;
-        return isValueMatch(val, modelValue.value);
-    });
-    if (found === undefined || modelValue.value === '') return props.placeholder;
-    return typeof found === 'object' ? found.label : found;
+    if (!selectedOption.value) return props.placeholder;
+    return typeof selectedOption.value === 'object' ? selectedOption.value.label : selectedOption.value;
 });
 
 const triggerSizeClasses = computed(() => {
@@ -54,6 +74,19 @@ const triggerSizeClasses = computed(() => {
 
 const itemSizeClasses = computed(() => {
     return props.size === 'sm' ? 'px-3 min-h-9 text-body-sm' : 'px-4 min-h-11 text-body-md';
+});
+
+const triggerStateClasses = computed(() => {
+    if (props.disabled) {
+        return 'bg-surface-default border-transparent text-text-disabled cursor-not-allowed';
+    }
+    if (props.hasError) {
+        return 'bg-bg-default border-status-error text-text-primary cursor-pointer';
+    }
+    if (isOpen.value) {
+        return 'border-border-focus bg-neutral-100 cursor-pointer';
+    }
+    return 'border-border-default hover:bg-neutral-100 cursor-pointer';
 });
 
 const updatePosition = () => {
@@ -79,6 +112,7 @@ const updatePosition = () => {
 };
 
 const toggleDropdown = async () => {
+    if (props.disabled) return;
     isOpen.value = !isOpen.value;
     if (isOpen.value) {
         updatePosition();
@@ -98,6 +132,7 @@ const selectOption = opt => {
 };
 
 const handleKeyDown = e => {
+    if (props.disabled) return;
     const totalItems = props.options.length + 1;
 
     if (!isOpen.value) {
@@ -154,23 +189,27 @@ onUnmounted(() => {
             :id="id"
             ref="triggerRef"
             type="button"
+            :disabled="disabled"
             @click="toggleDropdown"
             @keydown="handleKeyDown"
-            class="w-full flex items-center justify-between gap-4 bg-bg-default border rounded-default transition-colors cursor-pointer focus:outline-none"
-            :class="[
-                triggerSizeClasses,
-                isOpen ? 'border-border-focus bg-neutral-100' : 'border-border-default hover:bg-neutral-100',
-                modelValue !== '' ? 'text-text-primary font-semibold' : 'text-text-secondary',
-            ]"
+            class="w-full flex items-center justify-between gap-4 bg-bg-default border rounded-default transition-colors focus:outline-none"
+            :class="[triggerSizeClasses, triggerStateClasses, modelValue !== '' ? 'text-text-primary font-semibold' : 'text-text-secondary']"
             aria-haspopup="listbox"
             :aria-expanded="isOpen"
         >
-            <span class="truncate flex items-center h-full">
-                <slot name="selected" :selected-label="selectedLabel" :model-value="modelValue">
+            <span class="truncate flex items-center h-full min-w-0 flex-1">
+                <slot name="selected" :selected-label="selectedLabel" :selected-option="selectedOption" :model-value="modelValue">
                     {{ selectedLabel }}
                 </slot>
             </span>
-            <svg class="w-4 h-4 text-text-secondary shrink-0 transition-transform duration-200" :class="{ 'rotate-180': isOpen }" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg
+                class="w-4 h-4 text-text-secondary shrink-0 transition-transform duration-200"
+                :class="{ 'rotate-180': isOpen }"
+                viewBox="0 0 14 14"
+                fill="none"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+            >
                 <path d="M3.5 5.83325L7 9.33325L10.5 5.83325" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
         </button>
@@ -189,12 +228,13 @@ onUnmounted(() => {
                     ref="dropdownRef"
                     :style="dropdownStyle"
                     class="fixed bg-bg-default border border-border-default rounded-default shadow-default z-9999 max-h-60 overflow-y-auto custom-scrollbar flex flex-col"
+                    :class="{ 'divide-y divide-border-default': divided }"
                     role="listbox"
                 >
                     <button
                         type="button"
                         @click="selectOption('')"
-                        class="w-full text-left transition-colors shrink-0 flex items-center relative"
+                        class="w-full text-left transition-colors shrink-0 flex items-center relative cursor-pointer"
                         :class="[
                             itemSizeClasses,
                             modelValue === '' ? 'bg-neutral-100 font-semibold text-text-primary' : 'text-text-secondary hover:bg-neutral-100',
@@ -207,23 +247,24 @@ onUnmounted(() => {
 
                     <button
                         v-for="(opt, index) in options"
-                        :key="index"
+                        :key="typeof opt === 'object' ? opt.value : index"
                         type="button"
                         @click="selectOption(opt)"
-                        class="w-full text-left transition-colors relative shrink-0 flex items-center"
+                        class="w-full text-left transition-colors relative shrink-0 flex items-center cursor-pointer"
                         :class="[
                             itemSizeClasses,
                             isValueMatch(typeof opt === 'object' ? opt.value : opt, modelValue) ? 'bg-neutral-100 text-text-primary font-semibold' : 'text-text-primary hover:bg-neutral-100',
                             { 'bg-neutral-100': activeIndex === index + 1 },
                         ]"
                         role="option"
+                        :aria-selected="isValueMatch(typeof opt === 'object' ? opt.value : opt, modelValue)"
                     >
                         <span
                             v-if="isValueMatch(typeof opt === 'object' ? opt.value : opt, modelValue)"
                             class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-action-primary rounded-r-full"
                         ></span>
 
-                        <div class="flex items-center h-full w-full">
+                        <div class="flex items-center h-full w-full min-w-0">
                             <slot name="option" :option="opt" :is-selected="isValueMatch(typeof opt === 'object' ? opt.value : opt, modelValue)">
                                 {{ typeof opt === 'object' ? opt.label : opt }}
                             </slot>
