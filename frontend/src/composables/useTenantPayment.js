@@ -76,8 +76,8 @@ const VALID_BOOKING_STATUSES = [
     'approved',
 ];
 
-function resolveStatusKey(rawStatus, cancellationReason) {
-    if (cancellationReason || rawStatus === 'cancelled' || rawStatus === 'canceled') return 'cancelled';
+function resolveStatusKey(rawStatus, hasCancellation) {
+    if (hasCancellation || rawStatus === 'cancelled' || rawStatus === 'canceled') return 'cancelled';
     if (['partial', 'partially paid', 'partially_paid'].includes(rawStatus)) return 'partial';
     if (rawStatus === 'overdue') return 'overdue';
     if (rawStatus === 'paid') return 'paid';
@@ -137,8 +137,11 @@ function extractPaymentContext(item) {
     const roomType = booking.room_type || room.room_type || {};
 
     const rawStatus = String(payment.payment_status || payment.status || '').toLowerCase().trim();
-    const cancellationReason = booking.cancellation_reason || null;
-    const statusKey = resolveStatusKey(rawStatus, cancellationReason);
+    const cancellationObj = booking.cancellation && typeof booking.cancellation === 'object' ? booking.cancellation : null;
+    const cancellationReason = cancellationObj?.reason || booking.cancellation_reason || null;
+    const cancellationDateRaw = cancellationObj?.cancellation_date || booking.cancelled_at || payment.cancelled_at || booking.updated_at || null;
+    const hasCancellation = Boolean(cancellationReason || cancellationObj?.cancellation_date);
+    const statusKey = resolveStatusKey(rawStatus, hasCancellation);
 
     return {
         id: item.id ?? payment.id ?? booking.id,
@@ -148,6 +151,7 @@ function extractPaymentContext(item) {
         room,
         roomType,
         cancellationReason,
+        cancellationDateRaw,
         statusKey,
         ui: STATUS_UI_MAP[statusKey],
         rawPlan: payment.payment_plan || booking.payment_plan || '',
@@ -188,10 +192,10 @@ export function useTenantPayment() {
 
         const {
             id,
-            booking,
             payment,
             roomType,
             cancellationReason,
+            cancellationDateRaw,
             statusKey,
             ui,
             rawPlan,
@@ -199,7 +203,7 @@ export function useTenantPayment() {
             roomNumber,
         } = extractPaymentContext(item);
 
-        const totalAmountRaw = Number(payment.total ?? booking.total) || 0;
+        const totalAmountRaw = Number(payment.total ?? item.booking_information?.total ?? item.booking_record?.total) || 0;
         const totalPaidRaw = Number(payment.total_paid) || 0;
         const rawRemaining = payment.total_left ?? payment.amount_left;
         const amountLeftRaw =
@@ -212,7 +216,7 @@ export function useTenantPayment() {
             partial: formatDate(payment.due_date),
             overdue: formatDate(payment.due_date),
             paid: 'Payment Completed',
-            cancelled: formatDate(booking.cancelled_at || booking.updated_at || payment.due_date),
+            cancelled: formatDate(cancellationDateRaw || payment.due_date),
         };
 
         const footerValue =
@@ -320,6 +324,7 @@ export function useTenantPayment() {
             payment,
             roomType,
             cancellationReason,
+            cancellationDateRaw,
             statusKey,
             ui,
             rawPlan,
@@ -338,9 +343,6 @@ export function useTenantPayment() {
         const rawGraceDays = Number(payment.grace_days_remaining ?? item.grace_days_remaining);
         const graceDaysRemaining = Number.isFinite(rawGraceDays) && rawGraceDays > 0 ? rawGraceDays : 14;
 
-        const rawCancelDate = booking.cancelled_at || payment.cancelled_at || booking.updated_at;
-        const cancellationDateLabel = rawCancelDate ? formatDate(rawCancelDate) : '22 Oct 2026';
-
         return {
             id: payment.id ?? id,
             paymentId: payment.id ?? null,
@@ -351,12 +353,12 @@ export function useTenantPayment() {
             isCancelled: statusKey === 'cancelled',
             gracePeriodTitle: `${graceDaysRemaining} Days Remaining`,
             gracePeriodDescription: 'Please settle your overdue payment within the grace period to avoid automatic booking cancellation.',
-            paymentPlanLabel: formatPaymentPlan(rawPlan) || 'Monthly Payment',
+            paymentPlanLabel: formatPaymentPlan(rawPlan),
             formattedTotalAmount: formatRupiah(totalAmountRaw),
             formattedTotalPaid: formatRupiah(totalPaidRaw),
             formattedRemainingBalance: formatRupiah(statusKey === 'paid' ? 0 : totalLeftRaw),
-            cancellationReason: cancellationReason || 'Overdue Grace Period Expired',
-            cancellationDateLabel,
+            cancellationReason: cancellationReason || '-',
+            cancellationDateLabel: formatDate(cancellationDateRaw),
             roomLabel: `${roomType.name || 'Room'} ${roomNumber}`,
             rentalPeriod,
             raw: item,
