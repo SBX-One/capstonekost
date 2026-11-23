@@ -8,6 +8,7 @@ export const useBookingStore = defineStore('booking', () => {
     const bookingsMap = ref(new Map())
     const isFetching = ref(false)
     const isMutating = ref(false)
+    const isExporting = ref(false)
     const error = ref(null)
     const validationErrors = ref({})
     const totalCount = ref(0)
@@ -31,12 +32,62 @@ export const useBookingStore = defineStore('booking', () => {
         }, [])
     }
 
-    function extractValidationErrors(err) {
-        const data = err.response?.data
-        if (!data) return {}
-        if (data.errors && typeof data.errors === 'object') return data.errors
-        if (data.fields && typeof data.fields === 'object') return data.fields
+    function extractValidationErrorsFromObject(data) {
+        if (!data || typeof data !== 'object') return {}
+        if (data.errors && typeof data.errors === 'object' && !Array.isArray(data.errors)) return data.errors
+        if (data.error && typeof data.error === 'object' && !Array.isArray(data.error)) return data.error
+        if (data.fields && typeof data.fields === 'object' && !Array.isArray(data.fields)) return data.fields
         return {}
+    }
+
+    function extractValidationErrors(err) {
+        return extractValidationErrorsFromObject(err.response?.data)
+    }
+
+    async function parseBlobJsonError(blob, fallbackMessage = 'Failed to export booking records.') {
+        try {
+            const rawText = await blob.text()
+            const parsed = JSON.parse(rawText)
+            return {
+                message: parsed?.message || fallbackMessage,
+                fields: extractValidationErrorsFromObject(parsed),
+            }
+        } catch {
+            return {
+                message: fallbackMessage,
+                fields: {},
+            }
+        }
+    }
+
+    async function parseExportError(err) {
+        const responseData = err.response?.data
+        if (responseData instanceof Blob) {
+            return parseBlobJsonError(responseData)
+        }
+
+        return {
+            message: responseData?.message || 'Failed to export booking records.',
+            fields: extractValidationErrors(err),
+        }
+    }
+
+    function extractFilenameFromHeader(dispositionHeader, fallback = 'bookings.csv') {
+        if (!dispositionHeader || typeof dispositionHeader !== 'string') return fallback
+        const utfMatch = dispositionHeader.match(/filename\*=UTF-8''([^;]+)/i)
+        if (utfMatch?.[1]) return decodeURIComponent(utfMatch[1].trim())
+
+        const plainMatch = dispositionHeader.match(/filename="?([^";]+)"?/i)
+        if (plainMatch?.[1]) return plainMatch[1].trim()
+
+        return fallback
+    }
+
+    function normalizeExportStatus(rawStatus) {
+        if (!rawStatus || typeof rawStatus !== 'string') return undefined
+        const normalized = rawStatus.trim().toLowerCase()
+        if (!normalized || normalized === 'all') return undefined
+        return normalized
     }
 
     function clearCache() {
@@ -330,6 +381,57 @@ export const useBookingStore = defineStore('booking', () => {
         }
     }
 
+    async function exportBookings(params = {}) {
+        if (isExporting.value) return null
+
+        isExporting.value = true
+        error.value = null
+        validationErrors.value = {}
+
+        try {
+            const numericRoomId = getValidNumericIds(params.rooms)[0]
+            const rawParams = {
+                start_date: params.start_date || undefined,
+                end_date: params.end_date || undefined,
+                status: normalizeExportStatus(params.status),
+                rooms: numericRoomId || undefined,
+            }
+
+            const cleanParams = Object.fromEntries(
+                Object.entries(rawParams).filter(([_, value]) => value !== '' && value !== undefined && value !== null)
+            )
+
+            const response = await apiClient.get('/admin/bookings/export', {
+                params: cleanParams,
+                responseType: 'blob',
+            })
+
+            if (response.data instanceof Blob && response.data.type?.includes('application/json')) {
+                const parsedError = await parseBlobJsonError(response.data)
+                error.value = parsedError.message
+                validationErrors.value = parsedError.fields
+                return null
+            }
+
+            const filename = extractFilenameFromHeader(
+                response.headers?.['content-disposition'],
+                'bookings.csv'
+            )
+
+            return {
+                blob: response.data,
+                filename,
+            }
+        } catch (err) {
+            const parsedError = await parseExportError(err)
+            error.value = parsedError.message
+            validationErrors.value = parsedError.fields
+            return null
+        } finally {
+            isExporting.value = false
+        }
+    }
+
     function clearError() {
         error.value = null
     }
@@ -343,6 +445,7 @@ export const useBookingStore = defineStore('booking', () => {
         bookings,
         isFetching,
         isMutating,
+        isExporting,
         error,
         validationErrors,
         totalCount,
@@ -353,6 +456,7 @@ export const useBookingStore = defineStore('booking', () => {
         fetchBookingDetails,
         approveBookings,
         rejectBookings,
+        exportBookings,
         clearError,
         clearValidationErrors,
         clearCache
