@@ -3,8 +3,10 @@ import dayjs from 'dayjs';
 export function parseApiDate(dateInput) {
     if (!dateInput) return dayjs('');
     if (typeof dateInput === 'string') {
-        const normalized = dateInput.replace(
-            /^(\d{4})-(\d{1,2})-(\d{1,2})(T.*)?$/,
+        const trimmed = dateInput.trim();
+        if (!trimmed) return dayjs('');
+        const normalized = trimmed.replace(
+            /^(\d{4})-(\d{1,2})-(\d{1,2})([T\s].*)?$/,
             (_, year, month, day, time = '') =>
                 `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}${time}`
         );
