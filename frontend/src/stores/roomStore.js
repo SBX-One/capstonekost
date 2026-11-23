@@ -10,6 +10,7 @@ export const useRoomStore = defineStore('room', () => {
     const isFetching = ref(false)
     const isMutating = ref(false)
     const isMutatingFacility = ref(false)
+    const isExporting = ref(false)
     const error = ref(null)
     const validationErrors = ref({})
     const totalCount = ref(0)
@@ -17,6 +18,70 @@ export const useRoomStore = defineStore('room', () => {
 
     const rooms = computed(() => Array.from(roomMap.value.values()))
     const totalRooms = computed(() => roomMap.value.size)
+
+    function getValidNumericId(id) {
+        if (typeof id === 'number' || typeof id === 'string') {
+            const num = Number(id)
+            if (Number.isInteger(num) && num > 0) {
+                return num
+            }
+        }
+        return null
+    }
+
+    function extractValidationErrorsFromObject(data) {
+        if (!data || typeof data !== 'object') return {}
+        if (data.errors && typeof data.errors === 'object' && !Array.isArray(data.errors)) return data.errors
+        if (data.error && typeof data.error === 'object' && !Array.isArray(data.error)) return data.error
+        if (data.fields && typeof data.fields === 'object' && !Array.isArray(data.fields)) return data.fields
+        return {}
+    }
+
+    async function parseBlobJsonError(blob, fallbackMessage = 'Failed to export room records.') {
+        try {
+            const rawText = await blob.text()
+            const parsed = JSON.parse(rawText)
+            return {
+                message: parsed?.message || fallbackMessage,
+                fields: extractValidationErrorsFromObject(parsed),
+            }
+        } catch {
+            return {
+                message: fallbackMessage,
+                fields: {},
+            }
+        }
+    }
+
+    async function parseExportError(err) {
+        const responseData = err.response?.data
+        if (responseData instanceof Blob) {
+            return parseBlobJsonError(responseData)
+        }
+
+        return {
+            message: responseData?.message || 'Failed to export room records.',
+            fields: extractValidationErrors(err),
+        }
+    }
+
+    function extractFilenameFromHeader(dispositionHeader, fallback = 'rooms.csv') {
+        if (!dispositionHeader || typeof dispositionHeader !== 'string') return fallback
+        const utfMatch = dispositionHeader.match(/filename\*=UTF-8''([^;]+)/i)
+        if (utfMatch?.[1]) return decodeURIComponent(utfMatch[1].trim())
+
+        const plainMatch = dispositionHeader.match(/filename="?([^";]+)"?/i)
+        if (plainMatch?.[1]) return plainMatch[1].trim()
+
+        return fallback
+    }
+
+    function normalizeExportStatus(rawStatus) {
+        if (!rawStatus || typeof rawStatus !== 'string') return undefined
+        const normalized = rawStatus.trim().toLowerCase()
+        if (!normalized || normalized === 'all') return undefined
+        return normalized
+    }
 
     function clearCache() {
         cache.clear()
@@ -157,11 +222,7 @@ export const useRoomStore = defineStore('room', () => {
     }
 
     function extractValidationErrors(err) {
-        const data = err.response?.data
-        if (!data) return {}
-        if (data.errors && typeof data.errors === 'object') return data.errors
-        if (data.fields && typeof data.fields === 'object') return data.fields
-        return {}
+        return extractValidationErrorsFromObject(err.response?.data)
     }
 
     async function createRoom(roomData) {
@@ -295,6 +356,57 @@ export const useRoomStore = defineStore('room', () => {
         }
     }
 
+    async function exportRooms(params = {}) {
+        if (isExporting.value) return null
+
+        isExporting.value = true
+        error.value = null
+        validationErrors.value = {}
+
+        try {
+            const numericRoomType = getValidNumericId(params.room_type)
+            const numericFloor = getValidNumericId(params.floors)
+            const rawParams = {
+                room_status: normalizeExportStatus(params.room_status),
+                room_type: numericRoomType || undefined,
+                floors: numericFloor || undefined,
+            }
+
+            const cleanParams = Object.fromEntries(
+                Object.entries(rawParams).filter(([_, value]) => value !== '' && value !== undefined && value !== null)
+            )
+
+            const response = await apiClient.get('/admin/rooms/export', {
+                params: cleanParams,
+                responseType: 'blob',
+            })
+
+            if (response.data instanceof Blob && response.data.type?.includes('application/json')) {
+                const parsedError = await parseBlobJsonError(response.data)
+                error.value = parsedError.message
+                validationErrors.value = parsedError.fields
+                return null
+            }
+
+            const filename = extractFilenameFromHeader(
+                response.headers?.['content-disposition'],
+                'rooms.csv'
+            )
+
+            return {
+                blob: response.data,
+                filename,
+            }
+        } catch (err) {
+            const parsedError = await parseExportError(err)
+            error.value = parsedError.message
+            validationErrors.value = parsedError.fields
+            return null
+        } finally {
+            isExporting.value = false
+        }
+    }
+
     function clearError() {
         error.value = null
     }
@@ -309,6 +421,7 @@ export const useRoomStore = defineStore('room', () => {
         isFetching,
         isMutating,
         isMutatingFacility,
+        isExporting,
         error,
         validationErrors,
         totalCount,
@@ -320,6 +433,7 @@ export const useRoomStore = defineStore('room', () => {
         updateRoom,
         addFacility,
         deleteRoom,
+        exportRooms,
         clearError,
         clearValidationErrors,
         clearCache,
