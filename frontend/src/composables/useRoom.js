@@ -1,6 +1,7 @@
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useRoomStore } from '@/stores/roomStore'
+import { sanitizeExportRoomParams } from '@/utils/sanitizers'
 
 export function useRoom() {
     const roomStore = useRoomStore()
@@ -12,11 +13,17 @@ export function useRoom() {
         isFetching,
         isMutating,
         isMutatingFacility,
+        isExporting,
         error,
         validationErrors,
         totalCount,
         totalRooms
     } = storeToRefs(roomStore)
+
+    async function exportRooms(rawParams = {}) {
+        const cleanPayload = sanitizeExportRoomParams(rawParams)
+        return roomStore.exportRooms(cleanPayload)
+    }
 
     function navigateToCreate() {
         router.push({ name: 'admin-room-add' })
@@ -41,6 +48,7 @@ export function useRoom() {
         isFetching,
         isMutating,
         isMutatingFacility,
+        isExporting,
         error,
         validationErrors,
         totalCount,
@@ -52,6 +60,7 @@ export function useRoom() {
         updateRoom: roomStore.updateRoom,
         addFacility: roomStore.addFacility,
         deleteRoom: roomStore.deleteRoom,
+        exportRooms,
         clearError: roomStore.clearError,
         clearValidationErrors: roomStore.clearValidationErrors,
 
