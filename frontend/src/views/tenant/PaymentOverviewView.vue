@@ -140,6 +140,7 @@ async function handleViewDetail(paymentId) {
 
 function handleCloseDetailModal() {
     isDetailModalOpen.value = false;
+    selectedPaymentId.value = null;
     clearError();
 }
 
