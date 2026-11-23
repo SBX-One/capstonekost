@@ -227,26 +227,32 @@ export const useTenantPaymentStore = defineStore('tenantPayment', () => {
                 });
 
                 const responseData = response.data;
-                const fetchedList = Array.isArray(responseData.data)
-                    ? responseData.data
-                    : (Array.isArray(responseData) ? responseData : []);
+                const rawData = responseData?.data ?? responseData;
+                const fetchedList = Array.isArray(rawData)
+                    ? rawData
+                    : (rawData && typeof rawData === 'object' ? [rawData] : []);
 
                 const nextDetailsMap = new Map(paymentDetails.value);
 
                 fetchedList.forEach(item => {
-                    const detailData = item.payment_record ? item : (item.data || item);
+                    const detailData = item.payment_record || item.booking_information ? item : (item.data || item);
                     const detailId = getValidNumericId(
                         detailData?.payment_record?.id ?? detailData?.id ?? detailData?.booking_information?.id
                     );
 
-                    if (detailId) {
-                        if (nextDetailsMap.size >= 50 && !nextDetailsMap.has(detailId)) {
+                    const cacheKeys = new Set();
+                    if (detailId) cacheKeys.add(detailId);
+                    if (missingIds.length === 1 && fetchedList.length === 1) {
+                        cacheKeys.add(missingIds[0]);
+                    }
+
+                    cacheKeys.forEach(key => {
+                        if (nextDetailsMap.size >= 50 && !nextDetailsMap.has(key)) {
                             const firstKey = nextDetailsMap.keys().next().value;
                             nextDetailsMap.delete(firstKey);
                         }
-
-                        nextDetailsMap.set(detailId, structuredClone(toRaw(detailData)));
-                    }
+                        nextDetailsMap.set(key, structuredClone(toRaw(detailData)));
+                    });
                 });
 
                 paymentDetails.value = nextDetailsMap;
