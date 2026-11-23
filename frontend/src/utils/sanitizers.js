@@ -112,3 +112,29 @@ export function sanitizeExportPaymentParams(data) {
         room_id: data.room_id ? sanitizeNumber(data.room_id, null) : undefined
     }
 }
+
+export function sanitizeExportBookingParams(data) {
+    if (!data || typeof data !== 'object') return {}
+
+    const rawStatus = typeof data.status === 'string' ? data.status.trim().toLowerCase() : ''
+    const validStatuses = ['pending', 'cancelled', 'rejected', 'approved', 'active', 'completed']
+
+    return {
+        start_date: data.start_date ? trimString(String(data.start_date)) : '',
+        end_date: data.end_date ? trimString(String(data.end_date)) : '',
+        status: validStatuses.includes(rawStatus) ? rawStatus : undefined,
+        rooms: data.rooms ? sanitizeNumber(data.rooms, null) : undefined
+    }
+}
+
+export function sanitizeExportRoomParams(data) {
+    if (!data || typeof data !== 'object') return {}
+
+    const rawStatus = typeof data.room_status === 'string' ? data.room_status.trim().toLowerCase() : ''
+
+    return {
+        room_status: ['available', 'occupied'].includes(rawStatus) ? rawStatus : undefined,
+        room_type: data.room_type ? sanitizeNumber(data.room_type, null) : undefined,
+        floors: data.floors ? sanitizeNumber(data.floors, null) : undefined
+    }
+}
