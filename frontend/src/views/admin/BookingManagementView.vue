@@ -1,17 +1,30 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useAdminBooking } from '@/composables/useAdminBooking';
+import { useExportBookingValidation } from '@/composables/useExportBookingValidation';
 import { useBookingFilter } from '@/composables/useBookingFilter';
+import { useRoom } from '@/composables/useRoom';
 import { useRoomMeta } from '@/composables/useRoomMeta';
 import { usePagination } from '@/composables/usePagination';
 
 import BaseButton from '@/components/common/BaseButton.vue';
 import AppPagination from '@/components/common/AppPagination.vue';
+import AppExportModal from '@/components/common/AppExportModal.vue';
 import AdminBookingFilterBar from '@/components/booking/AdminBookingFilterBar.vue';
 import AdminBookingTable from '@/components/booking/AdminBookingTable.vue';
 import ActionBookingModal from '@/components/booking/ActionBookingModal.vue';
 import BookingSuccessModal from '@/components/booking/BookingSuccessModal.vue';
 import BookingDetailDrawer from '@/components/booking/BookingDetailDrawer.vue';
+
+const BOOKING_EXPORT_STATUS_OPTIONS = Object.freeze([
+    { label: 'All Status', value: '' },
+    { label: 'Pending', value: 'pending' },
+    { label: 'Approved', value: 'approved' },
+    { label: 'Active', value: 'active' },
+    { label: 'Completed', value: 'completed' },
+    { label: 'Cancelled', value: 'cancelled' },
+    { label: 'Rejected', value: 'rejected' },
+]);
 
 function scrollToTop() {
     const scrollContainer = document.querySelector('main') || document.querySelector('.overflow-y-auto') || document.documentElement;
@@ -21,7 +34,24 @@ function scrollToTop() {
     });
 }
 
-const { bookings, isFetching, isMutating, error, totalCount, fetchBookings, fetchBookingDetails, approveBookings, rejectBookings, clearError } = useAdminBooking();
+const {
+    bookings,
+    isFetching,
+    isMutating,
+    isExporting,
+    error,
+    validationErrors,
+    totalCount,
+    fetchBookings,
+    fetchBookingDetails,
+    approveBookings,
+    rejectBookings,
+    exportBookings,
+    clearError,
+    clearValidationErrors,
+} = useAdminBooking();
+
+const { rooms, isFetching: isFetchingRooms, fetchRooms } = useRoom();
 const { bookingStatuses, fetchRoomMeta } = useRoomMeta();
 
 const { currentPage, perPage, resetPage } = usePagination(10, newPage => {
@@ -44,12 +74,37 @@ const isFetchingDetails = ref(false);
 const isActionModalOpen = ref(false);
 const isSuccessModalOpen = ref(false);
 const isDrawerOpen = ref(false);
+const isExportModalOpen = ref(false);
 
 const currentActionType = ref('');
 const selectedDetailsCache = ref([]);
 const selectedBookingForDrawer = ref({});
 
 const localUiError = ref('');
+
+const roomFilterOptions = computed(() => [
+    { label: 'All Rooms', value: '' },
+    ...rooms.value.map(room => ({
+        label: room.name || `Room #${room.id}`,
+        value: room.id,
+    })),
+]);
+
+const exportModalFilters = computed(() => [
+    {
+        key: 'status',
+        label: 'Booking Status',
+        placeholder: 'All Status',
+        options: BOOKING_EXPORT_STATUS_OPTIONS,
+    },
+    {
+        key: 'rooms',
+        label: 'Rooms',
+        placeholder: isFetchingRooms.value ? 'Loading rooms...' : 'All Rooms',
+        options: roomFilterOptions.value,
+        disabled: isFetchingRooms.value,
+    },
+]);
 
 async function loadBookings(page = currentPage.value) {
     const params = {
@@ -82,8 +137,39 @@ async function handleView(booking) {
     }
 }
 
-function handleExport() {
-    console.log('Exporting data...');
+function handleOpenExportModal() {
+    localUiError.value = '';
+    clearError();
+    clearValidationErrors();
+    isExportModalOpen.value = true;
+
+    if (rooms.value.length === 0) {
+        fetchRooms(1, { limit: 100 });
+    }
+}
+
+function handleCloseExportModal() {
+    isExportModalOpen.value = false;
+    clearError();
+    clearValidationErrors();
+}
+
+async function handleExportSubmit(filterParams) {
+    const result = await exportBookings(filterParams);
+    if (!result) return;
+
+    if (result.blob instanceof Blob) {
+        const blobUrl = URL.createObjectURL(result.blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = result.filename || 'bookings.csv';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(blobUrl);
+    }
+
+    handleCloseExportModal();
 }
 
 async function handleAction(actionType, targetIds = selectedBookingIds.value) {
@@ -173,7 +259,7 @@ onMounted(async () => {
             </div>
 
             <div class="flex items-center gap-2">
-                <BaseButton variant="secondary" size="md" @click="handleExport">
+                <BaseButton variant="secondary" size="md" @click="handleOpenExportModal">
                     <template #icon-left>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
@@ -211,13 +297,13 @@ onMounted(async () => {
                         <span v-else>Reject Booking</span>
                     </BaseButton>
 
-                    <BaseButton variant="secondary" size="md" @click="handleExport"> Export Data </BaseButton>
+                    <BaseButton variant="secondary" size="md" @click="handleOpenExportModal"> Export Data </BaseButton>
                 </div>
             </div>
             <AdminBookingFilterBar v-else v-model:search="search" v-model:status="status" :status-options="bookingStatuses" class="animate-fade-in w-full" />
         </div>
 
-        <div v-if="error || localUiError" class="mb-6 p-4 rounded-default bg-status-error-bg border border-status-error text-status-error flex items-center justify-between">
+        <div v-if="(error && !isExportModalOpen) || localUiError" class="mb-6 p-4 rounded-default bg-status-error-bg border border-status-error text-status-error flex items-center justify-between">
             <span class="text-body-md">{{ error || localUiError }}</span>
             <button v-if="error" @click="loadBookings()" class="text-sm font-semibold cursor-pointer">Retry</button>
             <button v-if="localUiError" @click="localUiError = ''" class="text-sm font-semibold cursor-pointer">Dismiss</button>
@@ -265,6 +351,21 @@ onMounted(async () => {
             :type="selectedDetailsCache.length > 1 ? 'bulk' : 'single'"
             :selected-bookings="selectedDetailsCache"
             @close="closeSuccessModal"
+        />
+
+        <AppExportModal
+            :is-open="isExportModalOpen"
+            title="Export Booking Report"
+            subtitle="Select the booking records you want to export."
+            date-section-label="Booking Date"
+            :filters="exportModalFilters"
+            :validator="useExportBookingValidation"
+            :is-exporting="isExporting"
+            :error="error"
+            :validation-errors="validationErrors"
+            @close="handleCloseExportModal"
+            @submit="handleExportSubmit"
+            @clear-error="clearError"
         />
     </div>
 </template>
