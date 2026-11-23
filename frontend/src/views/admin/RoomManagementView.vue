@@ -1,6 +1,8 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoom } from '@/composables/useRoom';
+import { useExportRoomValidation } from '@/composables/useExportRoomValidation';
+import { useRoomMeta } from '@/composables/useRoomMeta';
 import { useRoomFilter } from '@/composables/useRoomFilter';
 import { usePagination } from '@/composables/usePagination';
 
@@ -10,6 +12,13 @@ import RoomTable from '@/components/rooms/RoomTable.vue';
 import AppPagination from '@/components/common/AppPagination.vue';
 import AppConfirmModal from '@/components/common/AppConfirmModal.vue';
 import AppSuccessModal from '@/components/common/AppSuccessModal.vue';
+import AppExportModal from '@/components/common/AppExportModal.vue';
+
+const ROOM_EXPORT_STATUS_OPTIONS = Object.freeze([
+    { label: 'All Rooms Status', value: '' },
+    { label: 'Available', value: 'available' },
+    { label: 'Occupied', value: 'occupied' },
+]);
 
 function scrollToTop() {
     const scrollContainer = document.querySelector('main') || document.querySelector('.overflow-y-auto') || document.documentElement;
@@ -20,7 +29,9 @@ function scrollToTop() {
     });
 }
 
-const { rooms, isFetching, error, totalCount, fetchRooms, deleteRoom, navigateToCreate, navigateToEdit } = useRoom();
+const { rooms, isFetching, isExporting, error, validationErrors, totalCount, fetchRooms, deleteRoom, exportRooms, clearError, clearValidationErrors, navigateToCreate, navigateToEdit } = useRoom();
+
+const { roomTypes, floors, isMetaFetching, fetchRoomMeta } = useRoomMeta();
 
 const { currentPage, perPage, setPage, resetPage } = usePagination(10, newPage => {
     loadRooms(newPage);
@@ -42,10 +53,38 @@ const selectedRoomIds = ref([]);
 const isDeleteModalOpen = ref(false);
 const roomToDelete = ref(null);
 const isBulkDelete = ref(false);
+const isExportModalOpen = ref(false);
 
 const isSuccessModalOpen = ref(false);
 const successModalTitle = ref('Success!');
 const successModalMessage = ref('Action completed successfully.');
+
+const roomTypeFilterOptions = computed(() => [{ label: 'All Rooms Type', value: '' }, ...roomTypes.value]);
+
+const floorFilterOptions = computed(() => [{ label: 'All Floors', value: '' }, ...floors.value]);
+
+const exportModalFilters = computed(() => [
+    {
+        key: 'room_status',
+        label: 'Rooms Status',
+        placeholder: 'All Rooms Status',
+        options: ROOM_EXPORT_STATUS_OPTIONS,
+    },
+    {
+        key: 'room_type',
+        label: 'Rooms Type',
+        placeholder: isMetaFetching.value ? 'Loading room types...' : 'All Rooms Type',
+        options: roomTypeFilterOptions.value,
+        disabled: isMetaFetching.value,
+    },
+    {
+        key: 'floors',
+        label: 'Floors',
+        placeholder: isMetaFetching.value ? 'Loading floors...' : 'All Floors',
+        options: floorFilterOptions.value,
+        disabled: isMetaFetching.value,
+    },
+]);
 
 async function loadRooms(page = currentPage.value) {
     const params = {
@@ -116,8 +155,35 @@ async function confirmDeleteRoom() {
     isBulkDelete.value = false;
 }
 
-function handleExport() {
-    console.log('Exporting room data...');
+function handleOpenExportModal() {
+    clearError();
+    clearValidationErrors();
+    isExportModalOpen.value = true;
+    fetchRoomMeta();
+}
+
+function handleCloseExportModal() {
+    isExportModalOpen.value = false;
+    clearError();
+    clearValidationErrors();
+}
+
+async function handleExportSubmit(filterParams) {
+    const result = await exportRooms(filterParams);
+    if (!result) return;
+
+    if (result.blob instanceof Blob) {
+        const blobUrl = URL.createObjectURL(result.blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = result.filename || 'rooms.csv';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(blobUrl);
+    }
+
+    handleCloseExportModal();
 }
 
 onMounted(() => {
@@ -147,7 +213,7 @@ onMounted(() => {
                     Delete Selected ({{ selectedRoomIds.length }})
                 </BaseButton>
 
-                <BaseButton variant="secondary" size="md" @click="handleExport">
+                <BaseButton variant="secondary" size="md" @click="handleOpenExportModal">
                     <template #icon-left>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
@@ -171,7 +237,7 @@ onMounted(() => {
             <RoomFilterBar v-model:room-type="roomType" v-model:floor="floor" v-model:min-price="minPrice" v-model:max-price="maxPrice" v-model:status="status" @reset="resetFilters" />
         </div>
 
-        <div v-if="error" class="mb-6 p-4 rounded-default bg-status-error-bg border border-status-error text-status-error flex items-center justify-between">
+        <div v-if="error && !isExportModalOpen" class="mb-6 p-4 rounded-default bg-status-error-bg border border-status-error text-status-error flex items-center justify-between">
             <span class="text-body-md">{{ error }}</span>
             <button @click="loadRooms()" class="text-sm font-semibold cursor-pointer">Retry</button>
         </div>
@@ -206,5 +272,20 @@ onMounted(() => {
         />
 
         <AppSuccessModal :is-open="isSuccessModalOpen" :title="successModalTitle" :message="successModalMessage" @close="isSuccessModalOpen = false" />
+
+        <AppExportModal
+            :is-open="isExportModalOpen"
+            title="Export Rooms Data"
+            subtitle="Select the room data you want to export."
+            :show-date-range="false"
+            :filters="exportModalFilters"
+            :validator="useExportRoomValidation"
+            :is-exporting="isExporting"
+            :error="error"
+            :validation-errors="validationErrors"
+            @close="handleCloseExportModal"
+            @submit="handleExportSubmit"
+            @clear-error="clearError"
+        />
     </div>
 </template>
