@@ -1,5 +1,5 @@
 <script setup>
-import { watch, onUnmounted } from 'vue';
+import { ref, watch, nextTick, onUnmounted } from 'vue';
 
 const props = defineProps({
     isOpen: {
@@ -22,11 +22,18 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close']);
+const modalPanelRef = ref(null);
 
 const handleKeydown = event => {
-    if (event.key === 'Escape' && props.isOpen && !props.persistent) {
-        emit('close');
+    if (event.key !== 'Escape' || !props.isOpen || props.persistent) return;
+
+    const openDialogs = Array.from(document.querySelectorAll('[role="dialog"]'));
+    const topMostDialog = openDialogs[openDialogs.length - 1];
+    if (topMostDialog && modalPanelRef.value && topMostDialog !== modalPanelRef.value) {
+        return;
     }
+
+    emit('close');
 };
 
 const handleBackdropClick = () => {
@@ -39,27 +46,36 @@ const toggleBodyScroll = lock => {
     if (lock) {
         document.body.style.overflow = 'hidden';
     } else {
-        document.body.style.overflow = '';
+        const hasOtherOpenDialog = document.querySelectorAll('[role="dialog"]').length > 0;
+        if (!hasOtherOpenDialog) {
+            document.body.style.overflow = '';
+        }
     }
 };
 
 watch(
     () => props.isOpen,
-    isOpen => {
+    async isOpen => {
         if (isOpen) {
             toggleBodyScroll(true);
             window.addEventListener('keydown', handleKeydown);
+            await nextTick();
+            modalPanelRef.value?.focus({ preventScroll: true });
         } else {
-            toggleBodyScroll(false);
             window.removeEventListener('keydown', handleKeydown);
+            await nextTick();
+            toggleBodyScroll(false);
         }
     },
     { immediate: true }
 );
 
 onUnmounted(() => {
-    toggleBodyScroll(false);
     window.removeEventListener('keydown', handleKeydown);
+    const hasOtherOpenDialog = document.querySelectorAll('[role="dialog"]').length > 0;
+    if (!hasOtherOpenDialog) {
+        document.body.style.overflow = '';
+    }
 });
 </script>
 
@@ -83,12 +99,20 @@ onUnmounted(() => {
                     leave-from-class="opacity-100 translate-y-4 scale-[0.98]"
                     leave-to-class="opacity-0 translate-y-8 scale-95"
                 >
-                    <div v-if="isOpen" role="dialog" aria-modal="true" :class="['bg-bg-default rounded-default w-full shadow-default relative flex flex-col max-h-[90vh] overflow-hidden', maxWidth]">
+                    <div
+                        v-if="isOpen"
+                        ref="modalPanelRef"
+                        tabindex="-1"
+                        role="dialog"
+                        aria-modal="true"
+                        :class="['bg-bg-default rounded-default w-full shadow-default relative flex flex-col max-h-[90vh] overflow-hidden focus:outline-none', maxWidth]"
+                    >
                         <button
                             v-if="!hideCloseButton"
-                            @click="$emit('close')"
+                            type="button"
+                            @click="handleBackdropClick"
                             aria-label="Close modal"
-                            class="absolute top-5 right-5 z-20 flex items-center justify-center w-8 h-8 bg-neutral-100 hover:bg-neutral-200 text-text-secondary hover:text-text-primary rounded-full transition-colors cursor-pointer focus:outline-none"
+                            class="absolute top-5 right-5 z-20 flex items-center justify-center w-8 h-8 bg-neutral-100 hover:bg-neutral-200 text-text-secondary hover:text-text-primary rounded-full transition-colors cursor-pointer focus-visible:outline-none"
                         >
                             <svg class="w-3 h-3" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                 <path d="M0.613281 0.588867L12.6133 13.0889" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />

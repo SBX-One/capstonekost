@@ -42,12 +42,18 @@ const titleId = `drawer-title-${useId()}`;
 const dialogPanelRef = ref(null);
 
 const handleKeydown = event => {
-    if (event.key === 'Escape' && props.isOpen && !props.persistent) {
-        emit('close');
+    if (event.key !== 'Escape' || !props.isOpen || props.persistent) return;
+
+    const openDialogs = Array.from(document.querySelectorAll('[role="dialog"]'));
+    const topMostDialog = openDialogs[openDialogs.length - 1];
+    if (topMostDialog && dialogPanelRef.value && topMostDialog !== dialogPanelRef.value) {
+        return;
     }
+
+    emit('close');
 };
 
-const handleBackdropClick = () => {
+const handleCloseRequest = () => {
     if (!props.persistent) {
         emit('close');
     }
@@ -97,7 +103,7 @@ onUnmounted(() => {
             leave-from-class="opacity-100"
             leave-to-class="opacity-0"
         >
-            <div v-if="isOpen" class="fixed inset-0 z-100 bg-neutral-900/50 backdrop-blur-[2px] flex justify-end" @click.self="handleBackdropClick">
+            <div v-if="isOpen" class="fixed inset-0 z-100 bg-neutral-900/50 backdrop-blur-[2px] flex justify-end" @click.self="handleCloseRequest">
                 <transition
                     appear
                     enter-active-class="transition-transform duration-300 ease-out"
@@ -124,7 +130,7 @@ onUnmounted(() => {
                             <button
                                 v-if="!hideCloseButton"
                                 type="button"
-                                @click="handleBackdropClick"
+                                @click="handleCloseRequest"
                                 class="p-2 -mr-2 text-text-secondary hover:text-text-primary transition-colors focus-visible:outline-none cursor-pointer"
                                 aria-label="Close drawer"
                             >
