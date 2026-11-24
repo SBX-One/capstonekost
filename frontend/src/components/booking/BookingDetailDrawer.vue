@@ -34,7 +34,8 @@ const roomData = computed(() => props.booking?.room || {});
 const contactData = computed(() => props.booking?.contacts || {});
 const paymentData = computed(() => props.booking?.payment_overview || null);
 
-const status = computed(() => (recordData.value?.status || 'pending').toLowerCase());
+const status = computed(() => (recordData.value?.status || 'pending').toLowerCase().trim());
+const isCompleted = computed(() => status.value === 'completed' || status.value === 'complete');
 const isTenant = computed(() => props.role === 'tenant');
 const isAdmin = computed(() => props.role === 'admin');
 
@@ -76,15 +77,7 @@ const showFooter = computed(() => {
 </script>
 
 <template>
-    <AppDrawer
-        :is-open="isOpen"
-        title="Booking Detail"
-        :persistent="isSubmitting"
-        header-class="px-10 pt-10 pb-6"
-        body-class="px-10 py-10 flex flex-col gap-10"
-        footer-class="px-10 py-8 flex flex-col gap-3"
-        @close="emit('close')"
-    >
+    <AppDrawer :is-open="isOpen" title="Booking Detail" :persistent="isSubmitting" @close="emit('close')">
         <section class="flex flex-col gap-4">
             <img :src="primaryImage" alt="Room Thumbnail" class="w-full aspect-video object-cover rounded-default" />
             <div class="flex flex-col gap-2">
@@ -154,7 +147,7 @@ const showFooter = computed(() => {
             </div>
         </BookingDetailSection>
 
-        <BookingDetailSection v-if="paymentData && (status === 'active' || status === 'completed')" title="Payment Overview">
+        <BookingDetailSection v-if="paymentData && (status === 'active' || isCompleted)" title="Payment Overview">
             <div class="flex justify-between items-center text-body-md">
                 <span class="text-text-secondary">Latest Payment</span>
                 <span class="text-text-primary">{{ formatDate(paymentData.latest_payment) }}</span>
@@ -183,7 +176,7 @@ const showFooter = computed(() => {
                 <BaseButton variant="primary" block size="md" @click="emit('view-payment')">View All Payment</BaseButton>
             </template>
 
-            <template v-if="isTenant && status === 'completed'">
+            <template v-if="isTenant && isCompleted">
                 <BaseButton variant="primary" block size="md" @click="emit('rebook')">Rebook this room</BaseButton>
             </template>
 

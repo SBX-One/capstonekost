@@ -5,7 +5,7 @@ const props = defineProps({
     status: {
         type: String,
         required: true,
-        validator: val => ['pending', 'approved', 'active', 'complete', 'cancelled', 'rejected'].includes(val.toLowerCase()),
+        validator: val => ['pending', 'approved', 'active', 'complete', 'completed', 'cancelled', 'rejected'].includes(String(val).toLowerCase().trim()),
     },
     role: {
         type: String,
@@ -15,7 +15,10 @@ const props = defineProps({
 });
 
 const statusConfig = computed(() => {
-    const normalizedStatus = props.status.toLowerCase();
+    const rawStatus = String(props.status || 'pending')
+        .toLowerCase()
+        .trim();
+    const normalizedStatus = rawStatus === 'completed' ? 'complete' : rawStatus;
     const isTenant = props.role === 'tenant';
 
     const dictionary = {
@@ -66,7 +69,7 @@ const statusConfig = computed(() => {
 </script>
 
 <template>
-    <div class="flex items-start px-3 py-4 gap-4 border rounded-default w-full" :class="statusConfig.style">
+    <div role="status" class="flex items-start px-3 py-4 gap-4 border rounded-default w-full" :class="statusConfig.style">
         <div class="shrink-0 mt-0.5 flex items-center justify-center text-current" aria-hidden="true">
             <svg v-if="statusConfig.iconType === 'clock'" class="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
