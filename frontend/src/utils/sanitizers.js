@@ -138,3 +138,54 @@ export function sanitizeExportRoomParams(data) {
         floors: data.floors ? sanitizeNumber(data.floors, null) : undefined
     }
 }
+
+export function sanitizeCreateIssuePayload(data) {
+    if (!data || typeof data !== 'object') return {}
+
+    const rawRoomId = data.room_id ? sanitizeNumber(data.room_id, null) : null
+
+    return {
+        room_id: Number.isInteger(rawRoomId) && rawRoomId > 0 ? rawRoomId : null,
+        location_name: data.location_name ? sanitizeText(data.location_name) : '',
+        title: data.title ? sanitizeText(data.title) : '',
+        description: data.description ? sanitizeText(data.description) : '',
+        images: Array.isArray(data.images)
+            ? data.images.filter(file => file instanceof File || file instanceof Blob)
+            : []
+    }
+}
+
+export function sanitizeStartHandlingIssuePayload(data) {
+    if (!data || typeof data !== 'object') return {}
+
+    const rawIssueId = data.issue_id ? sanitizeNumber(data.issue_id, null) : null
+
+    return {
+        issue_id: Number.isInteger(rawIssueId) && rawIssueId > 0 ? rawIssueId : null,
+        description: data.description ? sanitizeText(data.description) : '',
+        images: Array.isArray(data.images)
+            ? data.images.filter(file => file instanceof File || file instanceof Blob)
+            : []
+    }
+}
+
+export function sanitizeResolveIssuePayload(data) {
+    if (!data || typeof data !== 'object') return {}
+
+    const rawResponseId = data.response_id ? sanitizeNumber(data.response_id, null) : null
+    const rawIssuesId = data.issues_id ? sanitizeNumber(data.issues_id, null) : null
+
+    return {
+        response_id: Number.isInteger(rawResponseId) && rawResponseId > 0 ? rawResponseId : null,
+        issues_id: Number.isInteger(rawIssuesId) && rawIssuesId > 0 ? rawIssuesId : null,
+        description: data.description ? sanitizeText(data.description) : '',
+        images: Array.isArray(data.images)
+            ? data.images.filter(file => file instanceof File || file instanceof Blob)
+            : [],
+        deleted_images: Array.isArray(data.deleted_images)
+            ? data.deleted_images
+                .map(id => sanitizeNumber(id, null))
+                .filter(id => Number.isInteger(id) && id > 0)
+            : []
+    }
+}
