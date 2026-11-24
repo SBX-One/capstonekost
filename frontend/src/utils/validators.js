@@ -108,6 +108,16 @@ export function isWebPFile(file, fieldName = 'File') {
     return { valid: true, message: '' }
 }
 
+export function minFileSize(file, minSizeKB = 1, fieldName = 'File') {
+    if (!file || minSizeKB <= 0) return { valid: true, message: '' }
+
+    const minSizeBytes = minSizeKB * 1024
+    if (file.size < minSizeBytes) {
+        return { valid: false, message: `${fieldName} must be at least ${minSizeKB}KB.` }
+    }
+    return { valid: true, message: '' }
+}
+
 export function maxFileSize(file, maxSizeMB, fieldName = 'File') {
     if (!file) return { valid: true, message: '' }
 
@@ -118,12 +128,13 @@ export function maxFileSize(file, maxSizeMB, fieldName = 'File') {
     return { valid: true, message: '' }
 }
 
-export function validateFileArray(files, maxFiles = 4, maxSizeMB = 2, fieldName = 'File') {
+export function validateFileArray(files, maxFiles = 4, maxSizeMB = 2, fieldName = 'File', minSizeKB = 0) {
     if (!files || !Array.isArray(files)) {
         return { valid: true, message: '' }
     }
 
-    if (files.length > maxFiles) {
+    const activeFiles = files.filter(Boolean)
+    if (activeFiles.length > maxFiles) {
         return { valid: false, message: `Maximum ${maxFiles} ${fieldName}s are allowed.` }
     }
 
@@ -137,6 +148,11 @@ export function validateFileArray(files, maxFiles = 4, maxSizeMB = 2, fieldName 
 
             const formatValidation = isWebPFile(currentFile, slotLabel)
             if (!formatValidation.valid) return formatValidation
+
+            if (minSizeKB > 0) {
+                const minValidation = minFileSize(currentFile, minSizeKB, slotLabel)
+                if (!minValidation.valid) return minValidation
+            }
 
             const sizeValidation = maxFileSize(currentFile, maxSizeMB, slotLabel)
             if (!sizeValidation.valid) return sizeValidation
