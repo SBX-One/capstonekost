@@ -70,3 +70,28 @@ export function formatDuration(months) {
     if (count % 12 === 0) return `${count / 12} Years`;
     return `${count} ${count === 1 ? 'Month' : 'Months'}`;
 }
+
+export function formatWhatsAppNumber(phoneInput) {
+    if (phoneInput === null || phoneInput === undefined) return '';
+    const digitsOnly = String(phoneInput).replace(/\D/g, '');
+
+    if (digitsOnly.length < 8) return '';
+    if (digitsOnly.startsWith('0')) {
+        return `62${digitsOnly.slice(1)}`;
+    }
+    if (digitsOnly.startsWith('8')) {
+        return `62${digitsOnly}`;
+    }
+
+    return digitsOnly;
+}
+
+export function buildWhatsAppUrl(phoneInput, message = '') {
+    const normalizedPhone = formatWhatsAppNumber(phoneInput);
+    if (!normalizedPhone) return '';
+
+    const baseUrl = `https://wa.me/${normalizedPhone}`;
+    const trimmedMessage = typeof message === 'string' ? message.trim() : '';
+
+    return trimmedMessage ? `${baseUrl}?text=${encodeURIComponent(trimmedMessage)}` : baseUrl;
+}
