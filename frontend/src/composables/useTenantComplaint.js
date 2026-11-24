@@ -127,14 +127,22 @@ export function useTenantComplaint() {
 
     const activeRoomOptions = computed(() =>
         activeRooms.value
-            .filter(room => Number.isInteger(Number(room?.id)) && Number(room.id) > 0)
-            .map(room => {
-                const numericId = Number(room.id);
-                const rawName = room.name ? String(room.name).trim() : `Room ${numericId}`;
+            .filter(item => item && typeof item === 'object' && String(item.name || item.location_name || '').trim() !== '')
+            .map((item, index) => {
+                const rawId = item.room_id !== undefined ? item.room_id : item.id;
+                const parsedId = rawId !== null && rawId !== '' ? Number(rawId) : null;
+                const isRoom = Number.isInteger(parsedId) && parsedId > 0;
+
+                const rawName = String(item.name || item.location_name || '').trim();
+                const label = isRoom
+                    ? (rawName.toLowerCase().startsWith('room ') ? rawName : `Room ${rawName}`)
+                    : rawName;
+
                 return {
-                    id: numericId,
-                    value: numericId,
-                    label: rawName.toLowerCase().startsWith('room ') ? rawName : `Room ${rawName}`,
+                    value: isRoom ? `room-${parsedId}` : `common-${index}-${rawName.toLowerCase()}`,
+                    room_id: isRoom ? parsedId : null,
+                    location_name: label,
+                    label,
                     rawName,
                 };
             })
