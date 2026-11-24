@@ -11,6 +11,24 @@ export const ADMIN_COMPLAINT_FILTER_TABS = [
     { label: 'Resolved', value: 'resolved' },
 ];
 
+const STATUS_MAP = {
+    progress: 'in_progress',
+    in_progress: 'in_progress',
+    'in progress': 'in_progress',
+    resolved: 'resolved',
+};
+
+function normalizeStatus(rawStatus) {
+    const normalized = String(rawStatus || 'open').toLowerCase().trim();
+    return STATUS_MAP[normalized] || 'open';
+}
+
+function formatOptionalDate(dateValue) {
+    if (!dateValue) return '';
+    const formatted = formatDate(dateValue);
+    return formatted && formatted !== '-' ? formatted : '';
+}
+
 export function useAdminComplaint() {
     const adminComplaintStore = useAdminComplaintStore();
 
@@ -38,7 +56,7 @@ export function useAdminComplaint() {
             tenantName: item.tenant_name || '-',
             description: item.description || '-',
             location: item.location || item.location_name || '-',
-            status: String(item.status || 'open').toLowerCase().trim(),
+            status: normalizeStatus(item.status),
             createdAtLabel: formatDate(item.created_at),
             createdAtDateTimeLabel: formatDateTime(item.created_at),
             images,
@@ -60,6 +78,8 @@ export function useAdminComplaint() {
 
         const targetId = item.id ?? info.id;
         const fallback = issuesMap.value.get(Number(targetId)) || {};
+        const status = normalizeStatus(fallback.status || info.status || item.status);
+
         const images = normalizeIssueImages(
             info.image_path || info.image_paths || item.image_path || item.image_paths || fallback.image_path
         );
@@ -67,10 +87,27 @@ export function useAdminComplaint() {
         const adminResponse = item.admin_response && typeof item.admin_response === 'object'
             ? {
                 id: item.admin_response.id ?? null,
-                description: item.admin_response.description || item.admin_response.response || '-',
+                description: item.admin_response.description || item.admin_response.response || '',
                 images: normalizeIssueImages(item.admin_response.image_path || item.admin_response.image_paths),
             }
             : null;
+
+        const createdAtSource = info.created_at || item.created_at || fallback.created_at;
+
+        const timeline = {
+            submittedAt: formatOptionalDate(createdAtSource),
+            inProgressAt: formatOptionalDate(
+                info.in_progress_at ||
+                item.in_progress_at ||
+                item.admin_response?.created_at ||
+                (status === 'in_progress' ? (info.updated_at || item.updated_at) : null)
+            ),
+            resolvedAt: formatOptionalDate(
+                info.resolved_at ||
+                item.resolved_at ||
+                (status === 'resolved' ? (info.updated_at || item.updated_at) : null)
+            ),
+        };
 
         return {
             id: targetId,
@@ -80,11 +117,12 @@ export function useAdminComplaint() {
             tenantPhone: tenant.phone || '-',
             location: info.location || item.location || fallback.location || '-',
             description: info.description || item.description || fallback.description || '-',
-            status: String(fallback.status || info.status || item.status || 'open').toLowerCase().trim(),
-            createdAtLabel: formatDate(info.created_at || item.created_at || fallback.created_at),
-            createdAtDateTimeLabel: formatDateTime(info.created_at || item.created_at || fallback.created_at),
+            status,
+            createdAtLabel: formatDate(createdAtSource),
+            createdAtDateTimeLabel: formatDateTime(createdAtSource),
             images,
             adminResponse,
+            timeline,
             raw: item,
         };
     }
