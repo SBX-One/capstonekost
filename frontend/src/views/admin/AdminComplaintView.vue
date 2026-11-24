@@ -5,6 +5,7 @@ import { useAdminComplaint } from '@/composables/useAdminComplaint';
 import { usePagination } from '@/composables/usePagination';
 
 import AppPagination from '@/components/common/AppPagination.vue';
+import AppWhatsAppModal from '@/components/common/AppWhatsAppModal.vue';
 import AdminComplaintTable from '@/components/complaints/AdminComplaintTable.vue';
 import ComplaintDetailDrawer from '@/components/complaints/ComplaintDetailDrawer.vue';
 
@@ -32,9 +33,20 @@ let scrollTimeoutId = null;
 const isDetailDrawerOpen = ref(false);
 const selectedIssueId = ref(null);
 
+const isContactModalOpen = ref(false);
+const contactTargetIssue = ref(null);
+
 const selectedIssueDetail = computed(() => {
     if (!selectedIssueId.value) return null;
     return getIssueDetailById(selectedIssueId.value);
+});
+
+const contactWhatsAppMessage = computed(() => {
+    const issue = contactTargetIssue.value;
+    if (!issue) return '';
+    const tenantName = issue.tenantName && issue.tenantName !== '-' ? issue.tenantName : 'Tenant';
+    const issueTitle = issue.title && issue.title !== '-' ? ` "${issue.title}"` : '';
+    return `Hello ${tenantName}, we are following up on your issue report${issueTitle}.`;
 });
 
 const drawerError = computed(() => (isDetailDrawerOpen.value ? error.value || '' : ''));
@@ -157,6 +169,17 @@ async function handleRetryDetail() {
     if (detailRequestId !== latestDetailRequestId) return;
 }
 
+function handleOpenContactModal(issue) {
+    if (!issue) return;
+    contactTargetIssue.value = issue;
+    isContactModalOpen.value = true;
+}
+
+function handleCloseContactModal() {
+    isContactModalOpen.value = false;
+    contactTargetIssue.value = null;
+}
+
 watch(
     () => route.query.filter,
     newFilterVal => {
@@ -244,7 +267,10 @@ onUnmounted(() => {
             :error="drawerError"
             @close="handleCloseDetailDrawer"
             @retry="handleRetryDetail"
+            @contact-tenant="handleOpenContactModal"
         />
+
+        <AppWhatsAppModal :is-open="isContactModalOpen" :phone="contactTargetIssue?.tenantPhone || ''" :message="contactWhatsAppMessage" @close="handleCloseContactModal" />
     </div>
 </template>
 
