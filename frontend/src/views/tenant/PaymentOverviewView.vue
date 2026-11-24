@@ -282,7 +282,7 @@ onUnmounted(() => {
             </div>
         </template>
 
-        <section v-else aria-label="Empty payment history" class="flex-1 py-20 px-6 flex flex-col items-center justify-center text-center gap-4">
+        <section v-else aria-label="Empty payment history" class="flex-1 py-16 sm:py-20 px-6 sm:px-10 flex flex-col items-center justify-center text-center gap-4">
             <svg class="w-28 h-28 shrink-0 text-text-secondary" viewBox="0 0 108 108" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path
                     d="M27 40.5H40.5M40.5 40.5L22.5 22.5M40.5 40.5L85.5 85.5M13.5 13.5L22.5 22.5M22.5 22.5H18C15.6131 22.5 13.3239 23.4482 11.636 25.136C9.94821 26.8239 9 29.1131 9 31.5V76.5C9 78.8869 9.94821 81.1761 11.636 82.864C13.3239 84.5518 15.6131 85.5 18 85.5H85.5M85.5 85.5L94.5 94.5M85.5 85.5H90C92.3869 85.5 94.6761 84.5518 96.364 82.864C98.0518 81.1761 99 78.8869 99 76.5V40.5M99 40.5V31.5C99 29.1131 98.0518 26.8239 96.364 25.136C94.6761 23.4482 92.3869 22.5 90 22.5H45M99 40.5H63"
