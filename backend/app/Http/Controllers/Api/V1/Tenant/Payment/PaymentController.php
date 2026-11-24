@@ -116,12 +116,17 @@ class PaymentController extends Controller
                 'room.roomType' => fn ($q) => $q->select('id', 'name'),
                 'roomBill' => fn ($q) => $q
                     ->select('id', 'booking_record_id', 'payment_plan', 'status', 'amount_left')
-                    ->withSum('paymentRecord as total_paid', 'amount')
+                    ->withSum('paymentRecord as total_paid', 'amount'),
+                'bookingCancellation' => fn ($q) => $q->select('id', 'booking_record_id', 'reason', 'created_at')
             ])
             ->where('user_id', $userId)
             ->whereIn('id', $ids)
             ->orderBy('created_at', 'desc')
             ->get();
+
+        // return response()->json([
+        //     'data' => $paymentDetail
+        // ]);
 
         return PaymentShowDetailResource::collection($paymentDetail);
     }

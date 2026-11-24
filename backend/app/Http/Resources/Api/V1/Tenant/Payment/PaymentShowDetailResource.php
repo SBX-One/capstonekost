@@ -24,6 +24,12 @@ class PaymentShowDetailResource extends JsonResource
                 ],
                 'move_in' => $this->resource['move_in'],
                 'move_out' => $this->resource['move_out'],
+                'cancellation' => $this->resource->bookingCancellation
+                    ? [
+                        'reason' => $this->resource->bookingCancellation['reason'],
+                        'cancellation_date' => $this->resource->bookingCancellation['created_at'],
+                    ]
+                    : null,
             ],
             'payment_record' => [
                 'id' => $this->resource->roomBill['id'],
