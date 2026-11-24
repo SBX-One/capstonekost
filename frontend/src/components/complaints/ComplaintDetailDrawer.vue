@@ -39,63 +39,38 @@ const emit = defineEmits(['close', 'retry', 'start-handling', 'mark-resolved', '
 const previewImageUrl = ref('');
 
 const isAdmin = computed(() => props.role === 'admin');
-
-const normalizedStatus = computed(() => {
-    const raw = String(props.issue?.status || 'open')
-        .toLowerCase()
-        .trim();
-    if (['progress', 'in_progress', 'in progress'].includes(raw)) return 'in_progress';
-    if (raw === 'resolved') return 'resolved';
-    return 'open';
-});
-
-const tenantInfo = computed(() => {
-    const tenant = props.issue?.tenant || props.issue?.user || {};
-    return {
-        name: props.issue?.tenantName || tenant.name || '-',
-        email: props.issue?.tenantEmail || tenant.email || '-',
-        phone: props.issue?.tenantPhone || tenant.phone || tenant.phone_number || '-',
-    };
-});
-
-function extractImageUrls(source) {
-    if (!Array.isArray(source)) return [];
-    return source.map(item => (typeof item === 'string' ? item : item?.url || item?.image_url || item?.path || '')).filter(Boolean);
-}
+const currentStatus = computed(() => props.issue?.status || 'open');
 
 const attachedPhotos = computed(() => {
-    const rawPhotos = props.issue?.images || props.issue?.photos || props.issue?.attachments || [];
-    return extractImageUrls(rawPhotos);
+    const list = props.issue?.images || [];
+    return list.map(img => (typeof img === 'string' ? img : img?.url || '')).filter(Boolean);
 });
 
 const adminResponse = computed(() => {
-    const resp = props.issue?.adminResponse || props.issue?.admin_response || props.issue?.response;
+    const resp = props.issue?.adminResponse;
     if (!resp) return null;
 
-    if (typeof resp === 'string') {
-        const cleaned = resp.trim();
-        return cleaned && cleaned !== '-' ? { description: cleaned, images: [] } : null;
-    }
-
-    const rawDesc = String(resp.description || resp.response || resp.message || resp.text || '').trim();
-    const description = rawDesc && rawDesc !== '-' ? rawDesc : '';
-    const images = extractImageUrls(resp.images || (resp.imageUrl ? [resp.imageUrl] : []));
+    const description = String(resp.description || '').trim();
+    const images = (resp.images || []).map(img => (typeof img === 'string' ? img : img?.url || '')).filter(Boolean);
 
     if (!description && images.length === 0) return null;
-    return { description, images };
+    return {
+        id: resp.id ?? null,
+        description,
+        images,
+    };
 });
 
 const showAdminResponse = computed(() => {
-    return normalizedStatus.value !== 'open' && Boolean(adminResponse.value);
+    return currentStatus.value !== 'open' && Boolean(adminResponse.value);
 });
 
 const showFooter = computed(() => {
-    return isAdmin.value && Boolean(props.issue) && !props.isLoading && normalizedStatus.value !== 'resolved';
+    return isAdmin.value && Boolean(props.issue) && !props.isLoading && currentStatus.value !== 'resolved';
 });
 
 function openImagePreview(url) {
-    if (!url) return;
-    previewImageUrl.value = url;
+    if (url) previewImageUrl.value = url;
 }
 
 function closeImagePreview() {
@@ -159,24 +134,29 @@ function closeImagePreview() {
         </div>
 
         <template v-else-if="issue">
+            <div v-if="error" role="alert" class="p-3 rounded-default bg-status-error-bg border border-status-error text-status-error flex items-center justify-between gap-3">
+                <span class="text-body-sm">{{ error }}</span>
+                <button type="button" @click="emit('retry')" class="text-label-btn-sm shrink-0 cursor-pointer focus-visible:outline-none">Retry</button>
+            </div>
+
             <h3 class="text-h3 text-text-primary">{{ issue.title }}</h3>
 
-            <ComplaintStatusAlert :status="normalizedStatus" :role="role" />
+            <ComplaintStatusAlert :status="currentStatus" :role="role" />
 
             <section v-if="isAdmin" class="flex flex-col gap-4 w-full shrink-0">
                 <h4 class="text-h5 font-semibold text-text-secondary">Tenant Information</h4>
                 <div class="w-full bg-neutral-100 rounded-default px-3 py-4 flex flex-col gap-4 text-left">
                     <div class="flex justify-between items-center gap-4 text-body-md">
                         <span class="text-text-secondary shrink-0">Name</span>
-                        <span class="text-text-primary text-right truncate">{{ tenantInfo.name }}</span>
+                        <span class="text-text-primary text-right truncate">{{ issue.tenantName || '-' }}</span>
                     </div>
                     <div class="flex justify-between items-center gap-4 text-body-md">
                         <span class="text-text-secondary shrink-0">Email Address</span>
-                        <span class="text-text-primary text-right break-all">{{ tenantInfo.email }}</span>
+                        <span class="text-text-primary text-right break-all">{{ issue.tenantEmail || '-' }}</span>
                     </div>
                     <div class="flex justify-between items-center gap-4 text-body-md">
                         <span class="text-text-secondary shrink-0">Phone Number</span>
-                        <span class="text-text-primary text-right">{{ tenantInfo.phone }}</span>
+                        <span class="text-text-primary text-right">{{ issue.tenantPhone || '-' }}</span>
                     </div>
                 </div>
             </section>
@@ -218,7 +198,7 @@ function closeImagePreview() {
                 </div>
             </section>
 
-            <ComplaintProgressTimeline :status="normalizedStatus" :role="role" :created-at-label="issue.createdAtLabel" :raw="issue.raw" :timeline="issue.timeline" />
+            <ComplaintProgressTimeline :status="currentStatus" :role="role" :timeline="issue.timeline" />
 
             <section v-if="showAdminResponse" class="flex flex-col gap-4 w-full shrink-0">
                 <h4 class="text-h5 font-semibold text-text-secondary">Admin Response</h4>
@@ -249,11 +229,9 @@ function closeImagePreview() {
         </template>
 
         <template v-if="showFooter" #footer>
-            <BaseButton v-if="normalizedStatus === 'open'" variant="primary" block size="md" :disabled="isSubmitting" @click="emit('start-handling', issue.id)"> Start Handling </BaseButton>
+            <BaseButton v-if="currentStatus === 'open'" variant="primary" block size="md" :disabled="isSubmitting" @click="emit('start-handling', issue)"> Start Handling </BaseButton>
 
-            <BaseButton v-else-if="normalizedStatus === 'in_progress'" variant="success" block size="md" :disabled="isSubmitting" @click="emit('mark-resolved', issue.id)">
-                Mark as Resolved
-            </BaseButton>
+            <BaseButton v-else-if="currentStatus === 'in_progress'" variant="success" block size="md" :disabled="isSubmitting" @click="emit('mark-resolved', issue)"> Mark as Resolved </BaseButton>
 
             <BaseButton variant="secondary" block size="md" :disabled="isSubmitting" @click="emit('contact-tenant', issue)"> Contact Tenant </BaseButton>
         </template>

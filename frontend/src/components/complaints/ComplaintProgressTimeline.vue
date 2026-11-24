@@ -13,9 +13,30 @@ const props = defineProps({
     },
     timeline: {
         type: Object,
-        default: () => ({}),
+        default: () => ({
+            submittedAt: '',
+            inProgressAt: '',
+            resolvedAt: '',
+        }),
     },
 });
+
+const STEP_COPY = {
+    tenant: {
+        submitted: 'Your report has been successfully submitted and is waiting for admin review.',
+        inProgressActive: 'Our team has started working on your reported issue.',
+        inProgressPending: 'Your report will be handled by our admin team.',
+        resolvedActive: 'The reported issue has been addressed.',
+        resolvedPending: 'Your reported issue will be marked as resolved once it has been addressed.',
+    },
+    admin: {
+        submitted: 'Report submitted by tenant.',
+        inProgressActive: 'Started handling reported issues.',
+        inProgressPending: 'Not started yet.',
+        resolvedActive: 'The reported issue has been addressed.',
+        resolvedPending: 'Not resolved yet.',
+    },
+};
 
 const normalizedStatus = computed(() => {
     const raw = String(props.status || 'open')
@@ -27,45 +48,32 @@ const normalizedStatus = computed(() => {
 });
 
 const steps = computed(() => {
-    const isTenant = props.role === 'tenant';
-    const isInProgressOrBeyond = normalizedStatus.value === 'in_progress' || normalizedStatus.value === 'resolved';
+    const copy = STEP_COPY[props.role] || STEP_COPY.tenant;
+    const isInProgress = normalizedStatus.value === 'in_progress' || normalizedStatus.value === 'resolved';
     const isResolved = normalizedStatus.value === 'resolved';
-
-    const submittedInfo = props.timeline?.submitted || {};
-    const inProgressInfo = props.timeline?.in_progress || props.timeline?.inProgress || {};
-    const resolvedInfo = props.timeline?.resolved || {};
+    const timelineData = props.timeline || {};
 
     return [
         {
             key: 'submitted',
             title: 'Report Submitted',
             completed: true,
-            description: submittedInfo.description || (isTenant ? 'Your report has been successfully submitted and is waiting for admin review.' : 'Report submitted by tenant.'),
-            dateLabel: submittedInfo.dateLabel || submittedInfo.date || '',
+            description: copy.submitted,
+            date: timelineData.submittedAt || '',
         },
         {
             key: 'in_progress',
             title: 'In Progress',
-            completed: isInProgressOrBeyond,
-            description:
-                inProgressInfo.description ||
-                (isInProgressOrBeyond
-                    ? isTenant
-                        ? 'Our team has started working on your reported issue.'
-                        : 'Started handling reported issues.'
-                    : isTenant
-                      ? 'Your report will be handled by our admin team.'
-                      : 'Not started yet.'),
-            dateLabel: isInProgressOrBeyond ? inProgressInfo.dateLabel || inProgressInfo.date || '' : '',
+            completed: isInProgress,
+            description: isInProgress ? copy.inProgressActive : copy.inProgressPending,
+            date: isInProgress ? timelineData.inProgressAt || '' : '',
         },
         {
             key: 'resolved',
             title: 'Resolved',
             completed: isResolved,
-            description:
-                resolvedInfo.description ||
-                (isResolved ? 'The reported issue has been addressed.' : isTenant ? 'Your reported issue will be marked as resolved once it has been addressed.' : 'Not resolved yet.'),
-            dateLabel: isResolved ? resolvedInfo.dateLabel || resolvedInfo.date || '' : '',
+            description: isResolved ? copy.resolvedActive : copy.resolvedPending,
+            date: isResolved ? timelineData.resolvedAt || '' : '',
         },
     ];
 });
@@ -77,7 +85,7 @@ const steps = computed(() => {
 
         <ol class="w-full bg-neutral-100 rounded-default p-3 flex flex-col gap-3">
             <li v-for="(step, index) in steps" :key="step.key" class="flex items-stretch gap-3">
-                <div class="flex flex-col items-center shrink-0">
+                <div class="w-6 flex flex-col items-center shrink-0">
                     <span
                         class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-colors"
                         :class="step.completed ? 'bg-blue-600 text-white' : 'bg-neutral-300'"
@@ -94,7 +102,7 @@ const steps = computed(() => {
                 <div class="flex flex-col gap-2 flex-1 min-w-0" :class="index < steps.length - 1 ? 'pb-1' : ''">
                     <p class="text-h5 text-text-primary">{{ step.title }}</p>
                     <p class="text-body-sm text-text-secondary">{{ step.description }}</p>
-                    <p v-if="step.dateLabel" class="text-body-sm text-text-secondary">{{ step.dateLabel }}</p>
+                    <p v-if="step.date" class="text-body-sm text-text-secondary">{{ step.date }}</p>
                 </div>
             </li>
         </ol>

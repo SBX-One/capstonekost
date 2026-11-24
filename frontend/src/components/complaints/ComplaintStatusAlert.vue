@@ -4,8 +4,7 @@ import { computed } from 'vue';
 const props = defineProps({
     status: {
         type: String,
-        required: true,
-        validator: val => ['open', 'progress', 'in_progress', 'in progress', 'resolved'].includes(String(val).toLowerCase().trim()),
+        default: 'open',
     },
     role: {
         type: String,
