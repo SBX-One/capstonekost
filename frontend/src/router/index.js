@@ -134,7 +134,12 @@ const routes = [
             {
                 path: 'complaints',
                 name: 'tenant-complaints',
-                // component: () => import('@/views/tenant/ComplaintView.vue')
+                component: () => import('@/views/tenant/ComplaintView.vue')
+            },
+            {
+                path: 'complaints/create',
+                name: 'tenant-complaint-create',
+                component: () => import('@/views/tenant/CreateComplaintView.vue')
             }
         ]
     },
