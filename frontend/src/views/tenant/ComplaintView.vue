@@ -5,6 +5,7 @@ import { useTenantComplaint } from '@/composables/useTenantComplaint';
 import { usePagination } from '@/composables/usePagination';
 
 import TenantComplaintCard from '@/components/complaints/TenantComplaintCard.vue';
+import ComplaintDetailDrawer from '@/components/complaints/ComplaintDetailDrawer.vue';
 import AppPagination from '@/components/common/AppPagination.vue';
 import BaseButton from '@/components/common/BaseButton.vue';
 
@@ -25,6 +26,7 @@ function parseFilterQuery(queryVal) {
 const activeFilter = ref(parseFilterQuery(route.query.filter));
 const tabButtonRefs = ref([]);
 let latestRequestId = 0;
+let latestDetailRequestId = 0;
 let scrollTimeoutId = null;
 
 const isDetailDrawerOpen = ref(false);
@@ -34,6 +36,8 @@ const selectedIssueDetail = computed(() => {
     if (!selectedIssueId.value) return null;
     return getIssueDetailById(selectedIssueId.value);
 });
+
+const drawerError = computed(() => (isDetailDrawerOpen.value ? error.value || '' : ''));
 
 function scrollToTop() {
     const scrollContainer = document.querySelector('main') || document.querySelector('.overflow-y-auto') || document.documentElement;
@@ -130,13 +134,17 @@ function handleCreateReport() {
 
 async function handleViewDetail(issueId) {
     if (!issueId) return;
+    const detailRequestId = ++latestDetailRequestId;
     clearError();
     selectedIssueId.value = issueId;
     isDetailDrawerOpen.value = true;
+
     await fetchIssueDetails(issueId);
+    if (detailRequestId !== latestDetailRequestId) return;
 }
 
 function handleCloseDetailDrawer() {
+    latestDetailRequestId++;
     isDetailDrawerOpen.value = false;
     selectedIssueId.value = null;
     clearError();
@@ -144,8 +152,11 @@ function handleCloseDetailDrawer() {
 
 async function handleRetryDetail() {
     if (!selectedIssueId.value) return;
+    const detailRequestId = ++latestDetailRequestId;
     clearError();
+
     await fetchIssueDetails(selectedIssueId.value);
+    if (detailRequestId !== latestDetailRequestId) return;
 }
 
 watch(
@@ -166,6 +177,7 @@ onMounted(() => {
 
 onUnmounted(() => {
     latestRequestId++;
+    latestDetailRequestId++;
     if (scrollTimeoutId) {
         clearTimeout(scrollTimeoutId);
     }
@@ -297,6 +309,16 @@ onUnmounted(() => {
                 </BaseButton>
             </div>
         </section>
+
+        <ComplaintDetailDrawer
+            :is-open="isDetailDrawerOpen"
+            role="tenant"
+            :issue="selectedIssueDetail"
+            :is-loading="isFetchingDetail"
+            :error="drawerError"
+            @close="handleCloseDetailDrawer"
+            @retry="handleRetryDetail"
+        />
     </div>
 </template>
 
