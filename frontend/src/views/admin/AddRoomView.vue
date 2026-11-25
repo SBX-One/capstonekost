@@ -92,7 +92,7 @@ const handleFacilitySubmit = async facilityData => {
     if (success) {
         isFacilityModalOpen.value = false;
 
-        await fetchRoomMeta();
+        await fetchRoomMeta(true);
 
         const newFacilityName = facilityData.name.toLowerCase();
         const newlyAddedFacility = facilities.value.find(f => f.name.toLowerCase() === newFacilityName);
