@@ -186,13 +186,7 @@ export function useAdminPayment() {
 
         const rawBalance = item.remaining_balance ?? item.amount_left ?? item.total_left;
         const parsedBalance = Number(rawBalance);
-        const remainingBalance =
-            rawBalance !== undefined &&
-                rawBalance !== null &&
-                Number.isFinite(parsedBalance) &&
-                parsedBalance > 0
-                ? parsedBalance
-                : null;
+        const remainingBalance = Number.isFinite(parsedBalance) ? parsedBalance : null;
 
         return {
             id,
@@ -210,7 +204,9 @@ export function useAdminPayment() {
     );
 
     const bookingDropdownOptions = computed(() =>
-        recordableBookings.value.map(normalizeRecordableBooking).filter(Boolean)
+        recordableBookings.value
+            .map(normalizeRecordableBooking)
+            .filter(booking => booking && booking.remainingBalance !== 0)
     );
 
     function getRawPaymentDetailById(id) {

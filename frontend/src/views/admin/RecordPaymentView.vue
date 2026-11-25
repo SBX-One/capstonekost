@@ -41,7 +41,7 @@ const selectedBooking = computed(() => getRecordableBookingById(form.bookings_id
 const maxRemainingBalance = computed(() => selectedBooking.value?.remainingBalance ?? null);
 
 const remainingBalanceHint = computed(() => {
-    return maxRemainingBalance.value ? `Remaining balance: ${formatRupiah(maxRemainingBalance.value)}` : '';
+    return maxRemainingBalance.value !== null ? `Remaining balance: ${formatRupiah(maxRemainingBalance.value)}` : '';
 });
 
 const bookingPlaceholder = computed(() => {
