@@ -3,10 +3,10 @@ import { useValidation } from '@/composables/useValidation'
 import {
     required,
     isNumeric,
-    minValue,
     maxLength,
     isPositiveInteger,
-    isStrictIsoDate
+    isStrictIsoDate,
+    createAmountRangeValidator
 } from '@/utils/validators'
 import { formatRupiah } from '@/utils/formatters'
 
@@ -14,6 +14,16 @@ const MIN_PAYMENT_AMOUNT = 100000
 const VALID_PAYMENT_METHODS = ['transfer', 'cash']
 
 export function useRecordPaymentValidation(formData, options = {}) {
+    const amountRangeValidator = createAmountRangeValidator(
+        () => unref(options.maxAmount),
+        {
+            min: MIN_PAYMENT_AMOUNT,
+            fieldName: 'Payment Amount',
+            format: formatRupiah,
+            maxLabel: 'the remaining balance'
+        }
+    )
+
     const rules = {
         bookings_id: [
             v => required(v, 'Booking'),
@@ -27,26 +37,7 @@ export function useRecordPaymentValidation(formData, options = {}) {
             v => required(v, 'Payment Amount'),
             v => isNumeric(v, 'Payment Amount'),
             v => isPositiveInteger(v, 'Payment Amount'),
-            v => {
-                const result = minValue(v, MIN_PAYMENT_AMOUNT, 'Payment Amount')
-                if (!result.valid) {
-                    return {
-                        valid: false,
-                        message: `Payment Amount must be at least ${formatRupiah(MIN_PAYMENT_AMOUNT)}.`
-                    }
-                }
-                return result
-            },
-            v => {
-                const maxLimit = Number(unref(options.maxAmount))
-                if (Number.isFinite(maxLimit) && maxLimit > 0 && Number(v) > maxLimit) {
-                    return {
-                        valid: false,
-                        message: `Payment amount cannot exceed the remaining balance (${formatRupiah(maxLimit)}).`
-                    }
-                }
-                return { valid: true, message: '' }
-            }
+            amountRangeValidator
         ],
         method: [
             v => required(v, 'Payment Method'),
