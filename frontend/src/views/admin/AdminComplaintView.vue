@@ -8,6 +8,7 @@ import AppPagination from '@/components/common/AppPagination.vue';
 import AppWhatsAppModal from '@/components/common/AppWhatsAppModal.vue';
 import AdminComplaintTable from '@/components/complaints/AdminComplaintTable.vue';
 import ComplaintDetailDrawer from '@/components/complaints/ComplaintDetailDrawer.vue';
+import AdminIssueActionModal from '@/components/complaints/AdminIssueActionModal.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -36,6 +37,10 @@ const selectedIssueId = ref(null);
 const isContactModalOpen = ref(false);
 const contactTargetIssue = ref(null);
 
+const isActionModalOpen = ref(false);
+const actionModalMode = ref('handle');
+const actionTargetIssue = ref(null);
+
 const selectedIssueDetail = computed(() => {
     if (!selectedIssueId.value) return null;
     return getIssueDetailById(selectedIssueId.value);
@@ -44,12 +49,16 @@ const selectedIssueDetail = computed(() => {
 const contactWhatsAppMessage = computed(() => {
     const issue = contactTargetIssue.value;
     if (!issue) return '';
+
     const tenantName = issue.tenantName && issue.tenantName !== '-' ? issue.tenantName : 'Tenant';
     const issueTitle = issue.title && issue.title !== '-' ? ` "${issue.title}"` : '';
     return `Hello ${tenantName}, we are following up on your issue report${issueTitle}.`;
 });
 
-const drawerError = computed(() => (isDetailDrawerOpen.value ? error.value || '' : ''));
+const drawerError = computed(() => {
+    if (!isDetailDrawerOpen.value || isActionModalOpen.value) return '';
+    return error.value || '';
+});
 
 function scrollToTop() {
     const scrollContainer = document.querySelector('main') || document.querySelector('.overflow-y-auto') || document.documentElement;
@@ -180,6 +189,34 @@ function handleCloseContactModal() {
     contactTargetIssue.value = null;
 }
 
+function handleOpenActionModal(mode, issue) {
+    if (!issue) return;
+    clearError();
+    actionModalMode.value = mode;
+    actionTargetIssue.value = issue;
+    isActionModalOpen.value = true;
+}
+
+function handleCloseActionModal() {
+    isActionModalOpen.value = false;
+    actionTargetIssue.value = null;
+    clearError();
+}
+
+async function handleActionSuccess({ issueId }) {
+    isActionModalOpen.value = false;
+    actionTargetIssue.value = null;
+
+    await loadIssues(currentPage.value);
+
+    const targetId = issueId || selectedIssueId.value;
+    if (isDetailDrawerOpen.value && targetId) {
+        const detailRequestId = ++latestDetailRequestId;
+        await fetchIssueDetails([targetId]);
+        if (detailRequestId !== latestDetailRequestId) return;
+    }
+}
+
 watch(
     () => route.query.filter,
     newFilterVal => {
@@ -234,7 +271,7 @@ onUnmounted(() => {
             </div>
 
             <div
-                v-if="error && !isDetailDrawerOpen"
+                v-if="error && !isDetailDrawerOpen && !isActionModalOpen"
                 role="alert"
                 class="mb-6 p-4 rounded-default bg-status-error-bg border border-status-error text-status-error flex items-center justify-between gap-4 animate-fade-in"
             >
@@ -267,8 +304,12 @@ onUnmounted(() => {
             :error="drawerError"
             @close="handleCloseDetailDrawer"
             @retry="handleRetryDetail"
+            @start-handling="handleOpenActionModal('handle', $event)"
+            @mark-resolved="handleOpenActionModal('resolve', $event)"
             @contact-tenant="handleOpenContactModal"
         />
+
+        <AdminIssueActionModal :is-open="isActionModalOpen" :mode="actionModalMode" :issue="actionTargetIssue" @close="handleCloseActionModal" @success="handleActionSuccess" />
 
         <AppWhatsAppModal :is-open="isContactModalOpen" :phone="contactTargetIssue?.tenantPhone || ''" :message="contactWhatsAppMessage" @close="handleCloseContactModal" />
     </div>
