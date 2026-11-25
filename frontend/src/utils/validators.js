@@ -91,6 +91,49 @@ export function minValue(value, min, fieldName = 'This field') {
     return { valid: true, message: '' }
 }
 
+export function maxValue(value, max, fieldName = 'This field') {
+    const num = Number(value)
+    if (isNaN(num) || num > max) {
+        return { valid: false, message: `${fieldName} must not exceed ${max}.` }
+    }
+    return { valid: true, message: '' }
+}
+
+export function createAmountRangeValidator(getMaxAmount, {
+    min,
+    fieldName = 'Payment Amount',
+    format = null,
+    maxLabel = '',
+} = {}) {
+    return value => {
+        const maxLimit = Number(getMaxAmount?.())
+        const hasMax = Number.isFinite(maxLimit)
+        const effectiveMin = hasMax ? Math.min(min, maxLimit) : min
+        const formatLimit = limit => (format ? format(limit) : String(limit))
+
+        if (Number.isNaN(Number(value))) {
+            return { valid: true, message: '' }
+        }
+
+        if (!minValue(value, effectiveMin).valid) {
+            return {
+                valid: false,
+                message: `${fieldName} must be at least ${formatLimit(effectiveMin)}.`
+            }
+        }
+
+        if (hasMax && !maxValue(value, maxLimit).valid) {
+            const limitLabel = maxLabel ? `${maxLabel} (${formatLimit(maxLimit)})` : formatLimit(maxLimit)
+            return {
+                valid: false,
+                message: `${fieldName} cannot exceed ${limitLabel}.`
+            }
+        }
+
+        return { valid: true, message: '' }
+    }
+}
+
 export function validate(value, validators) {
     for (const validator of validators) {
         const result = validator(value)
