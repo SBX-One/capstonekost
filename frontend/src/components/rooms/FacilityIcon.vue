@@ -18,9 +18,10 @@ import {
     Dumbbell,
     Microwave,
     DoorClosed,
-    Chair,
+    Armchair,
     Utensils,
     Lamp,
+    LampDesk,
     Zap,
     Camera,
     Bath,
@@ -29,7 +30,7 @@ import {
 const props = defineProps({
     name: {
         type: String,
-        required: true,
+        default: 'home',
     },
 });
 
@@ -42,9 +43,13 @@ const iconMap = new Map([
     ['wifi', Wifi],
     ['table', Table],
     ['monitor', Tv],
+    ['tv', Tv],
+    ['television', Tv],
     ['fan', Fan],
     ['sofa', Sofa],
     ['refrigerator', Refrigerator],
+    ['fridge', Refrigerator],
+    ['minifridge', Refrigerator],
     ['glass', GlassWater],
     ['washingmachine', WashingMachine],
     ['hanger', Shirt],
@@ -52,16 +57,19 @@ const iconMap = new Map([
     ['dumbbell', Dumbbell],
     ['microwave', Microwave],
     ['door', DoorClosed],
-    ['chair', Chair],
+    ['chair', Armchair],
+    ['armchair', Armchair],
     ['cup', Utensils],
     ['lamp', Lamp],
+    ['lampdesk', LampDesk],
     ['camera', Camera],
     ['bath', Bath],
 
     ['ac', AirVent],
     ['privatebathroom', ShowerHead],
     ['privatekitchen', Microwave],
-    ['desk', Table],
+    ['desk', LampDesk],
+    ['studydesk', LampDesk],
     ['water', GlassWater],
     ['electricity', Zap],
 ]);
@@ -69,7 +77,9 @@ const iconMap = new Map([
 const resolvedIcon = computed(() => {
     if (!props.name) return iconMap.get('home');
 
-    const cleanName = props.name.replace(/\s+/g, '').toLowerCase();
+    const cleanName = String(props.name)
+        .replace(/[\s_-]+/g, '')
+        .toLowerCase();
     return iconMap.get(cleanName) || iconMap.get('home');
 });
 </script>
