@@ -25,7 +25,7 @@ const dropdownStyle = ref({
 
 const menuItems = [
     { name: 'Dashboard', route: 'tenant-dashboard', icon: 'dashboard', isDanger: false },
-    { name: 'My Bookings', route: 'tenant-my-room', icon: 'calendar', isDanger: false },
+    { name: 'My Bookings', route: 'tenant-bookings', icon: 'calendar', isDanger: false },
     { name: 'Payment History', route: 'tenant-payments', icon: 'clipboard', isDanger: false },
     { name: 'Log Out', action: 'logout', icon: 'logout', isDanger: true },
 ];
