@@ -232,7 +232,7 @@ export const useRoomStore = defineStore('room', () => {
         validationErrors.value = {}
 
         try {
-            await apiClient.post('/admin/create', roomData, {
+            await apiClient.post('/admin/rooms/create', roomData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -262,7 +262,7 @@ export const useRoomStore = defineStore('room', () => {
         validationErrors.value = {}
 
         try {
-            await apiClient.post(`/admin/update/${numericId}`, updatedData, {
+            await apiClient.post(`/admin/rooms/update/${numericId}`, updatedData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -334,7 +334,7 @@ export const useRoomStore = defineStore('room', () => {
         roomMap.value = nextMap;
 
         try {
-            await apiClient.delete('/admin/delete', {
+            await apiClient.delete('/admin/rooms/delete', {
                 data: {
                     id: validNumericIds
                 }
