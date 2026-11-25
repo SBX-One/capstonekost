@@ -41,7 +41,7 @@ defineProps({
                         {{ facility.name }}
                     </span>
                     <div class="flex items-start gap-3 w-full">
-                        <FacilityIcon :name="facility.name" class="w-6 h-6 text-text-primary shrink-0 mt-0.5" />
+                        <FacilityIcon :name="facility.icon_name || facility.name" class="w-6 h-6 text-text-primary shrink-0 mt-0.5" />
                         <span class="text-h4 text-text-primary wrap-break-word line-clamp-2" :title="facility.information">
                             {{ facility.information }}
                         </span>
@@ -62,7 +62,7 @@ defineProps({
                         {{ utility.name }}
                     </span>
                     <div class="flex items-start gap-3 w-full">
-                        <FacilityIcon :name="utility.name" class="w-6 h-6 text-text-primary shrink-0 mt-0.5" />
+                        <FacilityIcon :name="utility.icon_name || utility.name" class="w-6 h-6 text-text-primary shrink-0 mt-0.5" />
                         <span class="text-h4 text-text-primary wrap-break-word line-clamp-2" :title="utility.information">
                             {{ utility.information }}
                         </span>

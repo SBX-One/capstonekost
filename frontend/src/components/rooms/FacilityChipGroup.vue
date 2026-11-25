@@ -41,7 +41,7 @@ const toggleFacility = id => {
                     modelValue.includes(fac.id) ? 'border-neutral-900 bg-neutral-900 text-text-inverse font-semibold' : 'border-border-default bg-transparent text-text-primary hover:bg-neutral-100'
                 "
             >
-                <FacilityIcon :name="fac.name" class="w-4 h-4" />
+                <FacilityIcon :name="fac.icon_name || fac.name" class="w-4 h-4" />
                 <span>{{ fac.name }}</span>
             </button>
 
