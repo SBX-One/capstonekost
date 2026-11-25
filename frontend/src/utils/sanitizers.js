@@ -173,11 +173,11 @@ export function sanitizeResolveIssuePayload(data) {
     if (!data || typeof data !== 'object') return {}
 
     const rawResponseId = data.response_id ? sanitizeNumber(data.response_id, null) : null
-    const rawIssuesId = data.issues_id ? sanitizeNumber(data.issues_id, null) : null
+    const rawIssueId = data.issue_id ? sanitizeNumber(data.issue_id, null) : null
 
     return {
         response_id: Number.isInteger(rawResponseId) && rawResponseId > 0 ? rawResponseId : null,
-        issues_id: Number.isInteger(rawIssuesId) && rawIssuesId > 0 ? rawIssuesId : null,
+        issue_id: Number.isInteger(rawIssueId) && rawIssueId > 0 ? rawIssueId : null,
         description: data.description ? sanitizeText(data.description) : '',
         images: Array.isArray(data.images)
             ? data.images.filter(file => file instanceof File || file instanceof Blob)

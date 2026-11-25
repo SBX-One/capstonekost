@@ -3,6 +3,10 @@ import { required, maxLength, isPositiveInteger, validateFileArray } from '@/uti
 
 export function useAdminComplaintValidation(mode = 'handle') {
     const baseRules = {
+        issue_id: [
+            v => required(v, 'Issue ID'),
+            v => isPositiveInteger(v, 'Issue ID')
+        ],
         description: [
             v => required(v, 'Response Description'),
             v => maxLength(v, 255, 'Response Description')
@@ -18,17 +22,9 @@ export function useAdminComplaintValidation(mode = 'handle') {
                 v => required(v, 'Response ID'),
                 v => isPositiveInteger(v, 'Response ID')
             ],
-            issues_id: [
-                v => required(v, 'Issue ID'),
-                v => isPositiveInteger(v, 'Issue ID')
-            ],
             ...baseRules
         }
         : {
-            issue_id: [
-                v => required(v, 'Issue ID'),
-                v => isPositiveInteger(v, 'Issue ID')
-            ],
             ...baseRules
         }
 

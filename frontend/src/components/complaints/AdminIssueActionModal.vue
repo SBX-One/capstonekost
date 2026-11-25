@@ -19,7 +19,7 @@ const ACTION_MODE_CONFIG = Object.freeze({
         submitLabel: 'Mark as Completed',
         submittingLabel: 'Completing...',
         submitVariant: 'success',
-        systemErrorKeys: ['response_id', 'issues_id'],
+        systemErrorKeys: ['response_id', 'issue_id'],
     },
 });
 
@@ -56,7 +56,6 @@ const activeErrors = computed(() => activeValidator.value.errors);
 
 const form = reactive({
     issue_id: null,
-    issues_id: null,
     response_id: null,
     description: '',
     images: [null, null, null, null],
@@ -82,7 +81,6 @@ function resetFormState() {
     const response = props.issue?.adminResponse;
 
     form.issue_id = issueId;
-    form.issues_id = issueId;
     form.response_id = response?.id ?? null;
     form.description = isResolveMode.value ? response?.description || '' : '';
     form.images = [null, null, null, null];
